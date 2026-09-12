@@ -1,0 +1,238 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import TutorialLayout from '../../components/TutorialLayout.astro';
+
+const lessons = [
+{
+ id:'intro', n:'', title:'À quoi sert une variable ?', level:'Fondamentaux', icon:'𝑣',
+ explain:'Une variable Qlik est un conteneur nommé qui peut stocker une valeur statique ou une définition de calcul. Elle permet de centraliser une information et de la réutiliser dans le script ou dans les expressions.',
+ detail:`<div class="noob-box"><b>👶 L’idée simple</b><p>Au lieu d’écrire la même valeur ou la même expression partout, on lui donne un nom. Si elle change, on la modifie à un seul endroit.</p></div>`,
+ exampleTitle:'Premier exemple',
+ example:`<div class="master-demo"><b>Variable</b><span class="qlik-code">SET vSociete = 'SOSQLIK';</span><i>Utilisation : $(vSociete)</i></div>`,
+ facts:[['Contenu','Valeur ou calcul'],['Création','Script ou interface Variables'],['Réutilisation','Script · expressions · titres · Set Analysis']],
+ note:'Une variable est utile quand une valeur ou une logique doit être centralisée, paramétrée ou réutilisée.',
+ advantages:['Évite les répétitions','Facilite la maintenance','Permet des expressions dynamiques'],
+ disadvantages:['Une variable mal nommée rend le code opaque','Une expansion mal maîtrisée peut produire une expression invalide']
+},
+{
+ id:'set-let', n:'1', title:'SET ou LET ?', level:'Essentiel', icon:'=',
+ explain:'SET affecte le texte situé à droite du signe égal. LET évalue d’abord l’expression, puis affecte le résultat à la variable.',
+ detail:`<div class="noob-box"><b>👶 À retenir</b><p><code>SET</code> garde la recette. <code>LET</code> calcule la recette et garde le résultat.</p></div>`,
+ example:`<pre class="qlik-code">SET vA = 3+4;
+LET vB = 3+4;
+
+// $(vA) → 3+4
+// $(vB) → 7</pre>`,
+ diagram:`<div class="schema schema-setlet">
+   <div class="flow-card"><b>SET vA = 3+4</b><span>garde le texte</span><strong>3+4</strong></div>
+   <div class="flow-arrow">→</div>
+   <div class="flow-card accent"><b>LET vB = 3+4</b><span>évalue d'abord</span><strong>7</strong></div>
+ </div>`,
+ facts:[['SET','Stocke 3+4'],['LET','Stocke 7'],['Question à se poser','Texte ou résultat ?']],
+ note:'Cette différence explique une grande partie des comportements surprenants avec les variables.',
+ advantages:['SET est idéal pour conserver une expression','LET est idéal pour figer un résultat calculé'],
+ disadvantages:['Confondre les deux produit souvent des résultats inattendus']
+},
+{
+ id:'dollar', n:'2', title:'Comprendre $(vVariable)', level:'Essentiel', icon:'$',
+ explain:'La dollar-sign expansion remplace $(vVariable) par le contenu de la variable avant que l’expression finale soit interprétée.',
+ detail:`<div class="noob-box"><b>👶 Imagine un copier-coller</b><p>Qlik remplace d’abord <code>$(vCA)</code> par son contenu, puis analyse l’expression obtenue.</p></div>`,
+ example:`<pre class="qlik-code">SET vCA = Sum(Montant);
+
+// Expression :
+$(vCA)
+
+// Qlik interprète finalement :
+Sum(Montant)</pre>`,
+ diagram:`<div class="schema schema-expansion">
+   <div class="flow-step"><small>1</small><b>$(vCA)</b><span>appel de la variable</span></div>
+   <div class="flow-arrow">→</div>
+   <div class="flow-step"><small>2</small><b>Sum(Montant)</b><span>texte injecté</span></div>
+   <div class="flow-arrow">→</div>
+   <div class="flow-step"><small>3</small><b>Résultat</b><span>Qlik évalue l'expression</span></div>
+ </div>`,
+ facts:[['Variable','vCA = Sum(Montant)'],['Expansion','$(vCA)'],['Expression finale','Sum(Montant)']],
+ note:'Pour déboguer une variable, demande-toi toujours : « quel texte Qlik voit-il après expansion ? ».',
+ advantages:['Permet de construire des expressions réutilisables','Très puissant avec le Set Analysis'],
+ disadvantages:['Les guillemets et parenthèses doivent rester valides après expansion']
+},
+{
+ id:'expression-egale', n:'3', title:'Variable avec ou sans =', level:'Intermédiaire', icon:'≠',
+ explain:'Une définition qui commence par = peut être calculée avant son expansion. Une définition sans = peut au contraire servir de morceau d’expression à injecter.',
+ detail:`<div class="noob-box"><b>👶 Différence importante</b><p><code>Sum(Montant)</code> peut être injecté comme expression. <code>=Sum(Montant)</code> représente une variable calculée : son résultat peut être développé avant le calcul de l’objet.</p></div>`,
+ example:`<pre class="qlik-code">// vCA contient :
+Sum(Montant)
+
+// vCAFixe contient :
+=Sum(Montant)</pre>`,
+ facts:[['vCA','Expression réutilisable'],['vCAFixe','Valeur calculée'],['Impact','Le contexte de calcul peut être différent']],
+ note:'Ne mets pas = automatiquement devant toutes les variables : choisis selon l’usage recherché.',
+ advantages:['Permet de distinguer expression à injecter et valeur calculée'],
+ disadvantages:['Deux définitions presque identiques peuvent donner des résultats très différents']
+},
+{
+ id:'nommage', n:'4', title:'Bien nommer ses variables', level:'Bonnes pratiques', icon:'🏷',
+ explain:'Une convention de nommage permet de comprendre immédiatement le rôle d’une variable. Le préfixe v est courant et lisible.',
+ detail:'On peut aller plus loin avec des conventions simples : vDateMax, vAnneeCourante, vExprCA, vCouleurAlerte, vSeuilMarge.',
+ example:`<pre class="qlik-code">LET vAnneeCourante = Year(Today());
+SET vExprCA = Sum(Montant);
+LET vSeuilMarge = 0.25;</pre>`,
+ facts:[['Préfixe','v'],['Nom','Décrire le rôle'],['À éviter','v1 · test2 · toto']],
+ note:'Le nom doit dire ce que contient la variable, pas seulement où elle est utilisée.',
+ advantages:['Expressions plus lisibles','Maintenance plus rapide'],
+ disadvantages:['Des conventions trop complexes peuvent devenir contre-productives']
+},
+{
+ id:'script', n:'5', title:'Variables dans le script', level:'Intermédiaire', icon:'▤',
+ explain:'Les variables sont très utiles pour centraliser des chemins, dates, paramètres de reload ou morceaux de script.',
+ detail:'Une variable calculée avec LET pendant le reload conserve la valeur obtenue à ce moment-là.',
+ example:`<pre class="qlik-code">LET vDateReload = Now();
+SET vCheminQVD = lib://QVD/;
+
+VENTES:
+LOAD *
+FROM [$(vCheminQVD)Ventes.qvd] (qvd);</pre>`,
+ facts:[['Chemin','Centralisable'],['Date de reload','LET + Now()'],['Usage','Paramétrer le script']],
+ note:'Pour les chemins et paramètres d’environnement, centraliser évite les remplacements manuels dispersés.',
+ advantages:['Scripts plus portables','Paramètres regroupés'],
+ disadvantages:['Une variable de chemin erronée peut bloquer plusieurs chargements']
+},
+{
+ id:'expressions', n:'6', title:'Réutiliser une expression', level:'Intermédiaire', icon:'ƒ',
+ explain:'Une variable peut contenir une expression complète et être réutilisée dans plusieurs visualisations.',
+ detail:'C’est pratique pour une expression technique, mais pour un indicateur métier partagé dans l’interface, une Master Measure reste souvent plus visible et gouvernable.',
+ example:`<pre class="qlik-code">SET vExprMarge =
+Sum(Marge) / Sum(Montant);
+
+// Dans une mesure :
+Num($(vExprMarge), '0.0%')</pre>`,
+ facts:[['Variable','Bonne pour logique technique'],['Master Measure','Bonne pour bibliothèque métier'],['Choix','Dépend de la gouvernance']],
+ note:'Variables et Master Measures sont complémentaires, pas concurrentes.',
+ advantages:['Une formule complexe écrite une seule fois'],
+ disadvantages:['Moins visible pour l’utilisateur qu’un Master Item']
+},
+{
+ id:'set-analysis', n:'7', title:'Variables et Set Analysis', level:'Avancé', icon:'{}',
+ explain:'Les dollar-sign expansions sont très utilisées pour injecter une valeur calculée dans un élément de Set Analysis.',
+ detail:`<div class="noob-box"><b>👶 Ordre de lecture</b><p>Qlik calcule d’abord l’expansion, injecte son résultat, puis interprète le Set Analysis.</p></div>`,
+ example:`<pre class="qlik-code">LET vAnnee = Year(Today());
+
+Sum({
+  &lt;Annee={$(vAnnee)}&gt;
+} Montant)</pre>`,
+ diagram:`<div class="schema schema-setflow">
+   <div class="flow-step"><small>1</small><b>vAnnee</b><span>2026</span></div>
+   <div class="flow-arrow">→</div>
+   <div class="flow-step"><small>2</small><b>$(vAnnee)</b><span>injection dans le Set</span></div>
+   <div class="flow-arrow">→</div>
+   <div class="flow-step wide"><small>3</small><b>Sum({&lt;Annee={2026}&gt;} Montant)</b><span>expression finale</span></div>
+ </div>`,
+ facts:[['1','Calcul / expansion'],['2','Injection dans le Set'],['3','Évaluation de l’expression']],
+ note:'Pour les chaînes et les dates, pense au format et aux guillemets attendus après expansion.',
+ advantages:['Set Analysis dynamique','Centralisation des périodes'],
+ disadvantages:['Les erreurs de quoting sont fréquentes']
+},
+{
+ id:'expansion-expression', n:'8', title:'$(=expression)', level:'Avancé', icon:'⚡',
+ explain:'Une dollar-sign expansion peut contenir directement une expression. Dans ce cas, le contenu entre parenthèses commence par = et est évalué avant injection.',
+ detail:'C’est utile pour rechercher dynamiquement la dernière année, le dernier mois ou une valeur dépendant des sélections.',
+ example:`<pre class="qlik-code">Sum({
+  &lt;Annee={$(=Max(Annee))}&gt;
+} Montant)</pre>`,
+ facts:[['Syntaxe','$(=expression)'],['Exemple','$(=Max(Annee))'],['Dépendance','Sélections courantes par défaut']],
+ note:'Si le calcul doit ignorer les sélections, son propre Set Analysis peut être nécessaire.',
+ advantages:['Très dynamique','Évite certaines variables intermédiaires'],
+ disadvantages:['Peut devenir difficile à lire si on imbrique trop de logique']
+},
+{
+ id:'chaines-dates', n:'9', title:'Chaînes, nombres et dates', level:'Avancé', icon:'”',
+ explain:'Le résultat d’une expansion doit respecter la syntaxe attendue par l’expression finale. Les chaînes ont généralement besoin de quotes ; les dates doivent être formatées de façon compatible avec le champ.',
+ detail:'Le piège n’est pas la variable elle-même : c’est souvent le texte final produit après expansion.',
+ example:`<pre class="qlik-code">SET vPays = France;
+
+Sum({
+  &lt;Pays={'$(vPays)'}&gt;
+} Montant)</pre>`,
+ facts:[['Chaîne',"Quotes autour de l’expansion"],['Nombre','Format numérique compatible'],['Date','Format compatible avec le champ']],
+ note:'Quand ça ne marche pas, écris à la main l’expression que tu penses obtenir et compare.',
+ advantages:['Permet des filtres dynamiques très précis'],
+ disadvantages:['Formats locaux et quotes peuvent créer des erreurs subtiles']
+},
+{
+ id:'parametres', n:'10', title:'Variables avec paramètres', level:'Expert', icon:'ƒ(x)',
+ explain:'Une variable peut utiliser des paramètres formels $1, $2, $3… et fonctionner comme un petit gabarit réutilisable.',
+ detail:'Lors de l’expansion, les paramètres réels remplacent les paramètres formels avant que le résultat soit interprété.',
+ example:`<pre class="qlik-code">SET vRatio = Sum($1) / Sum($2);
+
+// Utilisation :
+$(vRatio(Marge,Montant))</pre>`,
+ facts:[['Paramètres','$1 · $2 · $3'],['Appel','$(vRatio(Marge,Montant))'],['Intérêt','Gabarit d’expression']],
+ note:'Puissant, mais à réserver aux cas où le gain de réutilisation compense la complexité.',
+ advantages:['Évite de dupliquer des expressions similaires','Permet de créer des gabarits'],
+ disadvantages:['Plus difficile à déboguer pour un débutant']
+},
+{
+ id:'interface', n:'11', title:'Variables côté interface', level:'Intermédiaire', icon:'▣',
+ explain:'Les variables peuvent aussi être créées et consultées depuis l’interface Variables de Qlik Sense. Une modification se répercute partout où la variable est utilisée.',
+ detail:'Elles peuvent servir à piloter une mesure, un seuil, un affichage ou une interaction utilisateur selon les objets et contrôles disponibles.',
+ example:`<div class="master-demo"><b>vSeuil</b><span class="qlik-code">100000</span><i>→ utilisé dans plusieurs expressions et conditions</i></div>`,
+ facts:[['Création','Script ou interface'],['Modification','Répercutée dans les usages'],['Usage','Calculs et interactions']],
+ note:'Dans une application publiée, les possibilités d’édition dépendent du contexte et des contrôles disponibles.',
+ advantages:['Paramétrage central','Interactions possibles'],
+ disadvantages:['Il faut documenter les variables importantes']
+},
+{
+ id:'debug', n:'12', title:'Déboguer une variable', level:'Très utile', icon:'🔎',
+ explain:'La méthode la plus fiable consiste à observer ce que l’expansion produit réellement. Décompose l’expression complexe en étapes simples.',
+ detail:`<div class="noob-box"><b>👶 Méthode SOSQLIK</b><p>1. Affiche la variable seule. 2. Vérifie son contenu. 3. Remplace mentalement <code>$(v...)</code>. 4. Teste l’expression finale sans variable. 5. Réintroduis la variable.</p></div>`,
+ example:`<pre class="qlik-code">// Tester d'abord :
+=$(vAnnee)
+
+// Puis :
+Sum({&lt;Annee={$(vAnnee)}&gt;} Montant)</pre>`,
+ facts:[['Étape 1','Vérifier la valeur'],['Étape 2','Vérifier l’expansion'],['Étape 3','Tester l’expression finale']],
+ note:'L’éditeur d’expression peut afficher un aperçu des dollar-sign expansions, ce qui aide énormément.',
+ advantages:['Trouve rapidement les erreurs de syntaxe','Évite de modifier au hasard'],
+ disadvantages:['Les expressions très imbriquées demandent parfois plusieurs tests']
+},
+{
+ id:'pieges', n:'13', title:'Les pièges classiques', level:'À connaître', icon:'⚠',
+ explain:'Les erreurs les plus fréquentes viennent de SET/LET, du signe =, des quotes, du format des dates, d’une expansion calculée dans un contexte inattendu ou d’une variable devenue trop complexe.',
+ detail:'Une variable n’est pas automatiquement une bonne abstraction. Si personne ne comprend ce qu’elle injecte, elle complique l’application au lieu de la simplifier.',
+ example:`<div class="master-demo"><b>Question réflexe</b><span>Que voit Qlik après expansion ?</span><i>→ souvent la meilleure piste de diagnostic</i></div>`,
+ facts:[['SET/LET','Texte ≠ résultat'],['Quotes','Vérifier la syntaxe finale'],['Contexte','Sélections et état de l’objet']],
+ note:'Évite les chaînes de variables qui appellent des variables qui appellent encore d’autres variables sans nécessité.',
+ advantages:['Une convention simple rend les variables très efficaces'],
+ disadvantages:['Une architecture de variables excessive devient une dette technique']
+},
+{
+ id:'bonnes-pratiques', n:'14', title:'Ma méthode recommandée', level:'À retenir', icon:'✓',
+ explain:'Utilise les variables pour les paramètres, valeurs globales et expressions techniques réellement réutilisées. Donne-leur un nom explicite et documente celles qui structurent l’application.',
+ detail:'Avant d’introduire une variable, demande-toi si une Master Measure, un champ calculé dans le script ou une simple expression locale serait plus lisible.',
+ example:`<div class="master-demo"><b>Règle SOSQLIK</b><span>Centraliser ce qui doit l’être</span><i>→ sans cacher inutilement la logique</i></div>`,
+ facts:[['1','Nom explicite'],['2','Usage clairement identifié'],['3','Expansion testée'],['4','Complexité maîtrisée']],
+ note:'Une bonne variable rend le code plus clair. Si elle le rend plus mystérieux, revois sa nécessité.',
+ advantages:['Applications plus maintenables','Paramétrage cohérent'],
+ disadvantages:['Demande une discipline de nommage et de documentation']
+}
+];
+
+const sources = [
+ {label:'Qlik Help — Using variables in expressions',url:'https://help.qlik.com/en-US/sense/May2026/Subsystems/Hub/Content/Sense_Hub/Variables/work-with-variables.htm'},
+ {label:'Qlik Help — Examples of using a variable in an expression',url:'https://help.qlik.com/en-US/sense/May2026/Subsystems/Hub/Content/Sense_Hub/Variables/use-variables-expression.htm'},
+ {label:'Qlik Help — Let',url:'https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/ChartLevelScripting/RegularStatements/Let.htm'},
+ {label:'Qlik Help — Dollar-sign expansion using an expression',url:'https://help.qlik.com/en-US/sense/May2026/Subsystems/Hub/Content/Sense_Hub/Scripting/dollar-sign-expansion-using-expression.htm'},
+ {label:'Qlik Help — Dollar-sign expansion using parameters',url:'https://help.qlik.com/en-US/cloud-services/Subsystems/Hub/Content/Sense_Hub/Scripting/dollar-sign-expansion-using-parameters.htm'}
+];
+---
+<BaseLayout title="Variables Qlik — SOSQLIK">
+<TutorialLayout
+ title="Maîtriser les variables dans Qlik"
+ description="SET, LET, dollar-sign expansion, expressions, paramètres et Set Analysis : comprendre enfin ce que Qlik évalue réellement."
+ navTitle="Variables"
+ lessons={lessons}
+ sourceTitle="Références Qlik"
+ sourceText="Ce tutoriel s’appuie sur la documentation officielle Qlik. Les exemples et explications SOSQLIK sont reformulés dans une progression pratique, du premier SET aux expansions paramétrées."
+ sourceLinks={sources}
+/>
+</BaseLayout>

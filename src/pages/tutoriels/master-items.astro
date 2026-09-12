@@ -1,0 +1,162 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import TutorialLayout from '../../components/TutorialLayout.astro';
+
+const lessons = [
+  {
+    id:'intro', n:'', title:'Pourquoi les Master Items ?', level:'Fondamentaux', icon:'🧩',
+    explain:'Les Master Items permettent de créer des dimensions, des mesures et des visualisations réutilisables dans toute l’application. L’idée est simple : définir une fois un élément métier fiable, puis le réutiliser partout.',
+    detail:'Lorsqu’un Master Item lié est modifié, ses utilisations sont mises à jour. C’est particulièrement utile pour éviter que cinq graphiques utilisent cinq définitions légèrement différentes du même indicateur.',
+    exampleTitle:'Exemple de standardisation',
+    example:`<div class="master-demo"><b>CA</b><span class="qlik-code">Sum(Montant)</span><i>→ une définition commune pour les KPI, tableaux et graphiques</i></div>`,
+    facts:[['Éléments concernés','Dimensions · Mesures · Visualisations'],['Objectif','Réutiliser et standardiser'],['Bénéfice clé','Maintenance centralisée']],
+    note:'Un Master Item est surtout intéressant dès qu’un élément doit être réutilisé ou partagé.',
+    advantages:['Cohérence des indicateurs dans l’application','Maintenance plus simple','Réutilisation rapide par les autres concepteurs'],
+    disadvantages:['Demande une convention de nommage claire','Une bibliothèque mal organisée devient vite difficile à parcourir']
+  },
+  {
+    id:'dimension', n:'1', title:'Master Dimension', level:'Débutant', icon:'▦',
+    explain:'Une Master Dimension définit une manière réutilisable de regrouper les données. Elle peut partir d’un champ simple, d’une expression calculée ou d’un groupe de dimensions.',
+    detail:'Utilisez-la pour les axes et catégories que vous retrouvez régulièrement : Client, Région, Produit, Année, Centre de coût…',
+    example:`<div class="master-demo"><b>Région commerciale</b><span>Champ : Region</span><i>→ même dimension dans plusieurs graphiques</i></div>`,
+    facts:[['Quand ?','Dimension utilisée plusieurs fois'],['Exemple','Région commerciale'],['À retenir','Définition reconnue et réutilisable']],
+    note:'Pour un champ utilisé une seule fois, une dimension locale peut suffire.',
+    advantages:['Réutilisation dans plusieurs visualisations','Nom et description métier communs','Couleurs cohérentes possibles pour les valeurs'],
+    disadvantages:['Inutile de transformer systématiquement tous les champs en Master Dimensions','Une modification impacte toutes les utilisations liées']
+  },
+  {
+    id:'drilldown', n:'2', title:'Dimension hiérarchique (Drill-down)', level:'Intermédiaire', icon:'↳',
+    explain:'Le Drill-down regroupe plusieurs dimensions dans un ordre hiérarchique. L’utilisateur commence au niveau le plus haut puis descend automatiquement lorsque ses sélections rendent le niveau suivant pertinent.',
+    detail:'C’est très efficace pour une géographie ou une organisation : Pays → Région → Agence, par exemple.',
+    example:`<div class="master-demo"><b>Géographie</b><span>Pays → Région → Agence</span><i>→ navigation du général vers le détail</i></div>`,
+    facts:[['Structure','Pays → Région → Agence'],['Usage','Analyse hiérarchique'],['Intérêt','Évite plusieurs graphiques séparés']],
+    note:'La hiérarchie doit avoir un sens métier évident pour l’utilisateur.',
+    advantages:['Navigation naturelle dans les niveaux','Gain de place dans les feuilles','Très lisible pour les hiérarchies métier'],
+    disadvantages:['Peut désorienter si les niveaux ne sont pas intuitifs','Moins adapté à des dimensions sans relation hiérarchique']
+  },
+  {
+    id:'cyclic', n:'3', title:'Dimension cyclique', level:'Intermédiaire', icon:'↻',
+    explain:'Une dimension cyclique permet de proposer plusieurs dimensions alternatives dans un même emplacement. L’utilisateur choisit l’angle d’analyse sans multiplier les objets.',
+    detail:'Par exemple, un même graphique peut être analysé par Région, Commercial ou Produit.',
+    example:`<div class="master-demo"><b>Angle d’analyse</b><span>Région ↔ Commercial ↔ Produit</span><i>→ un graphique, plusieurs lectures</i></div>`,
+    facts:[['Choix','Région · Commercial · Produit'],['Usage','Changer l’axe d’analyse'],['Gain','Moins d’objets sur la feuille']],
+    note:'À utiliser lorsque les dimensions proposées répondent au même besoin analytique.',
+    advantages:['Feuilles plus compactes','Exploration plus libre','Réduit les visualisations quasi identiques'],
+    disadvantages:['Le changement de dimension peut modifier fortement la lecture','Trop de choix rend le contrôle moins évident']
+  },
+  {
+    id:'mesure', n:'4', title:'Master Measure', level:'Essentiel', icon:'∑',
+    explain:'Une Master Measure centralise un calcul métier. C’est probablement le Master Item le plus important pour fiabiliser une application : CA, marge, nombre de commandes, taux de service, effectif…',
+    detail:'Au lieu de recopier Sum(Montant) partout, vous créez une mesure CA et vous l’utilisez directement dans les objets compatibles.',
+    example:`<div class="master-demo"><b>CA</b><span class="qlik-code">Sum(Montant)</span><i>Format : € · description : Chiffre d’affaires</i></div>`,
+    facts:[['Nom','CA'],['Expression','Sum(Montant)'],['Réutilisation','KPI · tableau · barres · courbes']],
+    note:'Un indicateur métier partagé devrait presque toujours être candidat à une Master Measure.',
+    advantages:['Une seule définition du calcul','Correction propagée aux utilisations liées','Libellé, description et formatage standardisables'],
+    disadvantages:['Une modification centrale peut avoir un impact large','Il faut documenter précisément le sens métier de chaque mesure']
+  },
+  {
+    id:'format', n:'5', title:'Formatage et couleurs', level:'Intermédiaire', icon:'◐',
+    explain:'Les Master Items ne servent pas uniquement à stocker une expression. Ils permettent aussi de porter une partie de la présentation : libellé, format numérique et, selon le type d’élément, couleurs.',
+    detail:'Une mesure de marge peut ainsi conserver son format en pourcentage, tandis qu’une dimension peut utiliser des couleurs cohérentes pour ses valeurs.',
+    example:`<div class="master-demo"><b>Taux de marge</b><span>Numérique : 12,4 %</span><i>→ présentation homogène dans les objets liés</i></div>`,
+    facts:[['Mesure','Format numérique'],['Dimension','Couleurs des valeurs possibles'],['But','Cohérence visuelle']],
+    note:'Le formatage est réellement hérité lorsque la visualisation utilise un lien direct vers la Master Measure.',
+    advantages:['Moins de réglages répétés','Cohérence graphique','Lecture plus immédiate pour l’utilisateur'],
+    disadvantages:['Les propriétés ne sont pas toutes reprises lorsqu’une Master Measure est appelée indirectement dans une expression','Les besoins locaux peuvent parfois nécessiter une adaptation']
+  },
+  {
+    id:'expression', n:'6', title:'Master Measure dans une expression', level:'Avancé', icon:'ƒ',
+    explain:'Une Master Measure peut être utilisée dans une expression plus complexe. C’est pratique pour construire un calcul à partir d’un indicateur déjà défini.',
+    detail:'Attention : si la Master Measure est renommée ou supprimée, les références textuelles dans les expressions ne sont pas automatiquement mises à jour et peuvent retourner NULL.',
+    example:`<div class="master-demo"><b>Exemple</b><span class="qlik-code">[CA] / [Nb Commandes]</span><i>→ composition à partir de mesures existantes</i></div>`,
+    facts:[['Possible ?','Oui'],['Risque','Renommage / suppression'],['Conséquence possible','Référence cassée → NULL']],
+    note:'Pour profiter du formatage défini dans la Master Measure, privilégiez le lien direct proposé dans les propriétés de la visualisation.',
+    advantages:['Réutilise la logique métier existante','Permet de composer des indicateurs plus complexes'],
+    disadvantages:['Références plus fragiles en cas de renommage','Le formatage du Master Item n’est pas automatiquement repris dans une référence par expression']
+  },
+  {
+    id:'visualisation', n:'7', title:'Master Visualization', level:'Intermédiaire', icon:'▥',
+    explain:'Une visualisation déjà construite peut être enregistrée comme Master Visualization et réutilisée sur plusieurs feuilles. Elle devient alors un objet de référence de l’application.',
+    detail:'C’est utile pour un KPI institutionnel, un graphique standard ou un bloc analytique que vous souhaitez retrouver à plusieurs endroits.',
+    example:`<div class="master-demo"><b>Top 10 clients</b><span>Barres + mesure CA + dimension Client</span><i>→ objet prêt à réutiliser</i></div>`,
+    facts:[['Contenu','Objet complet'],['Usage','Plusieurs feuilles'],['Maintenance','Objet maître']],
+    note:'Si le besoin est seulement de standardiser le calcul, une Master Measure est souvent plus souple qu’une visualisation complète.',
+    advantages:['Réutilisation immédiate d’un objet abouti','Cohérence de présentation','Maintenance centralisée'],
+    disadvantages:['Moins flexible qu’un assemblage de dimensions et mesures','Une modification du maître peut affecter plusieurs feuilles']
+  },
+  {
+    id:'propagation', n:'8', title:'Comprendre la propagation', level:'Essentiel', icon:'⟳',
+    explain:'Le principe fondamental des Master Items est le lien avec une définition centrale. Une modification du Master Item est appliquée partout où cet élément est utilisé comme élément maître lié.',
+    detail:'C’est un avantage énorme pour la maintenance, mais cela signifie aussi qu’une modification doit être réfléchie avant validation.',
+    example:`<div class="master-demo"><b>CA</b><span class="qlik-code">Sum(Montant) → Sum(MontantNet)</span><i>→ les objets liés utilisent la nouvelle définition</i></div>`,
+ diagram:`<div class="schema schema-master-propagation">
+   <div class="master-source"><b>Master Measure</b><span>CA = Sum(Montant)</span></div>
+   <div class="prop-lines">→ → →</div>
+   <div class="master-uses"><span>KPI</span><span>Bar chart</span><span>Tableau</span></div>
+   <small>Une modification du Master Item se propage à ses utilisations.</small>
+ </div>`,
+    facts:[['Avant','Sum(Montant)'],['Après','Sum(MontantNet)'],['Impact','Toutes les utilisations liées']],
+    note:'Avant une modification importante, identifiez les feuilles et objets qui dépendent du Master Item.',
+    advantages:['Correction en un seul endroit','Évite les divergences entre feuilles'],
+    disadvantages:['Une erreur centrale se propage elle aussi','Les changements nécessitent une gouvernance minimale']
+  },
+  {
+    id:'publication', n:'9', title:'Publication et utilisateurs', level:'À connaître', icon:'👥',
+    explain:'Les Master Items prennent tout leur sens dans une application partagée : les utilisateurs disposent d’éléments prêts à l’emploi pour explorer les données et créer leurs propres visualisations lorsque leurs droits le permettent.',
+    detail:'Dans une application publiée, les Master Items fournis restent disponibles aux utilisateurs, tandis que leur capacité à les modifier dépend du contexte et des permissions.',
+    example:`<div class="master-demo"><b>Bibliothèque métier</b><span>CA · Marge · Région · Produit</span><i>→ des briques fiables pour l’exploration</i></div>`,
+    facts:[['Après publication','Master Items disponibles'],['But','Exploration encadrée'],['Valeur','Langage métier commun']],
+    note:'Une bonne bibliothèque de Master Items peut devenir la couche sémantique visible de l’application.',
+    advantages:['Autonomie accrue des utilisateurs','Indicateurs métier mieux maîtrisés'],
+    disadvantages:['Les droits et possibilités d’édition dépendent de l’environnement','Une bibliothèque trop technique décourage les utilisateurs']
+  },
+  {
+    id:'nommage', n:'10', title:'Nommage, descriptions et tags', level:'Bonnes pratiques', icon:'🏷',
+    explain:'La qualité d’une bibliothèque dépend autant de ses noms que de ses expressions. Un utilisateur doit comprendre immédiatement ce qu’est « CA Net » ou « Clients actifs 12M » sans ouvrir l’expression.',
+    detail:'Utilisez des noms métier courts, une description précise et des tags cohérents pour faciliter la recherche.',
+    example:`<div class="master-demo"><b>CA Net</b><span>Description : CA hors taxes après remises</span><i>Tags : finance · ventes · CA</i></div>`,
+    facts:[['Nom','Court et métier'],['Description','Définition fonctionnelle'],['Tags','Recherche et classement']],
+    note:'Évitez les noms techniques du type M_001 ou EXP_FINAL_2 dans une bibliothèque destinée aux utilisateurs.',
+    advantages:['Bibliothèque plus facile à parcourir','Meilleure compréhension métier','Maintenance facilitée'],
+    disadvantages:['Demande une convention partagée','Les doublons de sens doivent être arbitrés']
+  },
+  {
+    id:'quand', n:'11', title:'Quand créer un Master Item ?', level:'Décision', icon:'?',
+    explain:'Tout ne doit pas devenir un Master Item. La bonne question est : cet élément représente-t-il une définition métier ou un composant que je veux réutiliser et maintenir dans le temps ?',
+    detail:'Une expression expérimentale utilisée une seule fois peut rester locale. Un KPI officiel utilisé sur cinq feuilles doit, lui, être centralisé.',
+    example:`<div class="master-demo"><b>Règle simple</b><span>Réutilisé + métier + durable = Master Item</span><i>Local + ponctuel = élément local</i></div>`,
+    facts:[['Réutilisé ?','Oui → bon candidat'],['Définition métier ?','Oui → très bon candidat'],['Usage unique ?','Souvent local']],
+    note:'Le but n’est pas d’avoir le plus de Master Items possible, mais les bons Master Items.',
+    advantages:['Bibliothèque utile et lisible','Moins de dette de maintenance'],
+    disadvantages:['Trop peu : duplication des calculs','Trop : bibliothèque encombrée']
+  },
+  {
+    id:'bonnes-pratiques', n:'12', title:'Ma méthode recommandée', level:'À retenir', icon:'✓',
+    explain:'Commencez par les indicateurs métier les plus stables, puis les dimensions réellement partagées. Ajoutez ensuite les visualisations maîtres seulement lorsqu’un objet complet doit être reproduit à l’identique.',
+    detail:'Documentez, nommez proprement et testez l’impact avant de modifier un élément déjà largement utilisé.',
+    example:`<div class="master-demo"><b>Ordre conseillé</b><span>Mesures → Dimensions → Visualisations</span><i>puis nettoyage régulier de la bibliothèque</i></div>`,
+    facts:[['1','Mesures métier fiables'],['2','Dimensions réutilisées'],['3','Visualisations vraiment standard']],
+    note:'Une petite bibliothèque bien gouvernée vaut mieux qu’une grande bibliothèque remplie de doublons.',
+    advantages:['Applications plus cohérentes','Maintenance simplifiée','Meilleure transmission entre développeurs et utilisateurs'],
+    disadvantages:['Nécessite un minimum de discipline','Les changements importants doivent être communiqués']
+  }
+];
+
+const sources = [
+  {label:'Reusing assets with master items', url:'https://help.qlik.com/en-US/sense/May2026/Subsystems/Hub/Content/Sense_Hub/Assets/work-with-master-items.htm'},
+  {label:'Dimensions', url:'https://help.qlik.com/en-US/sense/November2025/Subsystems/Hub/Content/Sense_Hub/Dimensions/dimensions.htm'},
+  {label:'Master measures', url:'https://help.qlik.com/en-US/sense/May2025/Subsystems/Hub/Content/Sense_Hub/Measures/create-master-measure.htm'}
+];
+---
+
+<BaseLayout title="Master Items — SOSQLIK">
+  <TutorialLayout
+    title="Bien utiliser les Master Items"
+    description="Dimensions, mesures et visualisations maîtres : comment les utiliser, leurs avantages, leurs limites et les bonnes pratiques."
+    navTitle="Master Items"
+    lessons={lessons}
+    sourceTitle="Références Qlik"
+    sourceText="Ce tutoriel s’appuie sur la documentation officielle Qlik. Les explications, exemples et recommandations SOSQLIK sont reformulés dans une approche volontairement pratique."
+    sourceLinks={sources}
+  />
+</BaseLayout>

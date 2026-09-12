@@ -1,0 +1,231 @@
+---
+const {
+  title,
+  eyebrow = 'TUTORIEL · QLIK SENSE',
+  description,
+  navTitle,
+  lessons = [],
+  sourceTitle,
+  sourceText,
+  sourceLinks = []
+} = Astro.props;
+---
+
+<section class="subhero tutorial-hero">
+  <div class="container subhero-content">
+    <p class="eyebrow">{eyebrow}</p>
+    <h1>{title}</h1>
+    <p>{description}</p>
+  </div>
+</section>
+
+{sourceText && (
+  <section class="container hic-source-note">
+    <div class="hic-source-icon" aria-hidden="true">✦</div>
+    <div class="hic-source-content">
+      <strong>{sourceTitle || 'Sources et références'}</strong>
+      <p>{sourceText}</p>
+      {sourceLinks.length > 0 && <div class="hic-source-links">
+        {sourceLinks.map((x) => <a href={x.url} target="_blank" rel="noopener noreferrer">{x.label} <span aria-hidden="true">↗</span></a>)}
+      </div>}
+    </div>
+  </section>
+)}
+
+<section class="sa-shell container tutorial-generic">
+  <aside class="sa-nav">
+    <div class="sa-nav-title">{navTitle}</div>
+    {lessons.map((e,i) => (
+      <button class:list={{'sa-link':true,active:i===0}} data-target={e.id}>
+        {e.n && <span>{e.n}</span>}<b>{e.title}</b>
+      </button>
+    ))}
+  </aside>
+
+  <main class="sa-main">
+    {lessons.map((e,i) => (
+      <article class:list={{exercise:true,active:i===0}} id={e.id} data-index={i}>
+        <div class="exercise-top">
+          <div>
+            <p class="exercise-kicker">{e.n ? `CHAPITRE ${e.n}` : 'BIENVENUE'}</p>
+            <h2>{e.title}</h2>
+          </div>
+          <span class="level">{e.level}</span>
+        </div>
+
+        {e.example && (
+          <div class="expression-card tutorial-example-card">
+            <div class="expression-head"><span>{e.exampleTitle || 'Exemple Qlik Sense'}</span></div>
+            <div class="tutorial-example-body" set:html={e.example}></div>
+          </div>
+        )}
+
+        <div class="learning-row">
+          <section class="what-card">
+            <div class="what-icon" aria-hidden="true">{e.icon || '💡'}</div>
+            <div class="what-copy">
+              <strong>{e.whatTitle || 'À quoi ça sert ?'}</strong>
+              <p>{e.explain}</p>
+              {e.detail && <div class="tutorial-detail" set:html={e.detail}></div>}
+        {e.diagram && <div class="tutorial-diagram" set:html={e.diagram}></div>}
+            </div>
+          </section>
+
+          <aside class="concrete-card-v3">
+            <div class="concrete-title-v3"><span aria-hidden="true">▥</span><strong>{e.sideTitle || 'En pratique'}</strong></div>
+            <dl>
+              {e.facts.map((f,idx) => <div><dt>{f[0]}</dt><dd>{f[1]}</dd></div>)}
+            </dl>
+            <div class="concrete-note">{e.note}</div>
+          </aside>
+        </div>
+
+        {(e.advantages?.length || e.disadvantages?.length) && (
+          <div class="pros-cons">
+            <section>
+              <h3>✓ Avantages</h3>
+              <ul>{e.advantages?.map(x => <li>{x}</li>)}</ul>
+            </section>
+            <section>
+              <h3>△ Points de vigilance</h3>
+              <ul>{e.disadvantages?.map(x => <li>{x}</li>)}</ul>
+            </section>
+          </div>
+        )}
+
+        <div class="exercise-nav">
+          <button class="prev" disabled={i===0}>← Chapitre précédent</button>
+          <span>{i+1} / {lessons.length}</span>
+          <button class="next" disabled={i===lessons.length-1}>Chapitre suivant →</button>
+        </div>
+      </article>
+    ))}
+  </main>
+</section>
+
+<script is:inline>
+const root=document.currentScript?.previousElementSibling;
+const shell=document.querySelector('.tutorial-generic');
+if(shell){
+  const exercises=[...shell.querySelectorAll('.exercise')];
+  const links=[...shell.querySelectorAll('.sa-link')];
+  function show(index,push=true){
+    index=Math.max(0,Math.min(exercises.length-1,index));
+    exercises.forEach((x,i)=>x.classList.toggle('active',i===index));
+    links.forEach((x,i)=>x.classList.toggle('active',i===index));
+    links[index]?.scrollIntoView({block:'nearest'});
+    const id=exercises[index].id;
+    if(push) history.replaceState(null,'','#'+id);
+    window.scrollTo({top:shell.offsetTop-85,behavior:'smooth'});
+  }
+  links.forEach((b,i)=>b.addEventListener('click',()=>show(i)));
+  shell.querySelectorAll('.next').forEach(b=>b.addEventListener('click',e=>show(+e.currentTarget.closest('.exercise').dataset.index+1)));
+  shell.querySelectorAll('.prev').forEach(b=>b.addEventListener('click',e=>show(+e.currentTarget.closest('.exercise').dataset.index-1)));
+  const hash=location.hash.slice(1);
+  const start=exercises.findIndex(x=>x.id===hash);
+  if(start>=0) show(start,false);
+}
+</script>
+
+
+<script is:inline>
+/* SOSQLIK-V4-40-QLIK-SYNTAX
+   Coloration syntaxique inspirée de l'éditeur d'expressions Qlik Sense.
+   Fonctions, champs, chaînes/valeurs, variables, mots-clés et opérateurs
+   sont distingués de façon homogène dans tous les tutoriels génériques. */
+(() => {
+  const root = document.querySelector('.tutorial-generic');
+  if (!root) return;
+
+  const KEYWORDS = new Set([
+    'DISTINCT','NODISTINCT','TOTAL','ALL','LOAD','RESIDENT','INLINE','AUTOGENERATE',
+    'WHERE','WHILE','GROUP','BY','ORDER','AS','LET','SET','FROM','JOIN','KEEP',
+    'CONCATENATE','NOCONCATENATE','ASCENDING','DESCENDING','NUMERIC','TEXT',
+    'FREQUENCY','LOAD_ORDER','NULL','TRUE','FALSE'
+  ]);
+
+  const esc = (x) => x.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  const wrap = (cls, txt) => `<span class="qs-${cls}">${esc(txt)}</span>`;
+
+  function highlight(src){
+    let out='', i=0;
+    const n=src.length;
+    while(i<n){
+      const c=src[i];
+
+      // Espaces
+      if(/\s/.test(c)){
+        let j=i+1; while(j<n && /\s/.test(src[j])) j++;
+        out += esc(src.slice(i,j)); i=j; continue;
+      }
+
+      // Commentaire //
+      if(c==='/' && src[i+1]==='/'){
+        let j=src.indexOf('\n',i); if(j<0) j=n;
+        out += wrap('comment',src.slice(i,j)); i=j; continue;
+      }
+
+      // Chaînes simples ou doubles
+      if(c==="'" || c==='"'){
+        const q=c; let j=i+1;
+        while(j<n){
+          if(src[j]===q){
+            if(src[j+1]===q){ j+=2; continue; }
+            j++; break;
+          }
+          j++;
+        }
+        out += wrap('string',src.slice(i,j)); i=j; continue;
+      }
+
+      // Champ entre crochets
+      if(c==='['){
+        let j=src.indexOf(']',i+1); if(j<0) j=n-1;
+        out += wrap('field',src.slice(i,j+1)); i=j+1; continue;
+      }
+
+      // Dollar-sign expansion / variable
+      if(c==='$' && src[i+1]==='('){
+        let depth=1, j=i+2;
+        while(j<n && depth){ if(src[j]==='(') depth++; else if(src[j]===')') depth--; j++; }
+        out += wrap('variable',src.slice(i,j)); i=j; continue;
+      }
+
+      // Nombres
+      if(/[0-9]/.test(c) || (c==='.' && /[0-9]/.test(src[i+1]||''))){
+        let j=i+1; while(j<n && /[0-9.,]/.test(src[j])) j++;
+        out += wrap('number',src.slice(i,j)); i=j; continue;
+      }
+
+      // Identifiants : fonction si suivie de (, sinon mot-clé ou champ
+      if(/[A-Za-z_À-ÿ]/.test(c)){
+        let j=i+1; while(j<n && /[A-Za-z0-9_À-ÿ.]/.test(src[j])) j++;
+        const word=src.slice(i,j);
+        let k=j; while(k<n && /\s/.test(src[k])) k++;
+        if(src[k]==='(') out += wrap('function',word);
+        else if(KEYWORDS.has(word.toUpperCase())) out += wrap('keyword',word);
+        else out += wrap('field',word);
+        i=j; continue;
+      }
+
+      // Délimiteurs du Set Analysis
+      if('{}<>'.includes(c)){
+        out += wrap('set',c); i++; continue;
+      }
+
+      // Opérateurs et ponctuation
+      out += wrap('operator',c); i++;
+    }
+    return out;
+  }
+
+  const targets = root.querySelectorAll('.qlik-code, .noob-box code');
+  targets.forEach(el => {
+    if(el.dataset.qlikHighlighted==='1') return;
+    const source=el.textContent || '';
+    el.innerHTML=highlight(source);
+    el.dataset.qlikHighlighted='1';
+    el.classList.add('qlik-syntax');
+  });
+})();
+</script>

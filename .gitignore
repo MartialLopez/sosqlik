@@ -1,0 +1,27 @@
+# Dépendances
+node_modules/
+
+# Astro
+.astro/
+dist/
+
+# Sauvegardes SOSQLIK
+.backup-sosqlik-*/
+
+# Archives locales
+*.zip
+
+# Logs
+*.log
+npm-debug.log*
+
+# Système / éditeur
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Variables d'environnement
+.env
+.env.*
+!.env.example

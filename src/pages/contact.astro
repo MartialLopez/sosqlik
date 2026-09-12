@@ -1,0 +1,22 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+<BaseLayout title="Contact — SOSQLIK">
+<section class="subhero"><div class="container"><p class="eyebrow">CONTACT</p><h1>Contact</h1><p>Une question ? Une suggestion ? Parlons-en !</p></div></section>
+<section class="page-section"><div class="container contact-layout">
+<form class="contact-form">
+  <label>Nom *<input type="text"></label>
+  <label>Email *<input type="email"></label>
+  <label>Sujet *<select><option>Choisir un sujet</option></select></label>
+  <label>Message *<textarea placeholder="Votre message..."></textarea></label>
+  <button class="btn primary" type="button">Envoyer le message →</button>
+</form>
+<div class="contact-side">
+  <h3>Autres moyens de contact</h3>
+  <p>✉ Par email<br><a href="mailto:contact@sosqlik.fr">contact@sosqlik.fr</a></p>
+  <p>● Sur GitHub</p>
+  <p>in Sur LinkedIn</p>
+  <p>▶ Sur YouTube</p>
+</div>
+</div></section>
+</BaseLayout>

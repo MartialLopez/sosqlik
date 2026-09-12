@@ -1,0 +1,245 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import TutorialLayout from '../../components/TutorialLayout.astro';
+
+const lessons = [
+{
+ id:'intro', n:'', title:'Pourquoi le modèle associatif ?', level:'Fondamentaux', icon:'◎',
+ explain:'Qlik ne demande pas de tout aplatir dans une seule table. Son moteur associe les tables grâce aux champs qu’elles ont en commun et propage les sélections dans l’ensemble du modèle.',
+ detail:`<div class="noob-box"><b>👶 L’idée simple</b><p>Deux tables possèdent un champ nommé <code>ClientID</code> : Qlik comprend qu’elles sont liées par ce champ. Le nom des champs fait donc partie de la logique du modèle.</p></div>`,
+ example:`<div class="master-demo"><b>VENTES</b><span>ClientID · Date · Montant</span><i>↕ ClientID</i><b>CLIENTS</b><span>ClientID · Client · Région</span></div>`,
+ diagram:`<div class="schema schema-association">
+   <div class="schema-table"><strong>VENTES</strong><span>ClientID</span><span>Date</span><span>Montant</span></div>
+   <div class="schema-link"><b>ClientID</b><span>association</span></div>
+   <div class="schema-table"><strong>CLIENTS</strong><span>ClientID</span><span>Client</span><span>Région</span></div>
+ </div>`,
+ facts:[['Association','Champs de même nom'],['Sélections','Propagées entre tables'],['Objectif','Modèle logique cohérent']],
+ note:'Le modèle de données n’est pas une étape technique secondaire : il détermine directement la justesse des analyses.',
+ advantages:['Évite de nombreux JOIN','Modèle flexible','Sélections associatives naturelles'],
+ disadvantages:['Des noms de champs mal maîtrisés créent de mauvaises associations']
+},
+{
+ id:'association', n:'1', title:'Comment Qlik associe les tables', level:'Essentiel', icon:'↔',
+ explain:'Dans le modèle interne, les champs portant exactement le même nom servent d’association entre les tables.',
+ detail:'Il n’est donc pas nécessaire d’écrire une clause JOIN pour relier une table de faits à une dimension si le champ clé commun est correctement nommé.',
+ example:`<pre class="qlik-code">VENTES:
+LOAD
+  ClientID,
+  Montant
+FROM ...;
+
+CLIENTS:
+LOAD
+  ClientID,
+  Client,
+  Region
+FROM ...;</pre>`,
+ facts:[['Champ commun','ClientID'],['JOIN nécessaire ?','Non'],['Résultat','Deux tables associées']],
+ note:'Même nom = association potentielle. Nom différent = pas d’association automatique.',
+ advantages:['Script plus simple','Tables conservées séparément'],
+ disadvantages:['Un champ homonyme non souhaité peut créer une association accidentelle']
+},
+{
+ id:'cles', n:'2', title:'La bonne clé', level:'Essentiel', icon:'🔑',
+ explain:'Une clé doit représenter correctement le grain de la relation. Une clé ClientID relie naturellement des ventes à un client ; une clé CommandeID relie une commande à ses lignes.',
+ detail:'La question importante n’est pas seulement « les valeurs correspondent-elles ? », mais « que représente exactement une ligne de chaque table ? ».',
+ example:`<div class="master-demo"><b>CLIENTS</b><span>1 ligne = 1 client</span><i>ClientID</i><b>VENTES</b><span>1 ligne = 1 ligne de vente</span></div>`,
+ facts:[['Dimension Client','1 ligne / client'],['Faits Ventes','plusieurs lignes / client'],['Relation','1 → plusieurs']],
+ note:'Toujours identifier le grain d’une table avant de choisir ou fabriquer sa clé.',
+ advantages:['Associations prévisibles','Mesures plus fiables'],
+ disadvantages:['Une clé au mauvais grain peut multiplier ou perdre des informations']
+},
+{
+ id:'champs-homonymes', n:'3', title:'Les champs homonymes involontaires', level:'Débutant', icon:'⚠',
+ explain:'Deux champs portant le même nom sont associés, même si fonctionnellement ils n’ont rien à voir. Il faut donc contrôler les noms chargés.',
+ detail:'Par exemple, un champ Statut dans Commandes et un champ Statut dans Clients peuvent créer une association absurde si les deux notions sont différentes.',
+ example:`<pre class="qlik-code">CLIENTS:
+LOAD
+  ClientID,
+  Statut as StatutClient
+FROM ...;
+
+COMMANDES:
+LOAD
+  CommandeID,
+  ClientID,
+  Statut as StatutCommande
+FROM ...;</pre>`,
+ facts:[['Avant','Statut ↔ Statut'],['Après','StatutClient / StatutCommande'],['Effet','Association parasite supprimée']],
+ note:'Renommer explicitement les champs métier différents est souvent la correction la plus simple.',
+ advantages:['Modèle plus lisible','Évite des associations invisibles au premier regard'],
+ disadvantages:['Demande de connaître le sens métier des colonnes']
+},
+{
+ id:'synthetic', n:'4', title:'Comprendre les clés synthétiques', level:'Intermédiaire', icon:'§',
+ explain:'Qlik crée une clé synthétique lorsque deux tables ou plus ont au moins deux champs en commun. Elle représente les combinaisons des champs communs.',
+ detail:`<div class="noob-box"><b>👶 Important</b><p>Une clé synthétique n’est pas automatiquement une catastrophe, mais elle doit toujours être comprise. Plusieurs clés synthétiques, ou des clés synthétiques basées sur d’autres clés synthétiques, sont un signal d’alerte.</p></div>`,
+ example:`<div class="master-demo"><b>Table A</b><span>ClientID · Année · Montant</span><i>2 champs communs</i><b>Table B</b><span>ClientID · Année · Budget</span></div>`,
+ diagram:`<div class="schema schema-synthetic">
+   <div class="schema-table"><strong>VENTES</strong><span class="key">ClientID</span><span class="key">Année</span><span>Montant</span></div>
+   <div class="schema-synth"><b>$Syn 1</b><span>ClientID + Année</span><small>clé synthétique créée par Qlik</small></div>
+   <div class="schema-table"><strong>BUDGET</strong><span class="key">ClientID</span><span class="key">Année</span><span>Budget</span></div>
+ </div>`,
+ facts:[['Cause','2 champs communs ou plus'],['Action','Examiner le modèle'],['Risque','Temps / mémoire si structure complexe']],
+ note:'Ne supprime pas une clé synthétique « parce qu’elle est synthétique » : comprends d’abord pourquoi les champs sont communs.',
+ advantages:['Qlik peut représenter automatiquement une clé composite'],
+ disadvantages:['Peut révéler une erreur de conception','Les structures synthétiques complexes peuvent coûter cher']
+},
+{
+ id:'composite', n:'5', title:'Créer une clé composite', level:'Intermédiaire', icon:'⊕',
+ explain:'Quand la relation dépend réellement de plusieurs champs, on peut créer explicitement une clé composite et éviter de laisser plusieurs champs d’association.',
+ detail:'Une clé explicite rend souvent le modèle plus lisible et permet de renommer ou supprimer les champs techniques communs qui ne doivent plus associer les tables.',
+ example:`<pre class="qlik-code">AutoNumber(
+  ClientID & '|' & Annee
+) as %ClientAnnee</pre>`,
+ facts:[['Composants','ClientID + Année'],['Clé','%ClientAnnee'],['But','Une association explicite']],
+ note:'La clé composite doit représenter une vraie relation métier, pas masquer un modèle mal compris.',
+ advantages:['Association maîtrisée','Modèle plus lisible'],
+ disadvantages:['Il faut construire exactement la même clé des deux côtés']
+},
+{
+ id:'circulaire', n:'6', title:'Références circulaires', level:'Avancé', icon:'⟳',
+ explain:'Une référence circulaire apparaît lorsqu’il existe plusieurs chemins d’association entre deux champs. Cela crée une ambiguïté logique.',
+ detail:'Qlik signale la boucle et peut rendre une table loosely coupled. La bonne réponse est généralement de corriger le modèle ou de renommer un champ pour supprimer le chemin indésirable.',
+ example:`<div class="master-demo"><b>A</b><span>→ B → C</span><i>et</i><b>A</b><span>→ C</span><i>Deux chemins = boucle</i></div>`,
+ diagram:`<div class="schema schema-loop">
+   <div class="loop-node a">A</div>
+   <div class="loop-node b">B</div>
+   <div class="loop-node c">C</div>
+   <span class="loop-line ab">A → B</span>
+   <span class="loop-line bc">B → C</span>
+   <span class="loop-line ac danger">A → C</span>
+   <div class="loop-warning">⚠ Deux chemins entre A et C</div>
+ </div>`,
+ facts:[['Symptôme','Boucle dans le modèle'],['Alerte','Lien pointillé rouge / warning'],['Correction','Supprimer le chemin ambigu']],
+ note:'Une boucle ne doit pas être acceptée sans comprendre précisément sa signification métier.',
+ advantages:['Le viewer permet de repérer visuellement le problème'],
+ disadvantages:['Peut produire une interprétation ambiguë des données']
+},
+{
+ id:'join', n:'7', title:'Association ou JOIN ?', level:'Essentiel', icon:'⋈',
+ explain:'Un JOIN fusionne physiquement les données de deux tables dans une table interne. Une association conserve les tables séparées et les relie par leurs champs communs.',
+ detail:'Qlik recommande généralement de profiter des associations plutôt que de multiplier les JOIN : les JOIN peuvent agrandir les tables, ralentir le modèle et faire perdre certaines fréquences d’origine.',
+ example:`<div class="master-demo"><b>Association</b><span>VENTES ↔ CLIENTS</span><i>tables séparées</i><b>JOIN</b><span>VENTES + CLIENTS</span><i>une seule table</i></div>`,
+ facts:[['Association','Tables séparées'],['JOIN','Une table résultante'],['Réflexe Qlik','Associer quand c’est naturel']],
+ note:'JOIN reste utile dans certains cas ; il ne doit simplement pas devenir le réflexe par défaut.',
+ advantages:['Association : mémoire et flexibilité souvent meilleures'],
+ disadvantages:['JOIN : risque de duplication de lignes et perte de fréquence']
+},
+{
+ id:'keep', n:'8', title:'KEEP : filtrer sans fusionner', level:'Avancé', icon:'∩',
+ explain:'KEEP réduit une ou deux tables à leur intersection de données comme le ferait un join équivalent, mais conserve les tables séparées dans le modèle.',
+ detail:'C’est une alternative intéressante quand on veut limiter les données chargées sans créer une grosse table jointe.',
+ example:`<pre class="qlik-code">CLIENTS:
+LOAD ClientID, Client FROM ...;
+
+VENTES:
+LEFT KEEP (CLIENTS)
+LOAD ClientID, Montant FROM ...;</pre>`,
+ facts:[['JOIN','Fusionne'],['KEEP','Réduit mais sépare'],['Variantes','INNER · LEFT · RIGHT']],
+ note:'KEEP n’est pas nécessaire partout ; il répond à un besoin de réduction des ensembles chargés.',
+ advantages:['Préserve deux tables','Peut éviter certains JOIN volumineux'],
+ disadvantages:['Moins connu, donc à documenter dans le script']
+},
+{
+ id:'concatenate', n:'9', title:'Association ou CONCATENATE ?', level:'Intermédiaire', icon:'⇣',
+ explain:'CONCATENATE empile les lignes de tables similaires. Ce n’est pas une association entre deux entités différentes : c’est la création d’une table unique contenant plusieurs lots de lignes.',
+ detail:'Qlik peut concaténer automatiquement des tables qui ont exactement le même ensemble de champs. NoConcatenate permet d’empêcher cette fusion automatique lorsqu’on veut conserver deux tables.',
+ example:`<pre class="qlik-code">VENTES:
+LOAD * FROM [Ventes_2025.qvd] (qvd);
+
+CONCATENATE (VENTES)
+LOAD * FROM [Ventes_2026.qvd] (qvd);</pre>`,
+ facts:[['CONCATENATE','Empile les lignes'],['Association','Relie des tables'],['NoConcatenate','Force deux tables séparées']],
+ note:'Très utile pour assembler des périodes ou sources ayant le même grain.',
+ advantages:['Parfait pour historiser plusieurs fichiers homogènes'],
+ disadvantages:['Une concaténation involontaire peut faire disparaître une table attendue du modèle']
+},
+{
+ id:'etoile', n:'10', title:'Le modèle en étoile', level:'Bonnes pratiques', icon:'✦',
+ explain:'Un modèle en étoile simple — une table de faits centrale entourée de dimensions — est souvent très lisible et efficace dans Qlik.',
+ detail:'Ce n’est pas une obligation absolue, mais c’est un excellent point de départ : Ventes au centre, puis Clients, Produits, Calendrier, Agences…',
+ example:``,
+ diagram:`<figure class="schema-image schema-image-star"><img src="/assets/tutorials/modele-etoile-qlik.png" alt="Schéma d'un modèle en étoile Qlik avec la table de faits VENTES au centre et les dimensions Clients, Produits, Calendrier et Agences autour." loading="lazy"><figcaption>Dimensions : qui, quoi, quand, où ? Faits : événements et mesures numériques à analyser.</figcaption></figure>`,
+ facts:[['Centre','Table de faits'],['Autour','Dimensions'],['Bénéfice','Chemins d’association simples']],
+ note:'Un modèle lisible est généralement plus facile à valider, expliquer et maintenir.',
+ advantages:['Compréhension rapide','Moins de chemins ambigus'],
+ disadvantages:['Certains besoins complexes nécessitent d’autres structures']
+},
+{
+ id:'link-table', n:'11', title:'Quand une Link Table devient utile', level:'Expert', icon:'🔗',
+ explain:'Lorsque plusieurs tables de faits doivent partager plusieurs dimensions sans créer de clés synthétiques ou de boucles, une Link Table peut centraliser les clés d’association.',
+ detail:'C’est une technique avancée : elle doit répondre à un vrai problème de modèle multi-faits. Il ne faut pas ajouter une Link Table par habitude.',
+ example:`<div class="master-demo"><b>VENTES</b><span>↘</span><b>LINK</b><span>↙</span><b>BUDGET</b><i>dimensions communes via la table de liaison</i></div>`,
+ diagram:`<div class="schema schema-linktable">
+   <div class="schema-fact"><strong>VENTES</strong><span>%LinkKey</span><small>Montant · Quantité</small></div>
+   <div class="schema-linkhub"><strong>LINK</strong><span>%LinkKey</span><span>ClientID</span><span>ProduitID</span><span>DateID</span></div>
+   <div class="schema-fact"><strong>BUDGET</strong><span>%LinkKey</span><small>Budget</small></div>
+   <div class="schema-dims"><span>CLIENTS</span><span>PRODUITS</span><span>CALENDRIER</span></div>
+ </div>`,
+ facts:[['Cas','Plusieurs faits'],['But','Centraliser certaines associations'],['Niveau','Architecture avancée']],
+ note:'Avant une Link Table, vérifie si une concaténation des faits ou un modèle plus simple ne suffit pas.',
+ advantages:['Peut résoudre des modèles multi-faits complexes'],
+ disadvantages:['Ajoute une couche de complexité','Peut augmenter le volume de clés']
+},
+{
+ id:'grain', n:'12', title:'Le grain avant tout', level:'Essentiel', icon:'▦',
+ explain:'Avant de charger ou d’associer une table, formule une phrase : « une ligne représente… ». Cette phrase révèle le grain.',
+ detail:`<div class="noob-box"><b>👶 Exemple</b><p>VENTES : une ligne = une ligne de commande. COMMANDES : une ligne = une commande. CLIENTS : une ligne = un client. Mélanger ces grains sans réfléchir est une source classique de doubles comptes.</p></div>`,
+ example:`<div class="master-demo"><b>Question</b><span>Une ligne représente quoi ?</span><i>→ à poser pour chaque table</i></div>`,
+ facts:[['VENTES','ligne de commande'],['COMMANDES','commande'],['CLIENTS','client']],
+ note:'Le grain est souvent plus important que le nom technique de la table.',
+ advantages:['Évite les doubles comptes','Aide à choisir les clés'],
+ disadvantages:['Demande de comprendre la source métier']
+},
+{
+ id:'viewer', n:'13', title:'Lire le Data Model Viewer', level:'Très utile', icon:'◫',
+ explain:'Après chaque évolution importante du script, ouvre le Data Model Viewer. Vérifie les tables, les champs clés, les cardinalités apparentes, les clés synthétiques et les éventuelles boucles.',
+ detail:'Le viewer n’est pas seulement un dessin : c’est ton contrôle qualité du modèle chargé.',
+ example:`<div class="master-demo"><b>Checklist</b><span>Tables · clés · chemins · synthétiques · boucles</span><i>→ contrôler après reload</i></div>`,
+ facts:[['1','Repérer les clés'],['2','Chercher les associations inattendues'],['3','Vérifier la structure globale']],
+ note:'Un reload « sans erreur » ne signifie pas que le modèle métier est correct.',
+ advantages:['Diagnostic visuel rapide','Excellent outil pédagogique'],
+ disadvantages:['Il faut compléter le visuel par des contrôles de données']
+},
+{
+ id:'debug', n:'14', title:'Pourquoi mon total est faux ?', level:'Diagnostic', icon:'🔎',
+ explain:'Quand une somme double ou qu’un filtre produit un résultat étrange, inspecte d’abord le modèle : mauvais grain, JOIN multiplicatif, clé incomplète ou association involontaire.',
+ detail:'Ne corrige pas immédiatement la mesure avec DISTINCT ou une expression compliquée. Le problème peut être structurel.',
+ example:`<div class="master-demo"><b>Symptôme</b><span>Sum(Montant) trop élevé</span><i>→ vérifier le modèle avant l’expression</i></div>`,
+ facts:[['Cause possible','JOIN 1→N mal maîtrisé'],['Cause possible','Clé au mauvais grain'],['Cause possible','Champ homonyme']],
+ note:'Une expression simple sur un bon modèle vaut mieux qu’une expression complexe qui compense un mauvais modèle.',
+ advantages:['Corrige la cause plutôt que le symptôme'],
+ disadvantages:['Le diagnostic peut nécessiter de revenir aux données sources']
+},
+{
+ id:'bonnes-pratiques', n:'15', title:'Ma méthode recommandée', level:'À retenir', icon:'✓',
+ explain:'Commence par le grain, garde des clés explicites, contrôle les noms de champs, privilégie les associations naturelles et inspecte le Data Model Viewer après chaque changement structurel.',
+ detail:'N’utilise JOIN, Link Table ou clés composites que lorsqu’elles répondent à un besoin identifié. La sophistication n’est pas un objectif : la lisibilité du modèle l’est.',
+ example:`<div class="master-demo"><b>Règle SOSQLIK</b><span>Grain → Clés → Associations → Contrôle</span><i>puis seulement optimisation</i></div>`,
+ facts:[['1','Définir le grain'],['2','Choisir les clés'],['3','Éviter les associations parasites'],['4','Contrôler dans le viewer']],
+ note:'Le meilleur modèle est celui dont on peut expliquer simplement chaque table et chaque lien.',
+ advantages:['Modèle fiable et maintenable','Calculs plus simples','Diagnostic plus rapide'],
+ disadvantages:['Demande de résister au réflexe du JOIN systématique']
+}
+];
+
+const sources = [
+ {label:'Qlik Help — Synthetic keys',url:'https://help.qlik.com/en-us/sense/May2026/Subsystems/Hub/Content/Sense_Hub/Scripting/synthetic-keys.htm'},
+ {label:'Qlik Help — Understanding and solving circular references',url:'https://help.qlik.com/en-US/sense/May2026/Subsystems/Hub/Content/Sense_Hub/LoadData/understand-circular-references.htm'},
+ {label:'Qlik Help — Combining tables with Join and Keep',url:'https://help.qlik.com/en-US/sense/May2026/Subsystems/Hub/Content/Sense_Hub/Scripting/combine-tables-join-keep.htm'},
+ {label:'Qlik Help — Keep',url:'https://help.qlik.com/en-US/sense/May2026/Subsystems/Hub/Content/Sense_Hub/Scripting/ScriptPrefixes/Keep.htm'},
+ {label:'Qlik Help — Concatenating tables',url:'https://help.qlik.com/en-US/sense/May2026/Subsystems/Hub/Content/Sense_Hub/LoadData/concatenating-tables-in-data-manager.htm'}
+];
+---
+<BaseLayout title="Modèle associatif — SOSQLIK">
+<TutorialLayout
+ title="Comprendre le modèle associatif"
+ description="Associations, clés, grain, clés synthétiques, boucles, JOIN, KEEP et Link Tables : construire un modèle Qlik fiable et lisible."
+ navTitle="Modèle associatif"
+ lessons={lessons}
+ sourceTitle="Références Qlik"
+ sourceText="Ce tutoriel s’appuie sur la documentation officielle Qlik. Les explications et exemples SOSQLIK sont organisés autour d’un objectif : comprendre la logique du modèle avant de chercher à le complexifier."
+ sourceLinks={sources}
+/>
+</BaseLayout>

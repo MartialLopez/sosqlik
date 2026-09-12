@@ -1,0 +1,203 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import TutorialLayout from '../../components/TutorialLayout.astro';
+
+const lessons = [
+  {
+    id:'intro', n:'', title:'Comprendre Aggr()', level:'Fondamentaux', icon:'🧠',
+    explain:'Aggr() sert à effectuer une agrégation en deux étapes. Qlik calcule d’abord une mesure pour chaque valeur d’une ou plusieurs dimensions, puis une agrégation externe travaille sur le tableau de résultats obtenu.',
+    detail:'La meilleure image mentale est celle d’une petite table virtuelle temporaire : Aggr() construit les lignes intermédiaires, puis Max(), Avg(), Sum(), Count() ou une autre fonction exploite ces lignes.',
+    exampleTitle:'Le principe en une expression',
+    example:`<div class="master-demo"><b>Deux niveaux</b><span class="qlik-code">Max(Aggr(Sum(Montant), Commande))</span><i>1. total par commande → 2. plus grande commande</i></div>`,
+    facts:[['Étape 1','Sum(Montant) par Commande'],['Étape 2','Max() sur les résultats'],['Résultat','Valeur de la plus grosse commande']],
+    note:'Si le besoin ne comporte qu’un seul niveau d’agrégation, Aggr() est probablement inutile.',
+    advantages:['Résout de vrais calculs imbriqués','Permet de raisonner à un grain différent de celui du graphique'],
+    disadvantages:['Plus complexe à lire et à déboguer','Peut coûter davantage en calcul sur de gros volumes']
+  },
+  {
+    id:'table-virtuelle', n:'1', title:'Visualiser la table virtuelle', level:'Essentiel', icon:'▦',
+    explain:'Aggr() renvoie un tableau de valeurs. Avec Aggr(Sum(Montant), Commande), Qlik produit conceptuellement une ligne par commande avec son montant total.',
+    detail:'Cette table n’est pas visible dans l’application. Pour déboguer une expression difficile, il est souvent très efficace de recréer temporairement cette table dans un tableau Qlik avec les mêmes dimensions et la même mesure.',
+    example:`<div class="aggr-virtual"><div><b>Commande</b><b>Sum(Montant)</b></div><div><span>C001</span><span>450 €</span></div><div><span>C002</span><span>1 250 €</span></div><div><span>C003</span><span>780 €</span></div></div>`,
+ diagram:`<div class="schema schema-aggr">
+   <div class="aggr-input"><b>Données</b><span>Commande · Montant</span></div>
+   <div class="flow-arrow">→</div>
+   <div class="aggr-table"><b>Aggr()</b><span>CMD-001 → 120 €</span><span>CMD-002 → 80 €</span><span>CMD-003 → 200 €</span></div>
+   <div class="flow-arrow">→</div>
+   <div class="aggr-output"><b>Avg()</b><strong>133,33 €</strong><span>agrégation externe</span></div>
+ </div>`,
+    facts:[['Dimension Aggr','Commande'],['Mesure interne','Sum(Montant)'],['Table virtuelle','1 ligne par commande']],
+    note:'Penser « table virtuelle » rend Aggr() beaucoup plus simple à comprendre.',
+    advantages:['Excellent modèle mental','Facilite énormément le débogage'],
+    disadvantages:['La table intermédiaire n’est pas directement visible']
+  },
+  {
+    id:'max-commande', n:'2', title:'Trouver la plus grosse commande', level:'Débutant', icon:'↑',
+    explain:'Une commande peut contenir plusieurs lignes. Il faut donc d’abord additionner les lignes par commande, puis chercher le maximum parmi les totaux obtenus.',
+    detail:'C’est le cas d’école parfait pour Aggr() : deux grains successifs et deux agrégations distinctes.',
+    example:`<div class="master-demo"><b>Expression</b><span class="qlik-code">Max(Aggr(Sum(Montant), Commande))</span><i>Sum() calcule chaque commande ; Max() sélectionne la plus élevée</i></div>`,
+    facts:[['Interne','Sum(Montant)'],['Dimension','Commande'],['Externe','Max()']],
+    note:'L’agrégation interne répond à « combien par commande ? » ; l’externe à « laquelle est la plus grande ? ».',
+    advantages:['Expression fidèle au besoin métier','Structure facile à expliquer'],
+    disadvantages:['Inutile si le modèle contient déjà le montant total de chaque commande']
+  },
+  {
+    id:'moyenne-commandes', n:'3', title:'Moyenne des commandes', level:'Débutant', icon:'≈',
+    explain:'Pour calculer la moyenne des montants de commande, on peut moyenner la liste des totaux calculés par commande.',
+    detail:'Mais HIC rappelle un point important : si le calcul peut être réécrit plus simplement sous forme de ratio, la version sans Aggr() est souvent plus lisible et plus rapide.',
+    example:`<div class="master-demo"><b>Avec Aggr()</b><span class="qlik-code">Avg(Aggr(Sum(Montant), Commande))</span><i>À comparer, selon le modèle, avec Sum(Montant) / Count(DISTINCT Commande)</i></div>`,
+    facts:[['Avec Aggr','Avg des totaux par commande'],['Alternative','Ratio de deux agrégations'],['Choix','Privilégier le plus simple si équivalent']],
+    note:'Aggr() n’est pas un objectif : si une expression plus simple donne exactement le même résultat, préférez-la.',
+    advantages:['Très pédagogique pour comprendre le calcul en deux étapes'],
+    disadvantages:['Peut être inutilement coûteux pour une moyenne exprimable par un ratio']
+  },
+  {
+    id:'plusieurs-dimensions', n:'4', title:'Aggr() avec plusieurs dimensions', level:'Intermédiaire', icon:'⊞',
+    explain:'La table virtuelle peut être construite sur plusieurs dimensions. Qlik produit alors une valeur par combinaison distincte des dimensions indiquées.',
+    detail:'Par exemple, Aggr(Sum(Montant), Produit, Mois) crée conceptuellement une ligne par couple Produit–Mois.',
+    example:`<div class="master-demo"><b>Expression</b><span class="qlik-code">Avg(Aggr(Sum(Montant), Produit, Mois))</span><i>moyenne des ventes calculées au grain Produit × Mois</i></div>`,
+    facts:[['Grain','Produit × Mois'],['Interne','Sum(Montant)'],['Externe','Avg()']],
+    note:'Avant d’écrire Aggr(), dites à voix haute : « je veux une ligne virtuelle par… ».',
+    advantages:['Permet des grains analytiques très précis','Utile pour des moyennes ou extrema de sous-totaux'],
+    disadvantages:['Le nombre de combinaisons peut devenir important']
+  },
+  {
+    id:'grain', n:'5', title:'Le piège du grain', level:'Important', icon:'⚠',
+    explain:'Dans un graphique, il faut comparer le grain des dimensions du graphique avec celui des dimensions utilisées dans Aggr(). Le grain d’Aggr() doit être identique ou plus fin que celui du graphique.',
+    detail:'Un Aggr() au niveau Mois peut alimenter un graphique au niveau Année si Mois porte bien l’année et le mois. L’inverse — Aggr() par Année dans un graphique par Mois — peut produire des NULL ou affecter la valeur à un seul mois.',
+    example:`<div class="master-demo"><b>Correct</b><span>Graphique : Année · Aggr : Mois</span><i>Aggr() est au même grain ou à un grain plus fin</i></div>`,
+    facts:[['Graphique','Année'],['Aggr','Mois'],['Règle','Aggr ≥ finesse du graphique']],
+    note:'Un résultat étrange avec des NULL ? Vérifiez le grain avant de toucher au Set Analysis.',
+    advantages:['Évite une grande famille d’erreurs Aggr()'],
+    disadvantages:['Demande de bien connaître la granularité réelle des champs']
+  },
+  {
+    id:'interne-externe', n:'6', title:'Agrégation interne et externe', level:'Essentiel', icon:'↔',
+    explain:'Le premier paramètre d’Aggr() doit être une mesure agrégée. Ensuite, lorsque le tableau virtuel contient plusieurs valeurs, une agrégation externe est normalement nécessaire pour obtenir le résultat final.',
+    detail:'Omettre l’un de ces niveaux peut conduire Qlik à utiliser implicitement Only(), avec des NULL inattendus.',
+    example:`<div class="master-demo"><b>Bonne structure</b><span class="qlik-code">Avg(Aggr(Sum(Montant), Client))</span><i>Sum() = interne · Avg() = externe</i></div>`,
+    facts:[['Interne','Toujours une agrégation'],['Aggr','Produit un tableau de valeurs'],['Externe','Agrège ce tableau']],
+    note:'Quand vous relisez une expression Aggr(), identifiez systématiquement les deux niveaux.',
+    advantages:['Structure claire et robuste'],
+    disadvantages:['Les omissions peuvent produire des NULL difficiles à comprendre']
+  },
+  {
+    id:'set-analysis', n:'7', title:'Aggr() et Set Analysis', level:'Avancé', icon:'{}',
+    explain:'Avec Aggr(), le Set Analysis peut agir sur l’étape interne, sur l’étape externe ou sur le contexte de l’Aggr(). La bonne position dépend de l’étape à laquelle la condition doit réellement s’appliquer.',
+    detail:'Une bonne règle de départ est de tester la condition aux deux niveaux lorsque le même ensemble doit gouverner tout le calcul, puis de vérifier le résultat. Pour les cas complexes, raisonnez étape 1 / étape 2 plutôt que de recopier mécaniquement le même Set.',
+    example:`<div class="master-demo"><b>Exemple</b><span class="qlik-code">Max({&lt;Annee={2026}&gt;} Aggr(Sum({&lt;Annee={2026}&gt;} Montant), Commande))</span><i>le contexte est explicitement maîtrisé aux deux niveaux</i></div>`,
+    facts:[['Question 1','Quand filtrer les lignes source ?'],['Question 2','Quand filtrer le résultat intermédiaire ?'],['Méthode','Raisonner sur les deux étapes']],
+    note:'Le Set interne n’hérite pas simplement du contexte de l’agrégation externe : les contextes doivent être compris explicitement.',
+    advantages:['Permet des calculs métier très fins'],
+    disadvantages:['C’est l’une des combinaisons les plus délicates de Qlik']
+  },
+  {
+    id:'set-position', n:'8', title:'Où placer le Set ?', level:'Expert', icon:'🎯',
+    explain:'Supposons que la valeur d’une commande ne doive compter que les produits « Chaussures ». Ce filtre doit intervenir pendant le calcul de la commande : il appartient donc à l’étape interne.',
+    detail:'À l’inverse, si l’étape interne doit volontairement calculer un classement sur tous les produits et que vous ne voulez sélectionner qu’ensuite une catégorie, la condition appartient à l’étape externe.',
+    example:`<div class="master-demo"><b>Réflexe</b><span>Condition sur les données → interne</span><i>Condition sur le tableau virtuel / résultat → externe</i></div>`,
+    facts:[['Interne','Construit la valeur intermédiaire'],['Externe','Choisit/agrège les résultats'],['Décision','Placer le filtre à l’étape où il a un sens']],
+    note:'Demandez-vous toujours : « à quel moment de mon calcul cette condition doit-elle agir ? ».',
+    advantages:['Évite les Set Analysis qui semblent fonctionner mais calculent le mauvais périmètre'],
+    disadvantages:['Nécessite de vérifier les résultats sur un jeu de données connu']
+  },
+  {
+    id:'total', n:'9', title:'Quand TOTAL suffit', level:'Optimisation', icon:'Σ',
+    explain:'Aggr() n’est pas nécessaire pour tous les calculs qui changent de périmètre. Pour un sous-total dans le même graphique, le qualificateur TOTAL est souvent la solution directe.',
+    detail:'Par exemple, un pourcentage du total peut généralement être calculé avec Sum(Montant) / Sum(TOTAL Montant), sans construire de table virtuelle.',
+    example:`<div class="master-demo"><b>Plus simple</b><span class="qlik-code">Sum(Montant) / Sum(TOTAL Montant)</span><i>pas d’Aggr() pour un simple pourcentage du total</i></div>`,
+    facts:[['Besoin','Sous-total / total du graphique'],['Outil','TOTAL'],['Aggr ?','Non, si TOTAL répond au besoin']],
+    note:'Avant Aggr(), vérifiez toujours si TOTAL, une agrégation standard ou un ratio suffit.',
+    advantages:['Expression plus courte','Meilleures performances potentielles'],
+    disadvantages:['TOTAL ne remplace pas les vrais calculs à deux grains']
+  },
+  {
+    id:'script', n:'10', title:'Quand calculer dans le script', level:'Architecture', icon:'⚙',
+    explain:'Si une classification agrégée doit rester statique quelle que soit la sélection, elle est souvent mieux calculée dans le script de chargement avec Group By puis stockée comme attribut.',
+    detail:'Exemple : classer définitivement les clients selon leur chiffre d’affaires annuel de référence. Si cette classe ne doit pas varier avec les sélections, inutile de la recalculer dynamiquement avec Aggr().',
+    example:`<div class="master-demo"><b>Statique</b><span class="qlik-code">LOAD Client, Sum(Montant) ... GROUP BY Client</span><i>pré-calculer lorsque la valeur n’a pas besoin d’être dynamique</i></div>`,
+    facts:[['Dynamique','Aggr() peut être pertinent'],['Statique','Pré-calcul dans le modèle'],['Gain','Calcul évité dans l’interface']],
+    note:'Le bon calcul au bon endroit : moteur d’interface pour le dynamique, script pour le stable.',
+    advantages:['Réduit le coût de calcul côté interface','Simplifie parfois les expressions'],
+    disadvantages:['Le résultat ne réagit plus dynamiquement aux sélections']
+  },
+  {
+    id:'distinct', n:'11', title:'DISTINCT et NODISTINCT', level:'Avancé', icon:'≠',
+    explain:'Par défaut, Aggr() travaille sur les combinaisons distinctes de dimensions. Le qualificateur NODISTINCT peut produire plusieurs valeurs pour une même combinaison selon la structure des données.',
+    detail:'Avec une seule dimension, NODISTINCT peut renvoyer autant d’éléments que de lignes source. C’est puissant, mais à réserver aux cas où ce comportement est réellement voulu.',
+    example:`<div class="master-demo"><b>Syntaxe</b><span class="qlik-code">Aggr(NODISTINCT Sum(Montant), Client)</span><i>ne pas utiliser NODISTINCT « pour essayer » : comprendre d’abord le grain attendu</i></div>`,
+    facts:[['Défaut','Combinaisons distinctes'],['NODISTINCT','Peut répéter les valeurs'],['Usage','Cas avancés']],
+    note:'Si vous n’avez pas une raison précise d’utiliser NODISTINCT, restez sur le comportement standard.',
+    advantages:['Permet certains calculs dépendant des lignes source'],
+    disadvantages:['Peut multiplier fortement le tableau virtuel','Résultats plus difficiles à interpréter']
+  },
+  {
+    id:'tri', n:'12', title:'Le tri dans Aggr()', level:'Avancé', icon:'↕',
+    explain:'Certaines fonctions dépendentantes de l’ordre nécessitent un tri explicite de la dimension dans le paramètre structuré d’Aggr(). Qlik permet d’indiquer un type de tri et un ordre.',
+    detail:'La syntaxe peut par exemple imposer un ordre numérique croissant afin que le tableau virtuel soit construit dans l’ordre attendu.',
+    example:`<div class="master-demo"><b>Tri structuré</b><span class="qlik-code">Aggr(Sum(Montant), (MoisNum,(NUMERIC,ASCENDING)))</span><i>ordre explicite du tableau virtuel</i></div>`,
+    facts:[['Types','NUMERIC · TEXT · FREQUENCY · LOAD_ORDER'],['Ordres','ASCENDING · DESCENDING…'],['Pourquoi','Calculs sensibles à l’ordre']],
+    note:'Le tri est particulièrement important lorsque l’agrégation externe ou une fonction inter-record dépend de l’ordre des lignes.',
+    advantages:['Résultats déterministes pour les calculs sensibles à l’ordre'],
+    disadvantages:['Syntaxe plus technique','Un mauvais champ de tri produit un résultat trompeur']
+  },
+  {
+    id:'dimension-calculee', n:'13', title:'Aggr() comme dimension calculée', level:'Avancé', icon:'▤',
+    explain:'Aggr() peut également servir à produire une dimension calculée issue d’une agrégation, par exemple pour regrouper les clients selon leur nombre de commandes.',
+    detail:'C’est utile lorsque la catégorie doit rester dynamique et dépendre des sélections. Si elle est statique, préférez plutôt un champ calculé dans le script.',
+    example:`<div class="master-demo"><b>Idée</b><span class="qlik-code">Aggr(Count(DISTINCT Commande), Client)</span><i>créer dynamiquement des groupes de clients selon leur activité</i></div>`,
+    facts:[['Usage','Dimension calculée dynamique'],['Base','Agrégation par entité'],['Alternative','Champ dans le script si statique']],
+    note:'Une dimension Aggr() peut être puissante, mais surveillez les performances sur un grand nombre de valeurs.',
+    advantages:['Classification dynamique selon les sélections'],
+    disadvantages:['Coût CPU potentiellement important','Maintenance plus délicate qu’un champ du modèle']
+  },
+  {
+    id:'performance', n:'14', title:'Performances : utiliser Aggr() à bon escient', level:'Bonnes pratiques', icon:'⚡',
+    explain:'Aggr() est puissant mais construit un résultat intermédiaire. Plus le nombre de combinaisons dimensionnelles est élevé et plus l’expression interne est complexe, plus le calcul peut devenir coûteux.',
+    detail:'Évitez Aggr() pour une simple Sum(), Count(), un sous-total gérable avec TOTAL ou un calcul statique qui pourrait être préparé dans le script.',
+    example:`<div class="master-demo"><b>Réflexe</b><span class="qlik-code">Simple d’abord → Aggr() si nécessaire</span><i>mesurer les performances avec des volumes réalistes</i></div>`,
+    facts:[['À éviter','Aggr() systématique'],['À vérifier','Cardinalité des dimensions'],['À tester','Temps de réponse réel']],
+    note:'La meilleure optimisation d’un Aggr() inutile est de le supprimer.',
+    advantages:['Aggr() reste irremplaçable pour certains besoins'],
+    disadvantages:['Surcoût CPU possible sur des tableaux virtuels volumineux']
+  },
+  {
+    id:'debug', n:'15', title:'Méthode de débogage', level:'Pratique', icon:'🔎',
+    explain:'Quand une expression Aggr() ne donne pas le résultat attendu, ne tentez pas de tout corriger en une seule fois. Matérialisez mentalement — ou réellement dans un tableau temporaire — l’étape interne.',
+    detail:'Ajoutez les dimensions de l’Aggr() dans un tableau, affichez la mesure interne, contrôlez les sélections et le Set Analysis, puis seulement ensuite vérifiez l’agrégation externe.',
+    example:`<div class="master-demo"><b>Étapes</b><span class="qlik-code">1. dimensions → 2. mesure interne → 3. Set → 4. agrégation externe</span><i>valider chaque niveau séparément</i></div>`,
+    facts:[['1','Contrôler le grain'],['2','Contrôler la table virtuelle'],['3','Contrôler l’agrégation finale']],
+    note:'Cette méthode transforme souvent un « mystère Aggr() » en problème très simple.',
+    advantages:['Diagnostic beaucoup plus rapide','Permet de vérifier les chiffres métier'],
+    disadvantages:['Demande parfois de créer un objet temporaire de contrôle']
+  },
+  {
+    id:'checklist', n:'16', title:'La checklist SOSQLIK', level:'À retenir', icon:'✓',
+    explain:'Avant de valider un Aggr(), posez-vous six questions : ai-je vraiment deux niveaux d’agrégation ? Quel est le grain intermédiaire ? Mon agrégation interne est-elle correcte ? Quelle agrégation externe veux-je ? Où le Set doit-il agir ? Puis-je faire plus simple ?',
+    detail:'Si ces six réponses sont claires, votre expression a de fortes chances d’être à la fois juste, compréhensible et maintenable.',
+    example:`<div class="master-demo"><b>Formule mentale</b><span class="qlik-code">Besoin → Grain → Interne → Externe → Set → Performance</span><i>Aggr() devient alors une méthode, pas une formule magique</i></div>`,
+    facts:[['Besoin','Deux niveaux ?'],['Grain','Une ligne virtuelle par quoi ?'],['Final','Comment agréger ces lignes ?']],
+    note:'Ne commencez pas par écrire Aggr(). Commencez par décrire les deux étapes du calcul.',
+    advantages:['Approche réutilisable sur presque tous les cas Aggr()'],
+    disadvantages:['Aucun raccourci ne remplace la vérification du résultat']
+  }
+];
+
+const sources = [
+  {label:'Qlik Help — Aggr()', url:'https://help.qlik.com/en-US/sense/May2026/Subsystems/Hub/Content/Sense_Hub/ChartFunctions/aggr.htm'},
+  {label:'Qlik Help — Nested aggregations', url:'https://help.qlik.com/en-US/sense/May2026/Subsystems/Hub/Content/Sense_Hub/ChartFunctions/NestedAggregations/nested-aggregations.htm'},
+  {label:'Qlik Help — Set expressions inner/outer', url:'https://help.qlik.com/en-US/sense/May2026/Subsystems/Hub/Content/Sense_Hub/ChartFunctions/SetAnalysis/set-expressions-inner-and-outer.htm'}
+];
+---
+
+<BaseLayout title="Comprendre Aggr() — SOSQLIK">
+  <TutorialLayout
+    title="Comprendre Aggr()"
+    description="Agrégations imbriquées, table virtuelle, granularité, Set Analysis, pièges et performances : Aggr() expliqué étape par étape."
+    navTitle="Aggr()"
+    lessons={lessons}
+    sourceTitle="Sources et attribution"
+    sourceText="Ce tutoriel s’appuie sur la documentation officielle Qlik et sur les travaux pédagogiques de Henric Cronström (HIC) consacrés à Aggr(). Les explications et exemples SOSQLIK ont été réécrits et adaptés en français."
+    sourceLinks={sources}
+  />
+</BaseLayout>

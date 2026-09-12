@@ -1,0 +1,52 @@
+<header class="site-header">
+  <div class="container nav">
+    <a class="brand" href="/">
+      <strong>SOS<span>QLIK</span></strong>
+      <small>Astuces · Tutoriels · Retours d’expérience</small>
+    </a>
+
+    <nav class="nav-links" id="main-nav">
+      <a href="/" class:list={{ active: Astro.url.pathname === '/' }}>Accueil</a>
+      <a href="/tutoriels">Tutoriels</a>
+      <a href="/ressources">Ressources</a>
+      <a href="/articles">Articles</a>
+      <a href="/a-propos">À propos</a>
+    </nav>
+
+    <div class="search">
+      <span>⌕</span>
+      <input type="search" placeholder="Rechercher..." aria-label="Rechercher" />
+    </div>
+
+    
+
+    <span class="theme-status-icon" aria-hidden="true"></span><button class="theme-switch" id="theme-switch" type="button" aria-label="Passer du mode clair au mode sombre">
+      <span class="switch-knob"></span>
+    </button>
+
+    <a class="contact-button" href="/contact">Nous contacter</a>
+    <button class="menu-button" id="menu-button" aria-label="Menu">☰</button>
+  </div>
+</header>
+
+<script is:inline>
+  const html = document.documentElement;
+  const sw = document.getElementById('theme-switch');
+  const menu = document.getElementById('menu-button');
+  const nav = document.getElementById('main-nav');
+
+  function setTheme(theme) {
+    html.dataset.theme = theme;
+    localStorage.setItem('sosqlik-theme', theme);
+    sw?.classList.toggle('dark', theme === 'dark');
+  }
+
+  const saved = localStorage.getItem('sosqlik-theme');
+  setTheme(saved || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
+
+  sw?.addEventListener('click', () => {
+    setTheme(html.dataset.theme === 'dark' ? 'light' : 'dark');
+  });
+
+  menu?.addEventListener('click', () => nav?.classList.toggle('open'));
+</script>

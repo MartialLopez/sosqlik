@@ -1,0 +1,306 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import TutorialLayout from '../../components/TutorialLayout.astro';
+
+const lessons = [
+  {
+    id:'intro', n:'', title:'La boîte à outils des expressions Qlik', level:'Fondamentaux', icon:'🧰',
+    explain:'Qlik possède énormément de fonctions. Pour ne pas se perdre, on reprend ici une idée pédagogique de Henric Cronström (HIC) : comprendre d’abord les grandes familles de fonctions. Une fonction scalaire transforme une valeur (If, Date, Num…), une agrégation résume plusieurs lignes en une valeur (Sum, Count, Avg…), une fonction inter-record va chercher une autre ligne du graphique (Above, Below…), puis une fonction Range peut résumer la plage obtenue. Le but n’est donc pas d’apprendre un dictionnaire par cœur, mais de savoir quelle famille utiliser pour résoudre un problème.',
+    detail:'Nous allons les regrouper par usage : comparer des lignes, construire des cumuls, choisir une valeur, tester du texte, gérer les NULL, classer, formater et manipuler des dates.',
+    example:`<div class="master-demo"><b>Objectif</b><span>Choisir la bonne fonction au bon moment</span><i>avec des exemples directement réutilisables</i></div>`,
+    facts:[['Inter-record','Above · Below · RowNo'],['Logique','If · Pick · Match · WildMatch'],['Plages','RangeSum · RangeAvg'],['Autres','Alt · Coalesce · Class · Dual · dates']],
+    note:'Une expression courte et lisible est presque toujours préférable à une construction compliquée équivalente.',
+    advantages:['Panorama pratique des fonctions les plus utiles','Exemples combinables entre eux'],
+    disadvantages:['Certaines fonctions ont un comportement dépendant du type de graphique ou du tri']
+  },
+  {
+    id:'above', n:'1', title:'Above() — regarder la ligne précédente', level:'Essentiel', icon:'↑',
+    explain:'Above() évalue une expression sur une ligne située au-dessus de la ligne courante dans le segment de colonne. Sans offset, elle regarde la ligne précédente.',
+    detail:'C’est une fonction incontournable pour comparer une période à la précédente, calculer une variation ou alimenter un cumul.<div class="noob-box"><b>👶 Exemple ultra simple</b><p>Ton tableau affiche : Janvier = 100 €, Février = 120 €, Mars = 90 €.</p><p>Sur la ligne Février, <code>Above(Sum(CA))</code> vaut <b>100 €</b>, car Qlik regarde la ligne juste au-dessus. Donc <code>Sum(CA)-Above(Sum(CA))</code> donne <b>+20 €</b>.</p><p>Sur Mars, Above vaut 120 €, donc la variation vaut <b>-30 €</b>.</p></div>',
+    example:`<div class="master-demo"><b>Variation</b><span class="qlik-code">Sum(CA) - Above(Sum(CA))</span><i>écart entre la ligne courante et la précédente</i></div>`,
+ diagram:`<div class="schema schema-above">
+   <div class="mini-table">
+     <div><b>Mois</b><b>CA</b><b>Above(CA)</b></div>
+     <div><span>Jan</span><span>100</span><span>—</span></div>
+     <div class="focus"><span>Fév</span><span>130</span><span>100 ↑</span></div>
+     <div><span>Mar</span><span>90</span><span>130 ↑</span></div>
+   </div>
+   <p>Above() regarde la ligne affichée juste au-dessus, pas « le mois précédent » au sens métier.</p>
+ </div>`,
+    facts:[['Précédent','Above(expr)'],['2 lignes avant','Above(expr,2)'],['Courante','Above(expr,0)']],
+    note:'Above() dépend de l’ordre des lignes. HIC insiste sur ce point : Above() ne connaît pas « le mois précédent » ; il connaît seulement « la ligne précédente ». Si Avril est absent du graphique, Mars peut devenir la ligne précédente de Mai. Le tri et les valeurs dimensionnelles affichées font donc partie du calcul.',
+    advantages:['Très simple pour les évolutions','Fonctionne avec un offset et un nombre de valeurs'],
+    disadvantages:['Première ligne généralement NULL','Un mauvais tri donne un résultat faux']
+  },
+  {
+    id:'below', n:'2', title:'Below() — regarder la ligne suivante', level:'Essentiel', icon:'↓',
+    explain:'Below() est le pendant d’Above() : il évalue l’expression sur une ligne située sous la ligne courante.',
+    detail:'Il est utile lorsque le calcul doit se projeter vers la période ou la ligne suivante plutôt que revenir vers la précédente.',
+    example:`<div class="master-demo"><b>Suivante</b><span class="qlik-code">Below(Sum(CA)) - Sum(CA)</span><i>écart entre la prochaine ligne et la ligne courante</i></div>`,
+    facts:[['Suivante','Below(expr)'],['Offset','Below(expr,n)'],['Sens inverse','Offset négatif possible']],
+    note:'Comme Above(), Below() travaille sur les segments de colonne et dépend du tri.',
+    advantages:['Symétrique d’Above()','Pratique pour comparer avec une valeur future dans le tableau'],
+    disadvantages:['Dernière ligne généralement NULL']
+  },
+  {
+    id:'rangesum', n:'3', title:'RangeSum() + Above() — le cumul', level:'Essentiel', icon:'∑',
+    explain:'RangeSum() additionne une plage de valeurs. Associée à Above(), elle permet de construire très simplement un cumul glissant ou progressif.',
+    detail:'Above(Sum(CA),0,RowNo()) renvoie une plage allant de la ligne courante jusqu’au début du segment ; RangeSum() additionne cette plage.<div class="noob-box"><b>👶 Lis la formule de l’intérieur vers l’extérieur</b><p><code>Sum(CA)</code> calcule le CA de la ligne. <code>Above(...,0,RowNo())</code> fabrique une liste : ligne actuelle + toutes les lignes précédentes. Enfin <code>RangeSum(...)</code> additionne cette liste.</p><p>Jan = 100, Fév = 120, Mars = 90 → cumul Mars = <b>100 + 120 + 90 = 310 €</b>.</p></div>',
+    example:`<div class="master-demo"><b>Cumul</b><span class="qlik-code">RangeSum(Above(Sum(CA),0,RowNo()))</span><i>cumul progressif dans l’ordre du graphique</i></div>`,
+    facts:[['Plage','Above(...,0,count)'],['Somme','RangeSum(...)'],['Count dynamique','RowNo()']],
+    note:'RangeSum() traite les valeurs non numériques comme 0, ce qui est souvent plus pratique qu’une addition classique.',
+    advantages:['Formule classique de cumul Qlik','Permet aussi les fenêtres glissantes'],
+    disadvantages:['Le cumul redémarre avec les segments de colonne si TOTAL n’est pas approprié']
+  },
+  {
+    id:'rangeavg', n:'4', title:'RangeAvg() — moyenne mobile', level:'Intermédiaire', icon:'≈',
+    explain:'RangeAvg() calcule la moyenne d’une plage. Avec Above(), on obtient une moyenne mobile sur les dernières périodes.',
+    detail:'Par exemple, une moyenne mobile sur trois mois utilise la valeur courante et les deux lignes précédentes.',
+    example:`<div class="master-demo"><b>3 périodes</b><span class="qlik-code">RangeAvg(Above(Sum(CA),0,3))</span><i>moyenne de la période courante et des deux précédentes</i></div>`,
+    facts:[['Fenêtre','3 lignes'],['Source','Above()'],['Calcul','RangeAvg()']],
+    note:'La taille de fenêtre peut être remplacée par une variable pour rendre le calcul paramétrable.',
+    advantages:['Lisse les variations','Très utile pour tendances et séries temporelles'],
+    disadvantages:['Les premières lignes disposent de moins de valeurs']
+  },
+  {
+    id:'rowno', n:'5', title:'RowNo() — connaître la position', level:'Intermédiaire', icon:'#',
+    explain:'RowNo() renvoie le numéro de la ligne courante dans le segment de colonne. Avec TOTAL, la numérotation porte sur la colonne entière.',
+    detail:'On l’utilise souvent avec Above(), RangeSum() ou dans une condition particulière à la première ligne.',
+    example:`<div class="master-demo"><b>Première ligne</b><span class="qlik-code">If(RowNo()=1, 0, Sum(CA)-Above(Sum(CA)))</span><i>évite le NULL de la première comparaison</i></div>`,
+    facts:[['Segment','RowNo()'],['Toute la colonne','RowNo(TOTAL)'],['Usage','Cumul · conditions']],
+    note:'Les fonctions inter-record peuvent désactiver certains tris par mesure ; vérifiez toujours l’ordre final.',
+    advantages:['Très utile dans les calculs positionnels'],
+    disadvantages:['Le résultat dépend de la segmentation du tableau']
+  },
+  {
+    id:'before-after', n:'6', title:'Before() et After() — colonnes d’un tableau croisé', level:'Intermédiaire', icon:'↔',
+    explain:'Before() et After() jouent horizontalement un rôle comparable à Above() et Below(), mais ils sont destinés aux tableaux croisés dynamiques.',
+    detail:'Before() lit une colonne précédente du segment de ligne ; After() une colonne suivante. Dans les autres types de graphiques, ces fonctions renvoient NULL.',
+    example:`<div class="master-demo"><b>Évolution</b><span class="qlik-code">(Sum(CA)-Before(Sum(CA))) / Before(Sum(CA))</span><i>variation par rapport à la colonne précédente d’un pivot</i></div>`,
+    facts:[['Gauche','Before()'],['Droite','After()'],['Objet','Tableau croisé dynamique']],
+    note:'N’utilisez pas Before()/After() dans un tableau simple : utilisez Above()/Below() selon la structure.',
+    advantages:['Idéal pour comparaisons horizontales dans un pivot'],
+    disadvantages:['Spécifique aux tableaux croisés dynamiques']
+  },
+  {
+    id:'if', n:'7', title:'If() — la condition de base', level:'Fondamentaux', icon:'?',
+    explain:'If() renvoie une valeur si la condition est vraie et une autre si elle est fausse. C’est la fonction conditionnelle la plus connue.',
+    detail:'Elle est parfaite pour quelques conditions simples. Une cascade de nombreux If() devient toutefois difficile à lire et peut souvent être remplacée par Match(), Pick() ou une meilleure modélisation.',
+    example:`<div class="master-demo"><b>Statut</b><span class="qlik-code">If(Sum(CA)&gt;100000,'Objectif atteint','À suivre')</span><i>deux résultats selon une condition</i></div>`,
+    facts:[['Syntaxe','If(condition, vrai, faux)'],['Usage','Condition simple'],['Attention','Éviter les cascades géantes']],
+    note:'Quand vous commencez à imbriquer quatre ou cinq If(), demandez-vous s’il existe une solution plus claire.',
+    advantages:['Lisible pour les cas simples','Très polyvalent'],
+    disadvantages:['Imbrications rapidement illisibles']
+  },
+  {
+    id:'match', n:'8', title:'Match(), MixMatch() et WildMatch()', level:'Essentiel', icon:'🔎',
+    explain:'Match() cherche une correspondance exacte et renvoie sa position dans la liste. MixMatch() fait une comparaison insensible à la casse. WildMatch() ajoute les jokers * et ?.',
+    detail:'Le résultat est un numéro : 0 si rien ne correspond, 1 pour le premier élément, 2 pour le deuxième, etc. Cela permet aussi de les utiliser directement comme condition.',
+    example:`<div class="master-demo"><b>Recherche</b><span class="qlik-code">WildMatch(Produit,'PC*','Tablet*','Phone*')</span><i>1, 2, 3 selon le motif trouvé ; 0 sinon</i></div>`,
+    facts:[['Match','Exact + sensible à la casse'],['MixMatch','Exact + casse ignorée'],['WildMatch','Jokers * et ?']],
+    note:'WildMatch() est extrêmement pratique pour éviter une longue série de comparaisons OR.',
+    advantages:['Compact et lisible','Excellent pour recherche et classification'],
+    disadvantages:['Match() est sensible à la casse']
+  },
+  {
+    id:'pick', n:'9', title:'Pick() — choisir dans une liste', level:'Essentiel', icon:'☝',
+    explain:'Pick() renvoie le nième élément d’une liste. Son intérêt devient évident lorsqu’on lui fournit le résultat numérique d’un Match().',
+    detail:`Le couple Pick(Match(...),...) remplace élégamment de nombreux If() imbriqués et permet de faire correspondre une valeur à un libellé, une expression ou une couleur.<div class="noob-box"><b>👶 Pense à deux machines</b><p><code>Match(Region,'Nord','Sud','Est')</code> cherche la région. Si Region = 'Sud', il répond <b>2</b>.</p><p><code>Pick(2,'N','S','E')</code> prend alors le 2e élément et répond <b>'S'</b>.</p><p>Donc : <b>Match trouve le numéro, Pick utilise ce numéro.</b></p></div>`,
+    example:`<div class="master-demo"><b>Pick + Match</b><span class="qlik-code">Pick(Match(Region,'Nord','Sud','Est'),'N','S','E')</span><i>transforme la position trouvée en valeur choisie</i></div>`,
+    facts:[['Pick(1,...)','Premier élément'],['Pick(2,...)','Deuxième'],['Partenaire idéal','Match()']],
+    note:'Pick() ne cherche rien lui-même : il choisit selon un numéro.',
+    advantages:['Alternative élégante aux If imbriqués','Peut renvoyer des expressions, pas seulement du texte'],
+    disadvantages:['Si l’index est hors de la liste, le résultat n’est pas exploitable comme prévu']
+  },
+  {
+    id:'pick-match', n:'10', title:'Pick(Match()) — le duo à connaître', level:'Pratique', icon:'★',
+    explain:'En combinant Match() et Pick(), on obtient une structure de correspondance très lisible : Match() détermine le numéro et Pick() renvoie la valeur associée.',
+    detail:'C’est une technique particulièrement utile pour des libellés, des tris métier ou le choix d’une expression selon une catégorie.',
+    example:`<div class="master-demo"><b>Libellé</b><span class="qlik-code">Pick(Match(Code,'A','B','C'),'Actif','Bloqué','Clôturé')</span><i>équivalent compact d’une cascade de If()</i></div>`,
+    facts:[['Étape 1','Match() → index'],['Étape 2','Pick() → valeur'],['Résultat','Mapping dans l’expression']],
+    note:'Pour un mapping massif et stable, préférez néanmoins une table de mapping dans le script.',
+    advantages:['Très lisible pour de petites listes','Facile à maintenir'],
+    disadvantages:['Peu adapté à des dizaines ou centaines de correspondances']
+  },
+  {
+    id:'alt-coalesce', n:'11', title:'Alt() et Coalesce() — valeurs de secours', level:'Pratique', icon:'⛑',
+    explain:'Alt() renvoie le premier paramètre ayant une représentation numérique valide, puis la valeur de secours finale. Coalesce() renvoie le premier paramètre qui n’est pas NULL.',
+    detail:'Ils semblent proches mais ne répondent pas exactement au même besoin : Alt() est orienté interprétation numérique, Coalesce() vers la présence d’une valeur non NULL.',
+    example:`<div class="master-demo"><b>NULL</b><span class="qlik-code">Coalesce(TelephoneMobile, TelephoneFixe, 'Non renseigné')</span><i>première valeur non NULL</i></div>`,
+    facts:[['Alt','Premier nombre valide'],['Coalesce','Premier non-NULL'],['Usage','Valeurs de repli']],
+    note:'Coalesce() évite souvent des If(IsNull(...)) imbriqués.',
+    advantages:['Expressions plus courtes','Gestion propre des valeurs de secours'],
+    disadvantages:['Ne pas confondre « non NULL » et « numérique valide »']
+  },
+  {
+    id:'class', n:'12', title:'Class() — créer des tranches', level:'Pratique', icon:'▥',
+    explain:'Class() affecte une valeur numérique à un intervalle. C’est parfait pour créer rapidement des tranches d’âge, de montant, de délai ou de volume.',
+    detail:'Le résultat est une valeur duale dont le texte représente l’intervalle et dont la partie numérique facilite le tri.',
+    example:`<div class="master-demo"><b>Tranches</b><span class="qlik-code">Class(Montant,1000,'€')</span><i>0≤x&lt;1000, 1000≤x&lt;2000, etc.</i></div>`,
+    facts:[['Valeur','Montant'],['Intervalle','1000'],['Résultat','Classe / tranche']],
+    note:'Pour des tranches métier irrégulières, une logique spécifique ou une table dédiée sera plus appropriée.',
+    advantages:['Création immédiate d’histogrammes','Tri naturel grâce à la valeur duale'],
+    disadvantages:['Intervalles réguliers uniquement']
+  },
+  {
+    id:'dual', n:'13', title:'Dual() — un texte et un nombre', level:'Intermédiaire', icon:'2',
+    explain:'Dual() associe une représentation texte à une valeur numérique. Qlik affiche le texte mais peut trier ou calculer avec la valeur numérique.',
+    detail:'C’est très utile pour imposer un ordre métier à des libellés comme Faible, Moyen, Élevé ou pour fabriquer des libellés de période correctement triés.',
+    example:`<div class="master-demo"><b>Priorité</b><span class="qlik-code">Dual('Élevée',3)</span><i>affiche « Élevée » mais conserve la valeur numérique 3</i></div>`,
+    facts:[['Affichage','Texte'],['Tri/calcul','Nombre'],['Usage','Ordre métier']],
+    note:'Beaucoup de valeurs Qlik, notamment certaines dates et résultats de Class(), exploitent déjà le principe des valeurs duales.',
+    advantages:['Résout élégamment les problèmes de tri de libellés'],
+    disadvantages:['Peut surprendre si on oublie qu’une valeur possède deux représentations']
+  },
+  {
+    id:'only', n:'14', title:'Only() — une seule valeur ou NULL', level:'Pratique', icon:'1',
+    explain:'Only() renvoie une valeur lorsqu’il n’existe qu’une seule valeur possible dans le contexte d’agrégation. S’il en existe plusieurs, le résultat est NULL.',
+    detail:'C’est très utile pour afficher une information seulement lorsque la sélection est non ambiguë.',
+    example:`<div class="master-demo"><b>Sélection</b><span class="qlik-code">Only(Annee)</span><i>affiche 2026 si une seule année est possible, sinon NULL</i></div>`,
+    facts:[['1 valeur','Valeur retournée'],['Plusieurs','NULL'],['Usage','Contexte / sélection']],
+    note:'Only() est aussi un bon révélateur d’un contexte plus large que prévu.',
+    advantages:['Simple pour contrôler l’unicité'],
+    disadvantages:['Un NULL peut être normal et non une erreur']
+  },
+  {
+    id:'minmax-firstsorted', n:'15', title:'Min(), Max() et FirstSortedValue()', level:'Intermédiaire', icon:'🏆',
+    explain:'Min() et Max() trouvent les extrema numériques. FirstSortedValue() permet de récupérer une valeur associée à un ordre de tri, par exemple le produit correspondant au plus gros chiffre d’affaires.',
+    detail:'C’est une distinction importante : Max(Sum(CA)) cherche une valeur maximale dans un contexte adapté ; FirstSortedValue() sert à récupérer le libellé associé au classement.',
+    example:`<div class="master-demo"><b>Top produit</b><span class="qlik-code">FirstSortedValue(Produit,-Aggr(Sum(CA),Produit))</span><i>renvoie le produit classé sur le CA décroissant</i></div>`,
+    facts:[['Min/Max','Valeur extrême'],['FirstSortedValue','Valeur associée au tri'],['Signe -','Tri décroissant']],
+    note:'En cas d’ex æquo, FirstSortedValue() peut renvoyer NULL selon le contexte : testez les égalités.',
+    advantages:['Très puissant pour récupérer le « gagnant »'],
+    disadvantages:['Les ex æquo doivent être anticipés']
+  },
+  {
+    id:'rank', n:'16', title:'Rank() — classer les résultats', level:'Intermédiaire', icon:'🥇',
+    explain:'Rank() renvoie le rang d’une expression parmi les lignes d’un segment de colonne. Il permet de créer des classements dynamiques qui réagissent aux sélections.',
+    detail:'On l’utilise souvent sur une mesure agrégée, par exemple Rank(Sum(CA)), avec différentes options de représentation selon le besoin.',
+    example:`<div class="master-demo"><b>Classement</b><span class="qlik-code">Rank(Sum(CA))</span><i>rang du CA dans le contexte du graphique</i></div>`,
+    facts:[['Mesure','Sum(CA)'],['Résultat','Rang'],['Contexte','Dépend des dimensions/sélections']],
+    note:'Comme les autres fonctions inter-record, le contexte et la segmentation du graphique sont essentiels.',
+    advantages:['Top/Flop dynamique','Réagit aux sélections'],
+    disadvantages:['Les égalités et le contexte doivent être maîtrisés']
+  },
+  {
+    id:'concat', n:'17', title:'Concat() — regrouper du texte', level:'Pratique', icon:'≡',
+    explain:'Concat() agrège plusieurs valeurs textuelles dans une seule chaîne avec un séparateur. Avec DISTINCT, on peut éliminer les doublons.',
+    detail:'Très pratique pour afficher une liste de valeurs sélectionnées, de produits ou de catégories dans un KPI ou une infobulle.',
+    example:`<div class="master-demo"><b>Liste</b><span class="qlik-code">Concat(DISTINCT Region, ', ')</span><i>PACA, Occitanie, Bretagne…</i></div>`,
+    facts:[['Agrégation','Texte'],['Séparateur',"', '"],['Option','DISTINCT']],
+    note:'Une liste très longue devient vite illisible : pensez à limiter son usage à des ensembles raisonnables.',
+    advantages:['Excellent pour résumés et infobulles'],
+    disadvantages:['Peut produire des chaînes énormes']
+  },
+  {
+    id:'num-date', n:'18', title:'Num(), Date() et Timestamp() — maîtriser l’affichage', level:'Essentiel', icon:'📅',
+    explain:'Num(), Date() et Timestamp() servent principalement à formater la représentation d’une valeur numérique ou temporelle sans changer la logique métier sous-jacente.',
+    detail:'Qlik stocke les dates comme des nombres avec une représentation formatée. Comprendre cette dualité évite énormément d’erreurs de comparaison et d’affichage.',
+    example:`<div class="master-demo"><b>Date</b><span class="qlik-code">Date(DateCommande,'DD/MM/YYYY')</span><i>formate la représentation de la date</i></div>`,
+    facts:[['Num','Nombre'],['Date','Date'],['Timestamp','Date + heure']],
+    note:'Ne confondez pas formatage et interprétation : Date#() et Num#() servent à interpréter du texte, Date() et Num() à formater une valeur.',
+    advantages:['Affichage cohérent','Indispensable avec dates et montants'],
+    disadvantages:['Le mauvais usage de # peut transformer un problème de format en problème de données']
+  },
+  {
+    id:'date-tools', n:'19', title:'MonthStart(), AddMonths() et InMonth()', level:'Pratique', icon:'🗓',
+    explain:'Les fonctions de date Qlik permettent d’éviter beaucoup de calculs manuels. MonthStart() ramène au début du mois, AddMonths() décale une date et InMonth() teste l’appartenance à un mois relatif.',
+    detail:'Elles sont particulièrement utiles pour les périodes glissantes, comparaisons N/N-1 et bornes de Set Analysis.',
+    example:`<div class="master-demo"><b>Mois précédent</b><span class="qlik-code">MonthStart(AddMonths(Today(),-1))</span><i>premier jour du mois précédent</i></div>`,
+    facts:[['Début de mois','MonthStart()'],['Décalage','AddMonths()'],['Test relatif','InMonth()']],
+    note:'Pour les applications complexes, un calendrier maître bien construit reste préférable à une multiplication de calculs de dates.',
+    advantages:['Expressions temporelles fiables','Très utile avec Set Analysis'],
+    disadvantages:['Attention aux formats et timestamps lors des comparaisons']
+  },
+  {
+    id:'getselected', n:'20', title:'GetSelectedCount() et GetFieldSelections()', level:'Pratique', icon:'☑',
+    explain:'Ces fonctions permettent d’interroger les sélections de l’utilisateur. GetSelectedCount() compte les valeurs sélectionnées d’un champ ; GetFieldSelections() en fournit une représentation textuelle.',
+    detail:'Elles servent à adapter un titre, afficher un avertissement ou conditionner un objet selon l’état de sélection.',
+    example:`<div class="master-demo"><b>Titre</b><span class="qlik-code">If(GetSelectedCount(Annee)=1,'Année : '&amp;GetFieldSelections(Annee),'Plusieurs années')</span><i>titre dynamique selon la sélection</i></div>`,
+    facts:[['Compter','GetSelectedCount()'],['Afficher','GetFieldSelections()'],['Usage','UX dynamique']],
+    note:'Évitez de faire dépendre toute la logique métier de l’interface des sélections ; utilisez-les surtout pour améliorer l’expérience.',
+    advantages:['Très utile pour titres et messages dynamiques'],
+    disadvantages:['GetFieldSelections() peut abréger l’affichage lorsque de nombreuses valeurs sont sélectionnées']
+  },
+  {
+    id:'aggregations', n:'21', title:'Sum(), Count(), Avg()… — les agrégations', level:'Fondamentaux', icon:'Σ',
+    explain:'HIC classe Sum(), Count(), Avg(), Min(), Max(), Only() et Concat() parmi les fonctions d’agrégation : elles prennent plusieurs enregistrements et les réduisent à une seule valeur.',
+    detail:`<div class="noob-box"><b>👶 Imagine 3 lignes de ventes</b><p>10 €, 20 €, 30 €.</p><p><code>Sum(Montant)</code> → <b>60 €</b><br><code>Avg(Montant)</code> → <b>20 €</b><br><code>Min(Montant)</code> → <b>10 €</b><br><code>Max(Montant)</code> → <b>30 €</b>.</p><p>Dans un graphique, la dimension décide sur quelles lignes cette réduction est faite.</p></div>`,
+    example:`<div class="master-demo"><b>Principe</b><span>Plusieurs lignes → une valeur</span><i>c’est le rôle d’une agrégation</i></div>`,
+    facts:[['Sum','Somme'],['Count','Compte'],['Avg','Moyenne'],['Only','Une valeur unique sinon NULL']],
+    note:'HIC rappelle qu’une expression de mesure doit généralement aboutir à une seule valeur pour chaque cellule du graphique.',
+    advantages:['Base de presque toutes les mesures Qlik','Faciles à combiner avec Set Analysis'],
+    disadvantages:['Le résultat n’a de sens que si la granularité est comprise']
+  },
+  {
+    id:'count-distinct', n:'22', title:'Count() ou Count(DISTINCT) ? — le piège classique', level:'Essentiel', icon:'🔢',
+    explain:'Count(Champ) compte les occurrences non NULL. Count(DISTINCT Champ) compte les valeurs différentes. HIC montre que confondre les deux est une source très fréquente d’erreurs.',
+    detail:`<div class="noob-box"><b>👶 Exemple commandes</b><p>La commande 1001 contient 3 articles et la commande 1002 contient 2 articles. La table de faits contient donc <b>5 lignes</b>.</p><p><code>Count(Commande)</code> → <b>5</b> car le numéro apparaît sur 5 lignes.</p><p><code>Count(DISTINCT Commande)</code> → <b>2</b> car il n’y a que deux commandes différentes.</p></div>`,
+    example:`<div class="master-demo"><b>Nombre de commandes</b><span class="qlik-code">Count(DISTINCT CommandeID)</span><i>et non Count(CommandeID) si une commande possède plusieurs lignes</i></div>`,
+    facts:[['Count','Occurrences non NULL'],['Count DISTINCT','Valeurs uniques'],['Clé','DISTINCT recommandé']],
+    note:'Conseil HIC : évitez Count() sans DISTINCT sur un champ clé, car ce champ peut appartenir à plusieurs tables et le nombre de lignes visé devient ambigu.',
+    advantages:['DISTINCT répond souvent au vrai besoin métier','Évite de compter des lignes à la place des objets métier'],
+    disadvantages:['DISTINCT a un coût ; ne l’ajoutez pas mécaniquement quand le grain garantit déjà l’unicité']
+  },
+  {
+    id:'average-grain', n:'23', title:'Avg() — quelle moyenne veux-tu vraiment ?', level:'Essentiel', icon:'÷',
+    explain:'Un des meilleurs rappels de HIC : Avg(Montant) calcule la moyenne des lignes transactionnelles. Ce n’est pas forcément la moyenne métier que tu imagines.',
+    detail:`<div class="noob-box"><b>👶 Exemple</b><p>Janvier totalise 100 €, février 300 €. Tu veux la <b>vente mensuelle moyenne</b> : (100 + 300) / 2 = <b>200 €</b>.</p><p>Si les mois contiennent plusieurs lignes de commande, <code>Avg(Montant)</code> calcule la moyenne des <b>lignes</b>, pas celle des mois.</p><p>Le vrai raisonnement est : 1) somme par mois ; 2) moyenne de ces sommes.</p></div>`,
+    example:`<div class="master-demo"><b>Moyenne par mois</b><span class="qlik-code">Avg(Aggr(Sum(Montant), Mois))</span><i>deux niveaux : total mensuel, puis moyenne des mois</i></div>`,
+    facts:[['Question 1','Quel est le grain des données ?'],['Question 2','Moyenne par quoi ?'],['Deux niveaux','Aggr() si nécessaire']],
+    note:'HIC recommande de toujours identifier « l’entité de regroupement interne » : mois, jour, commande, client, livraison…',
+    advantages:['Évite des KPI mathématiquement corrects mais métier faux'],
+    disadvantages:['Aggr() n’est pas toujours la solution la plus performante ; une modélisation ou un calcul plus direct peut être préférable']
+  },
+  {
+    id:'static-dynamic', n:'24', title:'Calculer dans le script ou dans le graphique ?', level:'Bonnes pratiques', icon:'⚙',
+    explain:'HIC propose une règle simple : si le résultat est statique, calcule-le plutôt au chargement ; s’il doit changer avec les sélections, calcule-le dans le graphique.',
+    detail:`<div class="noob-box"><b>👶 Deux cas</b><p><b>Year(Date)</b> : le 12/09/2026 restera toujours en 2026 → calcul statique, bon candidat pour le script/calendrier.</p><p><b>Rank(Sum(CA))</b> : le classement d’un client change quand l’utilisateur sélectionne un produit ou une région → calcul dynamique, donc graphique.</p></div>`,
+    example:`<div class="master-demo"><b>Règle</b><span>Statique → script · Dynamique → graphique</span><i>moins de calculs inutiles au clic</i></div>`,
+    facts:[['Date → année','Statique'],['Classement','Dynamique'],['Objectif','Performance + clarté']],
+    note:'La documentation Qlik recommande également de pré-calculer dans le script les mesures possibles au niveau de granularité le plus bas.',
+    advantages:['Applications plus rapides','Logique plus facile à comprendre'],
+    disadvantages:['Pré-calculer une logique qui doit réagir aux sélections la rendrait incorrecte']
+  },
+  {
+    id:'missing-values', n:'25', title:'Above() et les mois manquants — attention !', level:'Avancé mais indispensable', icon:'⚠',
+    explain:'HIC souligne un piège majeur des cumuls et moyennes mobiles : Above() suit les lignes réellement présentes dans le graphique, pas un calendrier imaginaire.',
+    detail:`<div class="noob-box"><b>👶 Exemple qui piège tout le monde</b><p>Le graphique contient Janvier, Février, <b>pas Mars</b>, puis Avril.</p><p>Pour Avril, <code>Above(Sum(CA))</code> regarde la ligne précédente affichée : <b>Février</b>. Il ne peut pas deviner que Mars manque.</p><p>Une moyenne « 3 mois » peut donc couvrir Janvier + Février + Avril au lieu de Février + Mars + Avril.</p></div>`,
+    example:`<div class="master-demo"><b>À vérifier</b><span>Calendrier complet + valeurs zéro si nécessaire</span><i>les périodes absentes doivent exister dans le graphique si le calcul en dépend</i></div>`,
+    facts:[['Above','Ligne précédente'],['Pas','Période précédente'],['Solution','Afficher les périodes nécessaires']],
+    note:'HIC montre notamment l’approche consistant à faire apparaître aussi les valeurs dimensionnelles sans données (par exemple avec un terme nul approprié et l’affichage des zéros), ou à utiliser une autre architecture temporelle selon le besoin.',
+    advantages:['Évite des cumuls silencieusement faux'],
+    disadvantages:['Demande de penser au calendrier et à l’état de sélection']
+  },
+  {
+    id:'checklist', n:'26', title:'Quelle fonction choisir ?', level:'À retenir', icon:'✓',
+    explain:'Le bon réflexe est de partir du besoin : ligne précédente → Above(); cumul → RangeSum(Above()); choix par index → Pick(); correspondance → Match/WildMatch(); valeur de secours → Coalesce/Alt; tranche → Class(); ordre métier → Dual().',
+    detail:'Puis vérifiez trois choses : la fonction dépend-elle du tri ? du type de graphique ? du contexte de sélection ? Ces trois questions expliquent une grande partie des résultats surprenants dans Qlik.',
+    example:`<div class="master-demo"><b>Réflexe SOSQLIK</b><span>Besoin → fonction → contexte → tri → test</span><i>comprendre avant de complexifier</i></div>`,
+    facts:[['Comparer lignes','Above / Below'],['Choisir','Pick / Match'],['Cumuler','Range*'],['Sécuriser','Alt / Coalesce']],
+    note:'Ce tutoriel est une boîte à outils : revenez-y selon le problème rencontré plutôt que d’essayer de mémoriser toutes les fonctions.',
+    advantages:['Choix plus rapide de la bonne fonction','Expressions plus simples et maintenables'],
+    disadvantages:['Toujours vérifier la documentation pour les options avancées']
+  }
+];
+
+const sources = [
+  {label:'Qlik Help — Inter-record functions', url:'https://help.qlik.com/en-US/sense/May2026/Subsystems/Hub/Content/Sense_Hub/ChartFunctions/InterRecordFunctions/inter-record-functions-charts.htm'},
+  {label:'Qlik Help — Conditional functions', url:'https://help.qlik.com/en-US/sense/May2026/Subsystems/Hub/Content/Sense_Hub/Scripting/ConditionalFunctions/conditional-functions.htm'},
+  {label:'Qlik Help — Range functions', url:'https://help.qlik.com/en-US/sense/May2026/Subsystems/Hub/Content/Sense_Hub/ChartFunctions/RangeFunctions/RangeFunctionsInCharts.htm'},
+  {label:'HIC — The Above Function', url:'https://community.qlik.com/t5/Design/The-Above-Function/ba-p/1465357'},
+  {label:'HIC — Aggregations and Function Classes', url:'https://community.qlik.com/t5/Design/Aggregations-and-Function-Classes/ba-p/1471304'}
+];
+---
+
+<BaseLayout title="Les fonctions utiles de Qlik — SOSQLIK">
+  <TutorialLayout
+    title="Les fonctions utiles de Qlik"
+    description="Above, Below, RangeSum, Pick, Match, WildMatch, Rank, Dual et bien d’autres : les fonctions à connaître pour construire des expressions efficaces."
+    navTitle="Fonctions utiles"
+    lessons={lessons}
+    sourceTitle="Références Qlik"
+    sourceText="Ce tutoriel croise la documentation officielle Qlik avec plusieurs articles pédagogiques de Henric Cronström (HIC), notamment « Aggregations and Function Classes », « The Above Function », « Accumulations », « Count or Count distinct? » et « Average – Which average? ». Les explications et exemples SOSQLIK sont réécrits en français et simplifiés pour débuter ; ils ne constituent pas une traduction des articles originaux."
+    sourceLinks={sources}
+  />
+</BaseLayout>

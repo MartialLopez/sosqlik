@@ -1,0 +1,138 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const topics = [
+  ['▥','Qlik Sense'],
+  ['▤','Script'],
+  ['{ }','Set Analysis'],
+  ['◉','QVD'],
+  ['◉','Data & Modélisation'],
+  ['ƒx','Expressions'],
+  ['▥','Visualisations'],
+  ['⚙','Scripts & Reload'],
+  ['▣','NPrinting'],
+  ['♢','Bonnes pratiques']
+];
+---
+<BaseLayout title="SOSQLIK — Astuces, tutoriels et retours d’expérience">
+  <section class="home-hero">
+    <div class="container hero-content">
+      <div class="hero-copy">
+        <p class="eyebrow">APPRENDRE · PARTAGER · PROGRESSER</p>
+        <h1>Tout l’univers Qlik<br><span>Des données aux décisions</span></h1>
+        <p class="hero-text">
+          Des tutoriels clairs, des astuces concrètes et des retours d’expérience<br>
+          pour vous aider au quotidien.
+        </p>
+        <div class="hero-buttons">
+          <a class="btn primary" href="/tutoriels">Découvrir les tutoriels →</a>
+          <a class="btn secondary" href="/articles">Voir les derniers articles</a>
+        </div>
+      </div>
+      
+    </div>
+  </section>
+
+  <section class="topic-strip">
+    <div class="container topics">
+      {topics.map(([icon,label]) => (
+        <a class="topic" href="/ressources"><b>{icon}</b><span>{label}</span></a>
+      ))}
+    </div>
+  </section>
+
+  <section class="features">
+    <div class="container feature-grid">
+      <article class="feature-card">
+        <div class="feature-icon blue">▭</div>
+        <div>
+          <h3>Tutoriels pratiques</h3>
+          <p>Des pas-à-pas clairs et illustrés pour progresser rapidement.</p>
+          <a href="/tutoriels">Voir les tutoriels →</a>
+        </div>
+      </article>
+
+      <article class="feature-card">
+        <div class="feature-icon green">⚙</div>
+        <div>
+          <h3>Retours d’expérience</h3>
+          <p>Des cas concrets et des bonnes pratiques du terrain.</p>
+          <a href="/articles">Lire les retours →</a>
+        </div>
+      </article>
+
+      <article class="feature-card">
+        <div class="feature-icon orange">☼</div>
+        <div>
+          <h3>Astuces & Tips</h3>
+          <p>Des solutions simples aux problèmes courants.</p>
+          <a href="/articles">Découvrir les astuces →</a>
+        </div>
+      </article>
+
+      <article class="feature-card">
+        <div class="feature-icon cyan">♧</div>
+        <div>
+          <h3>Une communauté</h3>
+          <p>Un site indépendant, fait par un passionné, pour les utilisateurs.</p>
+          <a href="/a-propos">En savoir plus →</a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="ideas">
+    <div class="container ideas-box">
+      <div class="ideas-copy">
+        <div class="quote">“</div>
+        <h2>Des idées claires<br>pour des données<br>qui comptent.</h2>
+        <span></span>
+      </div>
+      <div class="ideas-image" aria-label="Tableau de bord Qlik, livres et notes"></div>
+      <div class="ideas-list">
+        <div>✓ Analyser</div>
+        <div>✓ Comprendre</div>
+        <div>✓ Optimiser</div>
+        <div>✓ Partager</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="latest">
+    <div class="container">
+      <div class="latest-head">
+        <h2>Derniers articles</h2>
+        <a href="/articles">Voir tous les articles →</a>
+      </div>
+
+      <div class="article-grid">
+        <a class="article-card" href="/articles">
+          <img src="/assets/article-qvd.jpg" alt="" />
+          <div class="article-card-body">
+            <small>QLIK SENSE</small>
+            <h3>Optimiser la taille de vos QVD</h3>
+            <p>▣ &nbsp; 5 septembre 2026 <span>→</span></p>
+          </div>
+        </a>
+
+        <a class="article-card" href="/articles">
+          <img src="/assets/article-incremental.jpg" alt="" />
+          <div class="article-card-body">
+            <small>SCRIPT</small>
+            <h3>Gérer les chargements incrémentaux</h3>
+            <p>▣ &nbsp; 28 août 2026 <span>→</span></p>
+          </div>
+        </a>
+
+        <a class="article-card" href="/articles">
+          <img src="/assets/article-bonnes-pratiques.jpg" alt="" />
+          <div class="article-card-body">
+            <small>BONNES PRATIQUES</small>
+            <h3>Structurer efficacement vos applications</h3>
+            <p>▣ &nbsp; 20 août 2026 <span>→</span></p>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
