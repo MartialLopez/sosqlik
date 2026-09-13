@@ -4526,3 +4526,82 @@ html[data-theme="dark"] .expression-card code .op{color:#e1e7eb !important}
 .master-demo > span.qlik-code .qs-keyword,
 .master-demo > span.qlik-code .qs-set,
 .master-demo > span.qlik-code .qs-operator{white-space:pre-wrap}
+
+
+/* SOSQLIK V4.52 — robustesse mobile des tutoriels
+   Correction globale des contenus longs sans réduire la typographie. */
+
+/* Les enfants flex/grid doivent pouvoir réellement rétrécir. */
+.hic-source-note,
+.hic-source-content,
+.hic-source-links,
+.tutorial-shell,
+.tutorial-main,
+.tutorial-content,
+.lesson-content,
+.lesson-card {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.hic-source-content {
+  flex: 1 1 auto !important;
+}
+
+/* Un intitulé de référence long revient à la ligne au lieu de sortir du cadre. */
+.hic-source-links a {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  white-space: normal !important;
+  overflow-wrap: anywhere !important;
+  word-break: normal !important;
+  line-height: 1.45 !important;
+}
+
+.hic-source-links a span {
+  flex: 0 0 auto !important;
+}
+
+/* Titres et textes : garde-fou pour les libellés exceptionnellement longs. */
+.hic-source-content strong,
+.hic-source-content p,
+.tutorial-main h1,
+.tutorial-main h2,
+.tutorial-main h3,
+.lesson-content h2,
+.lesson-content h3 {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  overflow-wrap: break-word !important;
+  word-break: normal !important;
+}
+
+/* Le code ne doit jamais élargir toute la page : on le fait défiler si nécessaire. */
+.qlik-code,
+pre,
+pre code {
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+pre {
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch;
+}
+pre code {
+  overflow-wrap: normal !important;
+  word-break: normal !important;
+}
+
+@media (max-width: 600px) {
+  .hic-source-note {
+    width: auto !important;
+  }
+  .hic-source-links {
+    width: 100% !important;
+  }
+  .hic-source-links a {
+    width: fit-content;
+  }
+}
+

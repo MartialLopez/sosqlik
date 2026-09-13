@@ -52,119 +52,181 @@ const exos = [
     result:'Seuls les enregistrements dont Montant est supérieur ou égal à 1000 participent à la somme.'
   },
   {
-    id:'variable', n:'7', title:'Variable et Dollar-sign expansion', level:'Avancé',
+    id:'type-numerique', n:'7', title:'Avant les quotes : identifier le type de la valeur', level:'Fondamental',
+    expr:`Sum({<Annee={2026}>} Montant)`,
+    html:`<span class="fn">Sum</span><span class="op">(</span><span class="set">{&lt;</span><span class="field">Annee</span><span class="op">=</span><span class="set">{</span><span class="value">2026</span><span class="set">}&gt;}</span> <span class="field">Montant</span><span class="op">)</span>`,
+    explain:'Avant de choisir des quotes, posez-vous une question simple : la valeur manipulée est-elle numérique, textuelle, ou s’agit-il d’une recherche ? Ici, Annee est un champ numérique et 2026 est une valeur numérique. On écrit donc 2026 sans quotes.',
+    result:'Le piège est de se fier uniquement à ce qui est affiché à l’écran. Deux valeurs peuvent toutes les deux apparaître comme 2026 tout en n’ayant pas le même type dans le modèle Qlik. La syntaxe du Set doit refléter la nature réelle de la valeur.'
+  },
+  {
+    id:'litteral-texte', n:'8', title:'Littéral texte : utiliser les simples quotes', level:'Fondamental',
+    expr:`Sum({<Region={'Sud'}>} Montant)`,
+    html:`<span class="fn">Sum</span><span class="op">(</span><span class="set">{&lt;</span><span class="field">Region</span><span class="op">=</span><span class="set">{</span><span class="string">'Sud'</span><span class="set">}&gt;}</span> <span class="field">Montant</span><span class="op">)</span>`,
+    explain:'Sud est ici une valeur textuelle précise : un littéral. La bonne habitude consiste à l’entourer de simples quotes. Même lorsqu’un texte ne contient ni espace, ni accent, ni caractère spécial, les simples quotes rendent immédiatement visible qu’il s’agit d’une valeur texte exacte.',
+    result:'Règle SOSQLIK : pour un littéral texte, écrivez les simples quotes systématiquement. Cette convention évite les ambiguïtés, améliore la lecture des expressions et suit la distinction pédagogique mise en avant par HIC entre littéraux et recherches.'
+  },
+  {
+    id:'nombre-ou-texte', n:'9', title:'2026 et \'2026\' : même affichage, pas forcément même valeur', level:'Fondamental',
+    expr:`Sum({<CodeAnnee={'2026'}>} Montant)`,
+    html:`<span class="fn">Sum</span><span class="op">(</span><span class="set">{&lt;</span><span class="field">CodeAnnee</span><span class="op">=</span><span class="set">{</span><span class="string">'2026'</span><span class="set">}&gt;}</span> <span class="field">Montant</span><span class="op">)</span>`,
+    explain:'Un champ peut contenir un code composé uniquement de chiffres tout en étant textuel. CodeAnnee peut par exemple contenir la chaîne de caractères 2026, alors que le champ Annee contient le nombre 2026. Visuellement, la différence est invisible ; dans le modèle, elle peut être importante.',
+    result:'Ne transformez donc pas automatiquement {2026} en {\'2026\'} ou l’inverse. Pour Annee numérique, utilisez {2026}. Pour CodeAnnee textuel, utilisez {\'2026\'}. En cas de doute, vérifiez comment le champ est construit ou chargé.'
+  },
+  {
+    id:'wildcards', n:'10', title:'Rechercher avec les wildcards * et ?', level:'Intermédiaire',
+    expr:`Sum({<Produit={"PC-*"}>} Montant)`,
+    html:`<span class="fn">Sum</span><span class="op">(</span><span class="set">{&lt;</span><span class="field">Produit</span><span class="op">=</span><span class="set">{</span><span class="search">&quot;PC-*&quot;</span><span class="set">}&gt;}</span> <span class="field">Montant</span><span class="op">)</span>`,
+    explain:'Dès que l’on utilise * ou ?, on ne désigne plus un littéral exact : on demande à Qlik d’effectuer une recherche dans les valeurs du champ. C’est pourquoi les motifs de recherche sont écrits entre doubles quotes.',
+    result:'Les quatre cas ci-dessous montrent comment placer * ou ? selon ce que l’on cherche. L’objectif n’est pas de mémoriser quatre syntaxes différentes, mais de comprendre ce que représente chaque wildcard.',
+    variants:[
+      {label:'Commence par', expr:`Sum({<Produit={"PC-*"}>} Montant)`, html:`<span class="fn">Sum</span><span class="op">(</span><span class="set">{&lt;</span><span class="field">Produit</span><span class="op">=</span><span class="set">{</span><span class="search">&quot;PC-*&quot;</span><span class="set">}&gt;}</span> <span class="field">Montant</span><span class="op">)</span>`, text:'Le motif "PC-*" retient toutes les valeurs qui commencent par PC-. L’astérisque accepte ensuite zéro, un ou plusieurs caractères.'},
+      {label:'Contient', expr:`Sum({<Produit={"*PORTABLE*"}>} Montant)`, html:`<span class="fn">Sum</span><span class="op">(</span><span class="set">{&lt;</span><span class="field">Produit</span><span class="op">=</span><span class="set">{</span><span class="search">&quot;*PORTABLE*&quot;</span><span class="set">}&gt;}</span> <span class="field">Montant</span><span class="op">)</span>`, text:'Avec un astérisque de chaque côté, Qlik recherche PORTABLE n’importe où dans la valeur. PC-PORTABLE-14 et PC-PORTABLE-16 correspondent au motif.'},
+      {label:'Se termine par', expr:`Sum({<Produit={"*-16"}>} Montant)`, html:`<span class="fn">Sum</span><span class="op">(</span><span class="set">{&lt;</span><span class="field">Produit</span><span class="op">=</span><span class="set">{</span><span class="search">&quot;*-16&quot;</span><span class="set">}&gt;}</span> <span class="field">Montant</span><span class="op">)</span>`, text:'Ici, * est placé au début : la partie précédente peut varier, mais la valeur doit se terminer par -16. PC-PORTABLE-16 et TEL-IPHONE-16 sont donc retenus.'},
+      {label:'Un seul caractère', expr:`Sum({<Produit={"PC-PORTABLE-1?"}>} Montant)`, html:`<span class="fn">Sum</span><span class="op">(</span><span class="set">{&lt;</span><span class="field">Produit</span><span class="op">=</span><span class="set">{</span><span class="search">&quot;PC-PORTABLE-1?&quot;</span><span class="set">}&gt;}</span> <span class="field">Montant</span><span class="op">)</span>`, text:'Le ? remplace exactement un caractère. PC-PORTABLE-14 et PC-PORTABLE-16 correspondent ; PC-PORTABLE-100 ne correspond pas. * accepte une longueur variable, ? une longueur d’un seul caractère.'}
+    ]
+  },
+  {
+    id:'champ-vide', n:'11', title:'<Champ=> ou <Champ={}> : attention au piège', level:'Intermédiaire',
+    expr:`Sum({$<Region=>} Montant)`,
+    html:`<span class="fn">Sum</span><span class="op">(</span><span class="set">{$&lt;</span><span class="field">Region</span><span class="op">=</span><span class="set">&gt;}</span> <span class="field">Montant</span><span class="op">)</span>`,
+    explain:'Ces deux écritures se ressemblent énormément, mais elles ne demandent pas la même chose à Qlik. Avec <Region=>, on retire la sélection du champ Region pour ce calcul : Region ne filtre plus le résultat. Avec <Region={}>, on définit au contraire une liste de valeurs vide pour Region.',
+    result:'À retenir : <Champ=> signifie « ne tiens pas compte de la sélection sur ce champ ». <Champ={}> signifie « aucune valeur pour ce champ ». Une paire d’accolades en plus change donc complètement le sens du Set.'
+  },
+  {
+    id:'operateurs-implicites', n:'12', title:'=, +=, -= et *= : remplacer ou modifier la sélection', level:'Intermédiaire',
+    expr:`Sum({$<Produit+={'PC'}>} Montant)`,
+    html:`<span class="fn">Sum</span><span class="op">(</span><span class="set">{$&lt;</span><span class="field">Produit</span><span class="op">+=</span><span class="set">{</span><span class="string">'PC'</span><span class="set">}&gt;}</span> <span class="field">Montant</span><span class="op">)</span>`,
+    explain:'Dans un modificateur, = remplace la sélection du champ par les valeurs indiquées. Les opérateurs implicites +=, -= et *= travaillent au contraire à partir de la sélection déjà présente : += ajoute, -= retire et *= conserve uniquement l’intersection.',
+    result:'Ici, Produit+=\'PC\' ajoute PC aux produits déjà sélectionnés. C’est très différent de Produit={\'PC\'}, qui remplace la sélection du champ Produit par PC. Avant d’utiliser +=, -= ou *=, demandez-vous donc si votre calcul doit partir de la sélection courante.'
+  },
+  {
+    id:'recherche-numerique', n:'13', title:'Recherche numérique : les doubles quotes ne servent pas qu’au texte', level:'Intermédiaire',
+    expr:`Sum({$<Annee={">=2020<=2026"}>} Montant)`,
+    html:`<span class="fn">Sum</span><span class="op">(</span><span class="set">{$&lt;</span><span class="field">Annee</span><span class="op">=</span><span class="set">{</span><span class="search">&quot;&gt;=2020&lt;=2026&quot;</span><span class="set">}&gt;}</span> <span class="field">Montant</span><span class="op">)</span>`,
+    explain:'Les doubles quotes indiquent une recherche, pas nécessairement une recherche textuelle avec un wildcard. Elles permettent aussi d’exprimer une condition numérique. Ici, Qlik recherche dans Annee toutes les valeurs comprises entre 2020 et 2026 inclus.',
+    result:'Cela complète la règle vue précédemment : {2026} désigne la valeur numérique 2026 ; {\'2026\'} désigne un littéral texte ; {">=2020<=2026"} est une recherche numérique. Ce sont trois intentions différentes et la syntaxe doit les rendre visibles.'
+  },
+  {
+    id:'recherche-expression', n:'14', title:'Recherche par expression : filtrer selon un calcul', level:'Avancé',
+    expr:`Sum({$<Client={"=Sum(Montant)>100000"}>} Montant)`,
+    html:`<span class="fn">Sum</span><span class="op">(</span><span class="set">{$&lt;</span><span class="field">Client</span><span class="op">=</span><span class="set">{</span><span class="search">&quot;=</span><span class="fn">Sum</span><span class="op">(</span><span class="field">Montant</span><span class="op">)&gt;</span><span class="value">100000</span><span class="search">&quot;</span><span class="set">}&gt;}</span> <span class="field">Montant</span><span class="op">)</span>`,
+    explain:'Une recherche peut commencer par = et contenir une expression Qlik. La condition est alors évaluée pour les valeurs du champ recherché. Ici, on ne choisit pas les clients par leur nom : on recherche les clients pour lesquels Sum(Montant) dépasse 100 000.',
+    result:'C’est extrêmement puissant, mais à utiliser avec discernement : le résultat dépend du contexte dans lequel l’expression de recherche est évaluée. Pour SOSQLIK, la bonne pratique est de réserver cette syntaxe aux besoins réellement dynamiques et de documenter clairement la condition métier.'
+  },
+  {
+    id:'variable', n:'15', title:'Variable et Dollar-sign expansion', level:'Avancé',
     expr:`Sum({<Annee={$(=Max(Annee))}>} Montant)`,
     html:`<span class="fn">Sum</span><span class="op">(</span><span class="set">{&lt;</span><span class="field">Annee</span><span class="op">=</span><span class="set">{</span><span class="dollar">$(=</span><span class="fn">Max</span><span class="op">(</span><span class="field">Annee</span><span class="op">)</span><span class="dollar">)</span><span class="set">}&gt;}</span> <span class="field">Montant</span><span class="op">)</span>`,
     explain:'La Dollar-sign expansion évalue Max(Annee) avant que le Set Analysis ne soit appliqué.',
     result:'Le calcul utilise automatiquement l’année maximale disponible dans le contexte d’évaluation.'
   },
   {
-    id:'dates', n:'8', title:'Gérer une période de dates', level:'Avancé',
+    id:'dates', n:'16', title:'Gérer une période de dates', level:'Avancé',
     expr:`Sum({<Date={">=$(=MonthStart(Max(Date)))<=$(=Max(Date))"}>} Montant)`,
     html:`<span class="fn">Sum</span><span class="op">(</span><span class="set">{&lt;</span><span class="field">Date</span><span class="op">=</span><span class="set">{</span><span class="search">"&gt;=$(=MonthStart(Max(Date)))&lt;=$(=Max(Date))"</span><span class="set">}&gt;}</span> <span class="field">Montant</span><span class="op">)</span>`,
     explain:'La recherche délimite ici une plage dynamique allant du début du mois de la date maximale jusqu’à cette date maximale.',
     result:'Le résultat correspond au cumul du mois courant jusqu’à la dernière date disponible dans le contexte.'
   },
   {
-    id:'p', n:'9', title:'Fonction P() — valeurs possibles', level:'Avancé',
+    id:'p', n:'17', title:'Fonction P() — valeurs possibles', level:'Avancé',
     expr:`Sum({<Client=P({1<Produit={'A'}>} Client)>} Montant)`,
     html:`<span class="fn">Sum</span><span class="op">(</span><span class="set">{&lt;</span><span class="field">Client</span><span class="op">=</span><span class="fn">P</span><span class="op">(</span><span class="set">{&lt;</span><span class="field">Produit</span><span class="op">=</span><span class="set">{</span><span class="string">'A'</span><span class="set">}&gt;}</span> <span class="field">Client</span><span class="op">)</span><span class="set">&gt;}</span> <span class="field">Montant</span><span class="op">)</span>`,
     explain:'P() renvoie les valeurs possibles d’un champ dans un ensemble. Ici, on récupère les clients possibles lorsqu’on impose Produit=A.',
     result:'La somme porte sur les Montants des clients ayant acheté le produit A. Ces clients peuvent ensuite être évalués sur l’ensemble du contexte externe.'
   },
   {
-    id:'e', n:'10', title:'Fonction E() — valeurs exclues', level:'Expert',
+    id:'e', n:'18', title:'Fonction E() — valeurs exclues', level:'Expert',
     expr:`Sum({<Client=E({1<Produit={'A'}>} Client)>} Montant)`,
     html:`<span class="fn">Sum</span><span class="op">(</span><span class="set">{&lt;</span><span class="field">Client</span><span class="op">=</span><span class="fn">E</span><span class="op">(</span><span class="set">{&lt;</span><span class="field">Produit</span><span class="op">=</span><span class="set">{</span><span class="string">'A'</span><span class="set">}&gt;}</span> <span class="field">Client</span><span class="op">)</span><span class="set">&gt;}</span> <span class="field">Montant</span><span class="op">)</span>`,
     explain:'E() fait l’inverse de P() : elle renvoie les valeurs exclues du champ dans l’ensemble indiqué.',
     result:'Le calcul cible les clients exclus lorsque Produit=A — autrement dit ceux qui ne sont pas associés à A dans cet ensemble.'
   },
   {
-    id:'intersection', n:'11', title:'Intersection — A * B', level:'Intermédiaire',
+    id:'intersection', n:'19', title:'Intersection — A * B', level:'Intermédiaire',
     expr:`Sum({<Client=P({1<Produit={'A'}>} Client)*P({1<Produit={'B'}>} Client)>} Montant)`,
     html:`<span class="fn">Sum</span><span class="op">(</span><span class="set">{&lt;</span><span class="field">Client</span><span class="op">=</span><span class="fn">P</span><span class="op">(</span><span class="set">{&lt;</span><span class="field">Produit</span><span class="op">=</span><span class="set">{</span><span class="string">'A'</span><span class="set">}&gt;}</span> <span class="field">Client</span><span class="op">)</span><span class="op">*</span><span class="fn">P</span><span class="op">(</span><span class="set">{&lt;</span><span class="field">Produit</span><span class="op">=</span><span class="set">{</span><span class="string">B</span><span class="set">}&gt;}</span> <span class="field">Client</span><span class="op">)</span><span class="set">&gt;}</span> <span class="field">Montant</span><span class="op">)</span>`,
     explain:'* = intersection. On ne garde que la partie commune à A et B. Imagine deux cercles : seule leur zone de chevauchement reste.',
     result:'A * B = A ET B. Exemple : A = Lucas, Sonia, Abdel ; B = Sonia, Abdel, Tristan ; résultat = Sonia et Abdel.'
   },
   {
-    id:'difference', n:'12', title:'Différence — A - B', level:'Intermédiaire',
+    id:'difference', n:'20', title:'Différence — A - B', level:'Intermédiaire',
     expr:`Sum({<Client=P({1<Produit={'A'}>} Client)-P({1<Produit={'B'}>} Client)>} Montant)`,
     html:`<span class="fn">Sum</span><span class="op">(</span><span class="set">{&lt;</span><span class="field">Client</span><span class="op">=</span><span class="fn">P</span><span class="op">(</span><span class="set">{&lt;</span><span class="field">Produit</span><span class="op">=</span><span class="set">{</span><span class="string">'A'</span><span class="set">}&gt;}</span> <span class="field">Client</span><span class="op">)</span><span class="op">-</span><span class="fn">P</span><span class="op">(</span><span class="set">{&lt;</span><span class="field">Produit</span><span class="op">=</span><span class="set">{</span><span class="string">B</span><span class="set">}&gt;}</span> <span class="field">Client</span><span class="op">)</span><span class="set">&gt;}</span> <span class="field">Montant</span><span class="op">)</span>`,
     explain:'- = différence. On part de A et on retire ce qui appartient aussi à B. Attention : A-B n’est pas B-A.',
     result:'A - B = A mais PAS B. Exemple : A = Serge, Sophie, Vincent ; B = Vincent, Karine ; résultat = Serge et Sophie.'
   },
   {
-    id:'union', n:'13', title:'Union — A + B', level:'Intermédiaire',
+    id:'union', n:'21', title:'Union — A + B', level:'Intermédiaire',
     expr:`Sum({$+1<Annee={2026}>} Montant)`,
     html:`<span class="fn">Sum</span><span class="op">(</span><span class="set">{</span><span class="dollar">$</span><span class="op">+</span><span class="value">1</span><span class="set">&lt;</span><span class="field">Annee</span><span class="op">=</span><span class="set">{</span><span class="value">2026</span><span class="set">}&gt;}</span> <span class="field">Montant</span><span class="op">)</span>`,
     explain:'+ = union. On rassemble tout ce qui appartient à A OU à B.',
     result:'A + B = A OU B. À retenir : + rassemble, * croise, - retire et / garde ce qui est exclusif à l’un ou l’autre.'
   },
   {
-    id:'sym-diff', n:'14', title:'Différence symétrique — A / B', level:'Intermédiaire',
+    id:'sym-diff', n:'22', title:'Différence symétrique — A / B', level:'Intermédiaire',
     expr:`Sum({$ / 1<Annee={2026}>} Montant)`,
     html:`<span class="fn">Sum</span><span class="op">(</span><span class="set">{</span><span class="dollar">$</span><span class="op">/</span><span class="value">1</span><span class="set">&lt;</span><span class="field">Annee</span><span class="op">=</span><span class="set">{</span><span class="value">2026</span><span class="set">}&gt;}</span> <span class="field">Montant</span><span class="op">)</span>`,
     explain:'/ = différence symétrique. On garde ce qui appartient à A ou à B, mais pas ce qui appartient aux deux à la fois.',
     result:'A / B = A OU B mais PAS les deux. Exemple : A = Dudu, Dédé, Martial ; B = Martial, Karine, Tristan ; résultat = Dudu, Dédé, Karine et Tristan.'
   },
   {
-    id:'aggr', n:'15', title:'Set Analysis avec Aggr()', level:'Expert',
+    id:'aggr', n:'23', title:'Set Analysis avec Aggr()', level:'Expert',
     expr:`Avg(Aggr(Sum({<Annee={2026}>} Montant), Client))`,
     html:`<span class="fn">Avg</span><span class="op">(</span><span class="fn">Aggr</span><span class="op">(</span><span class="fn">Sum</span><span class="op">(</span><span class="set">{&lt;</span><span class="field">Annee</span><span class="op">=</span><span class="set">{</span><span class="value">2026</span><span class="set">}&gt;}</span> <span class="field">Montant</span><span class="op">),</span> <span class="field">Client</span><span class="op">))</span>`,
     explain:'Aggr() crée une agrégation intermédiaire par Client. Le Set Analysis est appliqué à la somme interne avant le calcul de la moyenne.',
     result:'On obtient la moyenne des montants 2026 agrégés par client, plutôt que la moyenne brute des lignes.'
   },
   {
-    id:'naturel', n:'16', title:'Ensembles naturels et non naturels', level:'Expert',
+    id:'naturel', n:'24', title:'Ensembles naturels et non naturels', level:'Expert',
     expr:`Sum({$-<Client={'X'}>} Montant)`,
     html:`<span class="fn">Sum</span><span class="op">(</span><span class="set">{</span><span class="dollar">$</span><span class="op">-</span><span class="set">&lt;</span><span class="field">Client</span><span class="op">=</span><span class="set">{</span><span class="string">'X'</span><span class="set">}&gt;}</span> <span class="field">Montant</span><span class="op">)</span>`,
     explain:'HIC distingue les ensembles naturels, que l’on peut reproduire par une sélection, des ensembles non naturels, construits au niveau des enregistrements avec des opérateurs d’ensemble. Cette distinction devient importante dès que NULL ou des combinaisons d’ensembles entrent en jeu.',
     result:'Dans cet exemple adapté pour SOSQLIK, on retire de l’ensemble courant les enregistrements associés au client X. Selon le modèle, des enregistrements dont Client est NULL peuvent rester dans le résultat, alors qu’un NULL ne peut pas être sélectionné directement dans une liste.'
   },
   {
-    id:'naturel-limites', n:'17', title:'Les limites des ensembles non naturels', level:'Expert',
+    id:'naturel-limites', n:'25', title:'Les limites des ensembles non naturels', level:'Expert',
     expr:`P({1<Produit={'A'}>} Client)`,
     html:`<span class="fn">P</span><span class="op">(</span><span class="set">{</span><span class="value">1</span><span class="set">&lt;</span><span class="field">Produit</span><span class="op">=</span><span class="set">{</span><span class="string">'A'</span><span class="set">}&gt;}</span> <span class="field">Client</span><span class="op">)</span>`,
     explain:'Le conseil essentiel de HIC : P() et E() doivent travailler avec des ensembles naturels, car ces fonctions doivent retourner un ensemble de valeurs de champ. Un ensemble non naturel ne possède pas toujours un ensemble de valeurs de champ bien défini.',
     result:'À retenir : seuls les ensembles naturels peuvent être recréés comme sélections interactives, stockés dans des favoris, modifiés de façon fiable et utilisés à l’intérieur de P() et E().'
   },
   {
-    id:'outer-set', n:'18', title:'Nouvelle syntaxe : Set externe', level:'Avancé',
+    id:'outer-set', n:'26', title:'Nouvelle syntaxe : Set externe', level:'Avancé',
     expr:`{<Annee={2026}>} Sum(Montant)`,
     html:`<span class="set">{&lt;</span><span class="field">Annee</span><span class="op">=</span><span class="set">{</span><span class="value">2026</span><span class="set">}&gt;}</span> <span class="fn">Sum</span><span class="op">(</span><span class="field">Montant</span><span class="op">)</span>`,
     explain:'Depuis Qlik Sense August 2022, un Set peut aussi être placé au début d’une portée d’expression, donc à l’extérieur de la fonction d’agrégation. HIC souligne que cette écriture évite de répéter le même Set dans chaque agrégation.',
     result:'Le Set externe devient le contexte des agrégations qui suivent dans sa portée. C’est particulièrement utile pour réutiliser une mesure principale sans y coder le filtre en dur.'
   },
   {
-    id:'outer-multiple', n:'19', title:'Un Set pour plusieurs agrégations', level:'Avancé',
+    id:'outer-multiple', n:'27', title:'Un Set pour plusieurs agrégations', level:'Avancé',
     expr:`{<Annee={2026}>} Sum(CA) / Count(DISTINCT Commande)`,
     html:`<span class="set">{&lt;</span><span class="field">Annee</span><span class="op">=</span><span class="set">{</span><span class="value">2026</span><span class="set">}&gt;}</span> <span class="fn">Sum</span><span class="op">(</span><span class="field">CA</span><span class="op">)</span> <span class="op">/</span> <span class="fn">Count</span><span class="op">(</span><span class="value">DISTINCT</span> <span class="field">Commande</span><span class="op">)</span>`,
     explain:'Avec l’ancienne écriture, il faudrait répéter le Set dans Sum() puis dans Count(). Le Set externe définit ici une seule fois le contexte 2026 pour les deux agrégations.',
     result:'La formule calcule le chiffre d’affaires moyen par commande en 2026. Cette syntaxe rend les expressions longues plus lisibles et réduit les duplications.'
   },
   {
-    id:'portee', n:'20', title:'Portée lexicale avec parenthèses', level:'Expert',
+    id:'portee', n:'28', title:'Portée lexicale avec parenthèses', level:'Expert',
     expr:`({<Annee={2026}>} Sum(CA) / Count(Commande)) - Avg(Objectif)`,
     html:`<span class="op">(</span><span class="set">{&lt;</span><span class="field">Annee</span><span class="op">=</span><span class="set">{</span><span class="value">2026</span><span class="set">}&gt;}</span> <span class="fn">Sum</span><span class="op">(</span><span class="field">CA</span><span class="op">)</span> <span class="op">/</span> <span class="fn">Count</span><span class="op">(</span><span class="field">Commande</span><span class="op">)) - </span><span class="fn">Avg</span><span class="op">(</span><span class="field">Objectif</span><span class="op">)</span>`,
     explain:'HIC insiste sur la portée lexicale : les parenthèses peuvent limiter la zone affectée par un Set externe. Le Set doit être placé au début de la portée qu’il doit contrôler.',
     result:'Ici, le contexte Annee=2026 ne s’applique qu’au calcul entre parenthèses. Avg(Objectif), placé après la parenthèse, reste évalué dans son propre contexte.'
   },
   {
-    id:'heritage', n:'21', title:'Contexte et héritage des Sets', level:'Expert',
+    id:'heritage', n:'29', title:'Contexte et héritage des Sets', level:'Expert',
     expr:`{<Annee={2026}>} Sum({<Region={'PACA'}>} Montant)`,
     html:`<span class="set">{&lt;</span><span class="field">Annee</span><span class="op">=</span><span class="set">{</span><span class="value">2026</span><span class="set">}&gt;}</span> <span class="fn">Sum</span><span class="op">(</span><span class="set">{&lt;</span><span class="field">Region</span><span class="op">=</span><span class="set">{</span><span class="string">'PACA'</span><span class="set">}&gt;}</span> <span class="field">Montant</span><span class="op">)</span>`,
     explain:'Un Set interne qui ne contient qu’un modificateur hérite du contexte externe. HIC oppose ce cas à un Set interne qui contient son propre identifiant d’ensemble : celui-ci repart alors du contexte défini par cet identifiant.',
     result:'Ici, le Set interne hérite de Annee=2026 et ajoute Region=PACA. En revanche, un Set interne commençant par 1 ou $ impose son propre point de départ.'
   },
   {
-    id:'aggr-heritage', n:'22', title:'Set externe et Aggr()', level:'Expert',
+    id:'aggr-heritage', n:'30', title:'Set externe et Aggr()', level:'Expert',
     expr:`{<Annee={2026}>} Avg(Aggr(Sum(Montant), Client))`,
     html:`<span class="set">{&lt;</span><span class="field">Annee</span><span class="op">=</span><span class="set">{</span><span class="value">2026</span><span class="set">}&gt;}</span> <span class="fn">Avg</span><span class="op">(</span><span class="fn">Aggr</span><span class="op">(</span><span class="fn">Sum</span><span class="op">(</span><span class="field">Montant</span><span class="op">),</span> <span class="field">Client</span><span class="op">))</span>`,
     explain:'Point subtil relevé par HIC : le Set d’une agrégation externe n’est pas automatiquement hérité par l’agrégation interne d’un Aggr(). En revanche, un Set placé à l’extérieur de l’agrégation externe peut être hérité par les deux niveaux.',
     result:'Cette écriture place Annee=2026 au niveau externe de la portée : le contexte peut ainsi s’appliquer à Avg() et au calcul interne utilisé par Aggr().'
   },
   {
-    id:'bonnes-pratiques', n:'23', title:'Bonnes pratiques', level:'À retenir',
+    id:'bonnes-pratiques', n:'31', title:'Bonnes pratiques', level:'À retenir',
     expr:`Sum({<Annee={$(=Max(Annee))}>} Montant)`,
     html:`<span class="fn">Sum</span><span class="op">(</span><span class="set">{&lt;</span><span class="field">Annee</span><span class="op">=</span><span class="set">{</span><span class="dollar">$(=</span><span class="fn">Max</span><span class="op">(</span><span class="field">Annee</span><span class="op">)</span><span class="dollar">)</span><span class="set">}&gt;}</span> <span class="field">Montant</span><span class="op">)</span>`,
     explain:'Une bonne expression doit rester compréhensible : noms de champs explicites, variables documentées et logique d’ensemble découpée lorsqu’elle devient complexe.',
@@ -180,6 +242,14 @@ const concreteExamples = {
   ignorer: ["Sélection utilisateur", "Annee = 2024", "Champ neutralisé", "Annee", "Effet", "Le calcul devient indépendant de la sélection Annee."],
   identifiant: ["Sélections actives", "Ignorées", "Identifiant", "1", "Effet", "Le calcul porte sur l’ensemble complet des données."],
   recherche: ["Condition", "Montant >= 1 000", "Exemples inclus", "1 250 · 2 310", "Effet", "Les montants inférieurs à 1 000 sont écartés."],
+  "type-numerique": ["Nature du champ", "Annee numérique", "Valeur", "2026 sans quotes", "À retenir", "Le type du champ doit guider la syntaxe, pas son apparence."],
+  "litteral-texte": ["Nature du champ", "Region textuel", "Valeur exacte", "'Sud'", "À retenir", "Un littéral texte s’écrit avec des simples quotes, même sans espace ni accent."],
+  "nombre-ou-texte": ["Champ numérique", "Annee={2026}", "Champ textuel", "CodeAnnee={'2026'}", "Piège", "2026 et '2026' peuvent sembler identiques à l’écran mais ne représentent pas le même type."],
+  wildcards: ["Données", "PC-PORTABLE-14 · PC-PORTABLE-16 · PC-ECRAN-27 · TEL-IPHONE-16", "Wildcards", "* = longueur variable · ? = un caractère", "À retenir", "Les doubles quotes signalent une recherche, pas un littéral exact."],
+  "champ-vide": ["Sélection active", "Region = Sud", "Avec <Region=>", "La sélection Region est neutralisée", "Avec <Region={}>", "Aucune valeur Region n’est retenue : ce n’est pas la même chose."],
+  "operateurs-implicites": ["Sélection Produit", "ECRAN", "Produit+={'PC'}", "ECRAN + PC", "À retenir", "= remplace ; += ajoute ; -= retire ; *= intersecte avec la sélection courante."],
+  "recherche-numerique": ["Champ", "Annee numérique", "Recherche", ">=2020 et <=2026", "Résultat", "Toutes les années de 2020 à 2026 incluses sont retenues."],
+  "recherche-expression": ["Champ recherché", "Client", "Condition", "Sum(Montant) > 100 000", "Résultat", "Seuls les clients répondant au critère calculé sont retenus."],
   variable: ["Années disponibles", "2024 · 2025 · 2026", "Max(Annee)", "2026", "Effet", "L’expression s’adapte automatiquement à l’année maximale."],
   dates: ["Dernière date", "12/09/2026", "Période calculée", "01/09/2026 → 12/09/2026", "Effet", "Le cumul couvre le début du mois jusqu’à la date maximale."],
   p: ["Produit recherché", "A", "Clients possibles", "Alice · Karim · Léa", "Effet", "P() réutilise ces clients dans le Set externe."],
@@ -205,7 +275,7 @@ const concreteExamples = {
   <div class="container subhero-content">
     <p class="eyebrow">TUTORIEL · QLIK SENSE</p>
     <h1>Comprendre le Set Analysis</h1>
-    <p>23 exemples progressifs, du premier filtre aux ensembles naturels et à la syntaxe externe.</p>
+    <p>31 exemples progressifs, du premier filtre aux recherches avancées, ensembles naturels et syntaxe externe.</p>
   </div>
 </section>
 
@@ -223,6 +293,7 @@ const concreteExamples = {
       <a href="https://community.qlik.com/t5/Design/Natural-Sets/ba-p/1470953" target="_blank" rel="noopener noreferrer">Natural Sets <span aria-hidden="true">↗</span></a>
       <a href="https://community.qlik.com/t5/Design/Why-is-it-called-Set-Analysis/ba-p/1468208" target="_blank" rel="noopener noreferrer">Why is it called Set Analysis? <span aria-hidden="true">↗</span></a>
       <a href="https://community.qlik.com/t5/Design/A-Primer-on-Set-Analysis/ba-p/1468344" target="_blank" rel="noopener noreferrer">A Primer on Set Analysis <span aria-hidden="true">↗</span></a>
+      <a href="https://community.qlik.com/t5/Design/Quotes-in-Set-Analysis/ba-p/1471824" target="_blank" rel="noopener noreferrer">Quotes in Set Analysis <span aria-hidden="true">↗</span></a>
       <a href="https://community.qlik.com/t5/Design/New-Set-Analysis-syntax/ba-p/1983110" target="_blank" rel="noopener noreferrer">New Set Analysis syntax <span aria-hidden="true">↗</span></a>
     </div>
   </div>
@@ -246,18 +317,39 @@ const concreteExamples = {
         <span class="level">{e.level}</span>
       </div>
 
-      <div class="expression-card">
+      {!e.variants && <div class="expression-card">
         <div class="expression-head"><span>Expression Qlik Sense</span><button class="copy" data-copy={e.expr}>⧉ Copier</button></div>
         <pre><code set:html={e.html}></code></pre>
-      </div>
+      </div>}
+
+      {e.variants && <div class="wildcard-intro">
+        <p>{e.explain}</p>
+        <p>{e.result}</p>
+      </div>}
+
+      {e.variants && <div class="wildcard-examples">
+        {e.variants.map((v) => <section class="wildcard-step">
+          <h3>{v.label}</h3>
+          <div class="expression-card">
+            <div class="expression-head"><span>Expression Qlik Sense</span><button class="copy" data-copy={v.expr}>⧉ Copier</button></div>
+            <pre><code set:html={v.html}></code></pre>
+          </div>
+          <p>{v.text}</p>
+        </section>)}
+      </div>}
 
       <div class="learning-row">
         <section class="what-card">
           <div class="what-icon" aria-hidden="true">💡</div>
           <div class="what-copy">
             <strong>Ce que fait ce Set ?</strong>
-            <p>{e.explain}</p>
-            <p>{e.result}</p>
+            {e.variants ? <>
+              <p><strong>*</strong> représente zéro, un ou plusieurs caractères ; <strong>?</strong> représente exactement un caractère.</p>
+              <p>Dans les deux cas, le motif est une chaîne de recherche : on utilise donc les doubles quotes.</p>
+            </> : <>
+              <p>{e.explain}</p>
+              <p>{e.result}</p>
+            </>}
           </div>
         </section>
 
@@ -280,6 +372,16 @@ const concreteExamples = {
     </article>)}
   </main>
 </section>
+
+<style>
+  .wildcard-intro { margin: 0 0 1.25rem; color: var(--text-muted, #5d7285); line-height: 1.65; }
+  .wildcard-intro p { margin: 0 0 .55rem; }
+  .wildcard-examples { display: grid; gap: 1.15rem; margin-bottom: 1.4rem; }
+  .wildcard-step { padding: 1rem 1rem .85rem; border: 1px solid rgba(0,180,130,.22); border-radius: 14px; background: rgba(0,180,130,.035); }
+  .wildcard-step h3 { margin: 0 0 .7rem; font-size: 1rem; color: var(--green, #00a878); }
+  .wildcard-step .expression-card { margin-bottom: .7rem; }
+  .wildcard-step > p { margin: 0; line-height: 1.6; color: var(--text-muted, #5d7285); }
+</style>
 
 <script is:inline>
 const exercises=[...document.querySelectorAll('.exercise')];
