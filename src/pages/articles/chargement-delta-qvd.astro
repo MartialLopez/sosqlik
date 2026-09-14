@@ -1,0 +1,109 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import '../../styles/article-tech-v455.css';
+---
+<BaseLayout title="Construire un chargement DELTA fiable dans Qlik — SOSQLIK">
+<main class="tech-article"><article class="container article-wrap">
+<header class="article-head"><p class="article-kicker">Retour d’expérience · Chargement incrémental</p><h1>Construire un chargement DELTA fiable entre une base de données et un QVD</h1><p class="lead">Quand une table devient volumineuse, reconstruire son QVD intégralement à chaque exécution peut devenir coûteux. Le principe présenté ici consiste à identifier les objets métier ayant réellement évolué, à conserver dans le QVD les objets non impactés et à charger depuis la base uniquement la version courante des objets à remplacer.</p><p class="article-meta">Par Martial LOPEZ · 14 septembre 2026 · Lecture ~14 min</p></header>
+<nav class="toc"><strong>Dans cet article</strong><a href="#idee">1. Objet métier</a><a href="#snapshot">2. Snapshot N-1</a><a href="#detection">3. Détection</a><a href="#sql">4. Liste DELTA</a><a href="#qlik">5. Reconstruction QVD</a><a href="#suppression">6. Suppressions</a><a href="#full">7. DELTA ou FULL</a><a href="#choix">8. Quand l’utiliser</a></nav>
+
+<section id="idee"><h2>1. Le DELTA porte sur un objet métier complet</h2><p>Imaginons une table <code>COMMANDES_DETAIL</code>. Une commande peut être constituée de plusieurs lignes. L’unité de rafraîchissement choisie n’est pas la ligne physique mais l’objet métier <code>ID_COMMANDE</code>. Dès qu’une ligne de la commande évolue, la commande entière est considérée comme impactée.</p>
+<table><thead><tr><th>ID_COMMANDE</th><th>PRODUIT</th><th>QUANTITE</th><th>CA_HT</th></tr></thead><tbody><tr><td>CMD-1024</td><td>PC-14</td><td>2</td><td>2 000</td></tr><tr><td>CMD-1024</td><td>SOURIS</td><td>3</td><td>90</td></tr><tr><td>CMD-1024</td><td>SACOCHE</td><td>2</td><td>80</td></tr></tbody></table>
+<p>Si la quantité de SOURIS passe de 3 à 4, le DELTA ne cherche pas à modifier uniquement cette ligne dans le QVD. Il marque <code>CMD-1024</code> comme impactée. Lors de la reconstruction, toutes les anciennes lignes de cette commande sont retirées puis sa version courante complète est chargée depuis la base.</p>
+<div class="article-note"><strong>Idée centrale :</strong> le DELTA remplace un objet métier complet. Cette granularité simplifie fortement la mécanique côté Qlik.</div></section>
+
+<section id="snapshot"><h2>2. Le snapshot N-1 : la mémoire du traitement précédent</h2><p>Pour savoir ce qui a changé, il faut disposer de deux états comparables. <code>COMMANDES_DETAIL</code> représente l’état courant N. <code>COMMANDES_DETAIL_SNAP_N_1</code> représente l’état mémorisé à la fin du traitement précédent.</p>
+<div class="flow"><div class="box">COMMANDES_DETAIL<br/>état N</div><div class="arr">↔</div><div class="box">COMMANDES_DETAIL_SNAP_N_1<br/>état N-1</div><div class="arr">→</div><div class="box hot">Objets impactés</div></div>
+<p>Le snapshot n’est donc pas une sauvegarde destinée au Qlik. Il sert de référence de comparaison côté base. Il doit rester inchangé pendant toute la phase de détection. Ce n’est qu’une fois la liste DELTA constituée qu’il est reconstruit à partir de l’état courant.</p>
+<div class="article-note"><strong>Ordre à respecter :</strong> comparer N à N-1 → constituer la liste DELTA → reconstruire le snapshot. Reconstruire le snapshot avant la comparaison ferait disparaître les écarts recherchés.</div></section>
+
+<section id="detection"><h2>3. Détecter qu’un objet métier a évolué</h2><p>Pour chaque <code>ID_COMMANDE</code>, on agrège les deux états. Le nombre de lignes permet de détecter un changement de structure. Les sommes d’indicateurs significatifs permettent de détecter des changements de valeurs. Les indicateurs doivent être choisis en fonction de la table : ici <code>CA_HT</code>, <code>QUANTITE</code> et <code>MARGE</code>.</p>
+<div class="code-block"><span class="code-label">SQL — états agrégés N et N-1</span><pre><code>WITH ACTUEL AS (
+ SELECT ID_COMMANDE,
+        COUNT(*) AS NB_LIGNES,
+        SUM(NVL(CA_HT,0)) AS CA_HT,
+        SUM(NVL(QUANTITE,0)) AS QUANTITE,
+        SUM(NVL(MARGE,0)) AS MARGE
+ FROM COMMANDES_DETAIL
+ GROUP BY ID_COMMANDE
+),
+SNAP AS (
+ SELECT ID_COMMANDE,
+        COUNT(*) AS NB_LIGNES,
+        SUM(NVL(CA_HT,0)) AS CA_HT,
+        SUM(NVL(QUANTITE,0)) AS QUANTITE,
+        SUM(NVL(MARGE,0)) AS MARGE
+ FROM COMMANDES_DETAIL_SNAP_N_1
+ GROUP BY ID_COMMANDE
+)</code></pre></div>
+<p>Cette approche ne dépend pas obligatoirement d’un timestamp de modification fiable. Elle déduit l’évolution du contenu métier lui-même. En contrepartie, les indicateurs de comparaison doivent couvrir les changements que l’on souhaite réellement détecter.</p></section>
+
+<section id="sql"><h2>4. FULL OUTER JOIN : construire la liste DELTA</h2><p>Un <code>FULL OUTER JOIN</code> entre les deux états agrégés conserve les objets présents d’un côté ou de l’autre. Il couvre ainsi naturellement les trois cas : apparition d’un nouvel objet, disparition d’un objet et modification d’un objet présent dans les deux états.</p>
+<table><thead><tr><th>Situation</th><th>État N</th><th>Snapshot N-1</th><th>Résultat</th></tr></thead><tbody><tr><td>Ajout</td><td>Présent</td><td>Absent</td><td>Objet DELTA</td></tr><tr><td>Suppression</td><td>Absent</td><td>Présent</td><td>Objet DELTA</td></tr><tr><td>Modification</td><td>Présent</td><td>Présent avec écart</td><td>Objet DELTA</td></tr><tr><td>Inchangé</td><td>Présent</td><td>Identique</td><td>Ignoré</td></tr></tbody></table>
+<div class="code-block"><span class="code-label">SQL — alimentation de COMMANDES_DETAIL_DELTA</span><pre><code>INSERT INTO COMMANDES_DETAIL_DELTA (ID_COMMANDE)
+SELECT COALESCE(a.ID_COMMANDE, s.ID_COMMANDE)
+FROM ACTUEL a
+FULL OUTER JOIN SNAP s
+ ON s.ID_COMMANDE = a.ID_COMMANDE
+WHERE NVL(a.NB_LIGNES,0) &lt;&gt; NVL(s.NB_LIGNES,0)
+   OR NVL(a.CA_HT,0) &lt;&gt; NVL(s.CA_HT,0)
+   OR NVL(a.QUANTITE,0) &lt;&gt; NVL(s.QUANTITE,0)
+   OR NVL(a.MARGE,0) &lt;&gt; NVL(s.MARGE,0);</code></pre></div>
+<p>La table <code>COMMANDES_DETAIL_DELTA</code> ne contient pas nécessairement les données à injecter dans le QVD : elle contient avant tout la liste des <code>ID_COMMANDE</code> à remplacer.</p>
+<h3>Avancer ensuite le snapshot</h3><div class="code-block"><span class="code-label">SQL — nouveau snapshot</span><pre><code>DROP TABLE COMMANDES_DETAIL_SNAP_N_1 PURGE;
+
+CREATE TABLE COMMANDES_DETAIL_SNAP_N_1 NOLOGGING AS
+SELECT *
+FROM COMMANDES_DETAIL;</code></pre></div>
+<p>À partir de cet instant, le snapshot correspond à N et deviendra le N-1 du prochain traitement.</p></section>
+
+<section id="qlik"><h2>5. Reconstruire le QVD côté Qlik</h2><p>Le principe est volontairement simple : partir de l’ancien QVD, retirer tous les objets identifiés dans la liste DELTA, puis charger depuis la base la version courante complète de ces mêmes objets.</p>
+<div class="flow"><div class="box">Ancien QVD</div><div class="arr">→</div><div class="box">Conserver les objets<br/>non impactés</div><div class="arr">+</div><div class="box">Charger les objets<br/>impactés</div><div class="arr">→</div><div class="box hot">Nouveau QVD</div></div>
+<h3>5.1 Charger la liste des objets impactés</h3><div class="code-block"><span class="code-label">Qlik Script</span><pre><code>COMMANDES_DETAIL_DELTA:
+LOAD ID_COMMANDE AS ID_COMMANDE_DELTA;
+
+SQL SELECT DISTINCT ID_COMMANDE
+FROM COMMANDES_DETAIL_DELTA;</code></pre></div>
+<h3>5.2 Charger l’ancien QVD en excluant ces objets</h3><div class="code-block"><span class="code-label">Qlik Script</span><pre><code>COMMANDES_DETAIL:
+LOAD *
+FROM [lib://QVD_RAW/COMMANDES_DETAIL.qvd] (qvd)
+WHERE NOT Exists(ID_COMMANDE_DELTA, ID_COMMANDE_Id);</code></pre></div>
+<p>À ce stade, la table en mémoire contient tout l’ancien QVD sauf les commandes qui doivent être remplacées.</p>
+<h3>5.3 Charger depuis la base les versions courantes</h3><div class="code-block"><span class="code-label">Qlik Script + SQL</span><pre><code>CONCATENATE (COMMANDES_DETAIL)
+LOAD
+    ID_COMMANDE AS ID_COMMANDE_Id,
+    PRODUIT,
+    QUANTITE,
+    CA_HT,
+    MARGE;
+
+SQL SELECT
+    ID_COMMANDE,
+    PRODUIT,
+    QUANTITE,
+    CA_HT,
+    MARGE
+FROM COMMANDES_DETAIL c
+WHERE EXISTS (
+    SELECT 1
+    FROM COMMANDES_DETAIL_DELTA d
+    WHERE d.ID_COMMANDE = c.ID_COMMANDE
+);</code></pre></div>
+<h3>5.4 Stocker le nouvel état</h3><div class="code-block"><span class="code-label">Qlik Script</span><pre><code>STORE COMMANDES_DETAIL
+INTO [lib://QVD_RAW/COMMANDES_DETAIL.qvd] (qvd);</code></pre></div></section>
+
+<section id="suppression"><h2>6. Pourquoi une suppression complète fonctionne sans DELETE Qlik</h2><p>Supposons que <code>CMD-1024</code> existait dans le snapshot mais ait totalement disparu de la table courante. Le <code>FULL OUTER JOIN</code> la détecte et son identifiant entre dans <code>COMMANDES_DETAIL_DELTA</code>.</p><p>Lors du chargement de l’ancien QVD, toutes les lignes de <code>CMD-1024</code> sont exclues. Ensuite, le chargement SQL des objets impactés ne retourne aucune ligne pour cette commande puisqu’elle n’existe plus dans <code>COMMANDES_DETAIL</code>. Le nouveau QVD ne contient donc plus la commande.</p><div class="article-note"><strong>Suppression :</strong> ancienne version exclue du QVD + aucune version courante chargée depuis la base = objet supprimé du nouveau QVD.</div></section>
+
+<section id="full"><h2>7. Prévoir le mode FULL</h2><p>Le DELTA suppose qu’un QVD précédent existe. Si le QVD a été supprimé, s’il doit être reconstruit ou si l’on souhaite volontairement repartir de la source complète, le script doit pouvoir basculer en FULL.</p>
+<div class="code-block"><span class="code-label">Qlik Script — choix du mode</span><pre><code>LET vQvdCommandes = 'lib://QVD_RAW/COMMANDES_DETAIL.qvd';
+
+IF NOT IsNull(QvdCreateTime('$(vQvdCommandes)')) THEN
+    SET vTypeChargement = 'DELTA';
+ELSE
+    SET vTypeChargement = 'FULL';
+ENDIF</code></pre></div>
+<p>En FULL, <code>COMMANDES_DETAIL</code> est simplement chargée intégralement depuis la base puis stockée dans le QVD. Ce mode de reprise est important : un incrémental ne doit pas rendre impossible une reconstruction complète.</p></section>
+
+<section id="choix"><h2>8. DELTA ou MERGE : deux besoins différents</h2><p>Le DELTA est particulièrement intéressant lorsque l’objet métier constitue une unité de remplacement raisonnable. Si un objet ne contient que quelques lignes ou quelques dizaines de lignes, remplacer son état complet peut rester très efficace tout en conservant un script simple.</p><p>Il ne faut pas considérer le MERGE ligne à ligne comme une évolution nécessairement plus rapide du DELTA. Les performances dépendent du volume, de la granularité des objets, de la base et de la façon dont les changements sont détectés. Dans mes tests, le DELTA s’est d’ailleurs souvent montré plus rapide, mais ce constat reste dépendant du contexte.</p><p>Le MERGE répond surtout à un autre besoin : appliquer précisément les insertions, modifications et suppressions au niveau de chaque ligne. Cette granularité apporte davantage de contraintes : construction détaillée des mouvements côté base, gestion d’une séquence et utilisation du Partial Reload côté Qlik.</p>
+<div class="takeaway"><h2>À retenir</h2><ul><li>Le DELTA remplace un <strong>objet métier complet</strong>, pas une ligne isolée.</li><li>Le snapshot N-1 fournit l’état de référence indispensable à la comparaison.</li><li><code>FULL OUTER JOIN</code> couvre ajout, modification et suppression.</li><li>Qlik conserve les objets non impactés et charge depuis la base uniquement les objets impactés.</li><li>Une suppression complète est répercutée sans DELETE spécifique dans Qlik.</li><li>Le mode FULL reste indispensable comme solution de reconstruction.</li><li>Le MERGE n’est pas « meilleur » que le DELTA : il est plus granulaire, mais aussi plus contraignant.</li></ul></div></section>
+</article></main></BaseLayout>

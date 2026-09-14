@@ -1,0 +1,25 @@
+
+/* SOSQLIK V4.54 — Chargements FULL / DELTA / MERGE */
+.loading-flow{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;align-items:center;margin:16px 0}
+.loading-flow .step{min-width:0;padding:14px 12px;border:1px solid var(--line);border-radius:12px;background:var(--surface);text-align:center;font-weight:800;box-shadow:var(--shadow)}
+.loading-flow .arrow{text-align:center;color:var(--green);font-size:1.35rem;font-weight:900}
+.loading-flow .accent{border-color:var(--green);background:color-mix(in srgb,var(--green) 8%,var(--surface))}
+.loading-compare{width:100%;border-collapse:separate;border-spacing:0;margin:14px 0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--surface)}
+.loading-compare th,.loading-compare td{padding:11px 12px;border-bottom:1px solid var(--line);vertical-align:top;text-align:left}
+.loading-compare th{background:var(--soft);font-size:.78rem;text-transform:uppercase;letter-spacing:.04em}
+.loading-compare tr:last-child td{border-bottom:0}
+.loading-compare td:first-child{font-weight:800;color:var(--green)}
+.loading-code{margin:14px 0;padding:14px;border:1px solid var(--line);border-radius:12px;background:var(--soft);overflow-x:auto}
+.loading-code pre{margin:0;white-space:pre;min-width:max-content;font-size:.83rem;line-height:1.55}
+.loading-callout{margin:14px 0;padding:14px 16px;border-left:4px solid var(--green);border-radius:10px;background:color-mix(in srgb,var(--green) 8%,var(--surface))}
+.loading-callout b{color:var(--green)}
+.loading-mini-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:14px 0}
+.loading-mini-grid>div{min-width:0;padding:13px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.loading-mini-grid strong{display:block;color:var(--green);margin-bottom:4px}
+@media(max-width:760px){
+  .loading-flow{grid-template-columns:1fr}
+  .loading-flow .arrow{transform:rotate(90deg)}
+  .loading-mini-grid{grid-template-columns:1fr}
+  .loading-compare{display:block;overflow-x:auto;white-space:normal}
+  .loading-compare th,.loading-compare td{min-width:130px;overflow-wrap:anywhere}
+}

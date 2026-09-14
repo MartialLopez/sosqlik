@@ -1,0 +1,155 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import '../../styles/article-tech-v455.css';
+---
+<BaseLayout title="Mettre à jour un QVD ligne par ligne avec MERGE — SOSQLIK">
+<main class="tech-article"><article class="container article-wrap">
+<header class="article-head"><p class="article-kicker">Retour d’expérience · Qlik Script · MERGE</p><h1>Mettre à jour un QVD ligne par ligne avec un véritable MERGE</h1><p class="lead">Le MERGE permet d’appliquer au QVD des mouvements précis de type INSERT, UPDATE et DELETE. Il travaille à la ligne et offre une granularité plus fine qu’un DELTA par objet, mais cette précision s’accompagne d’une mécanique plus exigeante côté base et côté Qlik.</p><p class="article-meta">Par Martial LOPEZ · 14 septembre 2026 · Lecture ~18 min</p></header>
+<nav class="toc"><strong>Dans cet article</strong><a href="#positionnement">1. Positionnement</a><a href="#snapshot">2. Snapshot N-1</a><a href="#mouvements">3. I / U / D</a><a href="#sequence">4. Séquence</a><a href="#rebuild">5. Nouveau snapshot</a><a href="#partial">6. Partial Reload</a><a href="#mergeonly">7. MERGE ONLY</a><a href="#script">8. Script complet</a><a href="#vigilance">9. Vigilances</a></nav>
+
+<section id="positionnement"><h2>1. Le MERGE n’est pas un DELTA « plus performant »</h2><p>Le DELTA et le MERGE répondent à deux logiques différentes. Un DELTA par objet remplace la version complète d’un objet métier dès qu’une évolution est détectée. Le MERGE descend au niveau de la ligne : il doit savoir précisément quelle ligne a été insérée, modifiée ou supprimée.</p><p>Cette granularité ne signifie pas que le MERGE sera automatiquement plus rapide. Les performances dépendent du contexte. Dans mes propres tests, le DELTA s’est souvent montré plus rapide, mais ce résultat reste subjectif et dépend notamment du volume, du nombre de mouvements et du coût des comparaisons en base.</p><p>En revanche, le MERGE est clairement plus contraignant à mettre en œuvre : il faut construire les mouvements I/U/D côté base, préserver leur ordre avec une séquence et exécuter la partie Qlik dans le cadre d’un <em>Partial Reload</em>.</p>
+<div class="article-note"><strong>À choisir pour la granularité, pas par principe pour la vitesse :</strong> le MERGE est pertinent lorsque l’on veut appliquer des changements ligne à ligne et que cette précision justifie la complexité supplémentaire.</div></section>
+
+<section id="snapshot"><h2>2. Le snapshot N-1 est au cœur du MERGE</h2><p>Le MERGE commence, comme le DELTA, par la comparaison de deux états de la même table. Prenons <code>LIGNES_FACTURE</code> :</p>
+<table><thead><tr><th>Table</th><th>Rôle</th></tr></thead><tbody><tr><td><code>LIGNES_FACTURE</code></td><td>État courant N de la source</td></tr><tr><td><code>LIGNES_FACTURE_SNAP_N_1</code></td><td>État de référence mémorisé à la fin du traitement précédent</td></tr><tr><td><code>LIGNES_FACTURE_MERGE</code></td><td>Mouvements I/U/D détectés entre N et N-1</td></tr></tbody></table>
+<p>La comparaison est effectuée ligne à ligne grâce à <code>ID_LIGNE_FACTURE</code>, qui doit identifier de manière unique et stable la même ligne entre l’état courant, le snapshot et le QVD.</p>
+<div class="flow"><div class="box">LIGNES_FACTURE<br/>état N</div><div class="arr">↔</div><div class="box">LIGNES_FACTURE_SNAP_N_1<br/>état N-1</div><div class="arr">→</div><div class="box hot">LIGNES_FACTURE_MERGE<br/>I / U / D</div></div>
+<p>Le snapshot doit rester inchangé pendant la détection des trois familles de mouvements. Une fois INSERT, UPDATE et DELETE identifiés, il est reconstruit depuis <code>LIGNES_FACTURE</code> afin de devenir la référence du traitement suivant.</p></section>
+
+<section id="mouvements"><h2>3. Construire les mouvements INSERT, UPDATE et DELETE</h2><p>La table <code>LIGNES_FACTURE_MERGE</code> contient les opérations à appliquer au QVD. Chaque mouvement porte au minimum la clé de la ligne, un <code>TYPE_OPERATION</code> et un <code>ID_DELTA</code>. Pour un INSERT ou un UPDATE, elle contient également les valeurs courantes nécessaires au QVD.</p>
+<table><thead><tr><th>TYPE_OPERATION</th><th>ID_DELTA</th><th>ID_LIGNE_FACTURE</th><th>Interprétation</th></tr></thead><tbody><tr><td>I</td><td>61001</td><td>LF-1001</td><td>Nouvelle ligne</td></tr><tr><td>U</td><td>61002</td><td>LF-2044</td><td>Ligne existante modifiée</td></tr><tr><td>D</td><td>61003</td><td>LF-3098</td><td>Ligne disparue</td></tr></tbody></table>
+<h3>3.1 INSERT : présent en N, absent du snapshot</h3><div class="code-block"><span class="code-label">SQL — INSERT</span><pre><code>INSERT INTO LIGNES_FACTURE_MERGE
+    (TYPE_OPERATION, ID_DELTA, ID_LIGNE_FACTURE,
+     PRODUIT, QUANTITE, CA_HT, MARGE)
+SELECT 'I',
+       SEQ_LIGNES_FACTURE_MERGE.NEXTVAL,
+       f.ID_LIGNE_FACTURE,
+       f.PRODUIT, f.QUANTITE, f.CA_HT, f.MARGE
+FROM LIGNES_FACTURE f
+WHERE f.ID_LIGNE_FACTURE IS NOT NULL
+  AND NOT EXISTS (
+      SELECT 1
+      FROM LIGNES_FACTURE_SNAP_N_1 s
+      WHERE s.ID_LIGNE_FACTURE = f.ID_LIGNE_FACTURE
+  );</code></pre></div>
+<h3>3.2 UPDATE : même clé, contenu différent</h3><p>Pour les lignes présentes dans les deux états, il faut comparer les colonnes métier. L’exemple ci-dessous utilise <code>INTERSECT</code> : si les deux projections sont identiques, l’intersection retourne une ligne. Si une valeur diffère, le <code>NOT EXISTS</code> devient vrai et le mouvement est enregistré comme UPDATE.</p>
+<div class="code-block"><span class="code-label">SQL — UPDATE</span><pre><code>INSERT INTO LIGNES_FACTURE_MERGE
+    (TYPE_OPERATION, ID_DELTA, ID_LIGNE_FACTURE,
+     PRODUIT, QUANTITE, CA_HT, MARGE)
+SELECT 'U',
+       SEQ_LIGNES_FACTURE_MERGE.NEXTVAL,
+       f.ID_LIGNE_FACTURE,
+       f.PRODUIT, f.QUANTITE, f.CA_HT, f.MARGE
+FROM LIGNES_FACTURE f
+JOIN LIGNES_FACTURE_SNAP_N_1 s
+  ON s.ID_LIGNE_FACTURE = f.ID_LIGNE_FACTURE
+WHERE NOT EXISTS (
+    SELECT f.PRODUIT, f.QUANTITE, f.CA_HT, f.MARGE FROM dual
+    INTERSECT
+    SELECT s.PRODUIT, s.QUANTITE, s.CA_HT, s.MARGE FROM dual
+);</code></pre></div>
+<h3>3.3 DELETE : présent dans le snapshot, absent en N</h3><p>Pour une suppression, le point de départ est nécessairement le snapshot puisque la ligne n’existe plus dans la table courante.</p>
+<div class="code-block"><span class="code-label">SQL — DELETE</span><pre><code>INSERT INTO LIGNES_FACTURE_MERGE
+    (TYPE_OPERATION, ID_DELTA, ID_LIGNE_FACTURE,
+     PRODUIT, QUANTITE, CA_HT, MARGE)
+SELECT 'D',
+       SEQ_LIGNES_FACTURE_MERGE.NEXTVAL,
+       s.ID_LIGNE_FACTURE,
+       s.PRODUIT, s.QUANTITE, s.CA_HT, s.MARGE
+FROM LIGNES_FACTURE_SNAP_N_1 s
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM LIGNES_FACTURE f
+    WHERE f.ID_LIGNE_FACTURE = s.ID_LIGNE_FACTURE
+);</code></pre></div></section>
+
+<section id="sequence"><h2>4. Pourquoi une séquence ID_DELTA ?</h2><p>Les mouvements sont appliqués dans un ordre déterminé. Chaque ligne de <code>LIGNES_FACTURE_MERGE</code> reçoit donc un identifiant séquentiel. Dans cet exemple, les familles sont produites successivement dans l’ordre INSERT, UPDATE puis DELETE.</p>
+<div class="code-block"><span class="code-label">SQL — séquence</span><pre><code>CREATE SEQUENCE SEQ_LIGNES_FACTURE_MERGE
+INCREMENT BY 1
+MINVALUE 1
+NOCACHE;</code></pre></div>
+<p><code>ID_DELTA</code> sert ensuite de champ de séquence au <code>MERGE ONLY</code> Qlik. Il ne s’agit donc pas d’un simple identifiant technique : il permet de préserver l’ordre des mouvements transmis par la base.</p></section>
+
+<section id="rebuild"><h2>5. Reconstruire le snapshot pour le traitement suivant</h2><p>La reconstruction du snapshot intervient uniquement après la constitution complète de <code>LIGNES_FACTURE_MERGE</code>. À ce moment, les écarts entre N et N-1 sont mémorisés dans la table de mouvements et l’ancien snapshot peut être remplacé.</p>
+<div class="code-block"><span class="code-label">SQL — reconstruction du snapshot</span><pre><code>DROP TABLE LIGNES_FACTURE_SNAP_N_1 PURGE;
+
+CREATE TABLE LIGNES_FACTURE_SNAP_N_1 NOLOGGING AS
+SELECT *
+FROM LIGNES_FACTURE
+WHERE ID_LIGNE_FACTURE IS NOT NULL;</code></pre></div>
+<p>Sur une table importante, la préparation du snapshot peut également comprendre la création d’un index sur <code>ID_LIGNE_FACTURE</code> et le calcul des statistiques du SGBD. Ce coût fait partie du traitement MERGE côté base et doit être pris en compte lorsque l’on compare cette approche à un DELTA plus simple.</p>
+<div class="article-note"><strong>Cycle complet côté base :</strong> comparer N / N-1 → produire I/U/D avec leur séquence → reconstruire le snapshot → utiliser ce nouvel état comme N-1 au prochain passage.</div></section>
+
+<section id="partial"><h2>6. Côté Qlik : le MERGE s’inscrit dans un Partial Reload</h2><p>Le QVD existant représente l’état issu du traitement précédent. Il est chargé en mémoire puis les mouvements contenus dans <code>LIGNES_FACTURE_MERGE</code> sont appliqués à cette table. Cette mécanique s’appuie sur le <em>Partial Reload</em> et sur les préfixes adaptés aux chargements concernés.</p>
+<div class="code-block"><span class="code-label">Qlik Script — charger l’état précédent</span><pre><code>[LIGNES_FACTURE]:
+REPLACE LOAD *
+FROM [lib://QVD_RAW/LIGNES_FACTURE.qvd] (qvd);</code></pre></div>
+<p>Le <code>REPLACE</code> indique que ce LOAD participe au Partial Reload. Cette contrainte est importante : un script MERGE doit être conçu et exploité en tenant compte de ce mode d’exécution, contrairement au DELTA par objet qui peut rester dans une mécanique de chargement plus classique.</p></section>
+
+<section id="mergeonly"><h2>7. Comprendre MERGE ONLY</h2><p>Le cœur du traitement est le préfixe <code>MERGE ONLY</code>. Il reçoit les mouvements et les applique à la table cible en fonction de la clé indiquée après <code>ON</code>.</p>
+<div class="code-block"><span class="code-label">Qlik Script — MERGE ONLY</span><pre><code>MERGE ONLY (ID_DELTA)
+ON [ID_LIGNE_FACTURE_Id]
+CONCATENATE ([LIGNES_FACTURE])
+LOAD
+    If(TYPE_OPERATION = 'I', 'Insert',
+    If(TYPE_OPERATION = 'U', 'Update',
+    If(TYPE_OPERATION = 'D', 'Delete', TYPE_OPERATION))) AS TYPE_OPERATION,
+    ID_DELTA,
+    ID_LIGNE_FACTURE AS ID_LIGNE_FACTURE_Id,
+    PRODUIT,
+    QUANTITE,
+    CA_HT,
+    MARGE;
+
+SQL SELECT
+    TYPE_OPERATION,
+    ID_DELTA,
+    ID_LIGNE_FACTURE,
+    PRODUIT,
+    QUANTITE,
+    CA_HT,
+    MARGE
+FROM LIGNES_FACTURE_MERGE;</code></pre></div>
+<h3>Que signifie chaque partie ?</h3>
+<table><thead><tr><th>Élément</th><th>Rôle</th></tr></thead><tbody><tr><td><code>MERGE ONLY (ID_DELTA)</code></td><td>Applique les mouvements en utilisant <code>ID_DELTA</code> comme séquence.</td></tr><tr><td><code>ON [ID_LIGNE_FACTURE_Id]</code></td><td>Indique la clé permettant de retrouver la ligne cible dans le QVD chargé en mémoire.</td></tr><tr><td><code>CONCATENATE ([LIGNES_FACTURE])</code></td><td>Désigne la table Qlik sur laquelle les mouvements sont appliqués.</td></tr><tr><td><code>Insert / Update / Delete</code></td><td>Actions comprises par le MERGE ; les codes I/U/D venant de la base sont convertis dans le LOAD.</td></tr></tbody></table>
+<p>Pour un INSERT, une nouvelle ligne est ajoutée. Pour un UPDATE, la ligne correspondant à la clé est mise à jour avec les valeurs du mouvement. Pour un DELETE, la ligne correspondant à la clé est supprimée de la table en mémoire.</p></section>
+
+<section id="script"><h2>8. Mise en application traditionnelle complète</h2><p>Une mise en œuvre minimale peut rester entièrement explicite. Il n’est pas nécessaire de disposer d’une SUB générique pour comprendre ou utiliser le mécanisme.</p>
+<div class="code-block"><span class="code-label">Qlik Script — exemple complet</span><pre><code>// 1 - Charger le QVD issu du traitement précédent
+[LIGNES_FACTURE]:
+REPLACE LOAD *
+FROM [lib://QVD_RAW/LIGNES_FACTURE.qvd] (qvd);
+
+// 2 - Appliquer les mouvements détectés côté base
+MERGE ONLY (ID_DELTA)
+ON [ID_LIGNE_FACTURE_Id]
+CONCATENATE ([LIGNES_FACTURE])
+LOAD
+    If(TYPE_OPERATION = 'I', 'Insert',
+    If(TYPE_OPERATION = 'U', 'Update',
+    If(TYPE_OPERATION = 'D', 'Delete', TYPE_OPERATION))) AS TYPE_OPERATION,
+    ID_DELTA,
+    ID_LIGNE_FACTURE AS ID_LIGNE_FACTURE_Id,
+    PRODUIT,
+    QUANTITE,
+    CA_HT,
+    MARGE;
+
+SQL SELECT
+    TYPE_OPERATION,
+    ID_DELTA,
+    ID_LIGNE_FACTURE,
+    PRODUIT,
+    QUANTITE,
+    CA_HT,
+    MARGE
+FROM LIGNES_FACTURE_MERGE;
+
+// 3 - Stocker le nouvel état complet
+STORE LIGNES_FACTURE
+INTO [lib://QVD_RAW/LIGNES_FACTURE.qvd] (qvd);</code></pre></div>
+<p>Le résultat est un nouvel état complet de <code>LIGNES_FACTURE.qvd</code> : les lignes non modifiées proviennent du QVD précédent, tandis que les mouvements I/U/D ont été appliqués uniquement aux lignes concernées.</p></section>
+
+<section id="vigilance"><h2>9. Les contraintes à garder en tête</h2><p>Le MERGE est séduisant par sa précision, mais cette précision augmente le nombre de points à maîtriser. La base doit comparer les lignes avec le snapshot, déterminer exactement les I/U/D, alimenter la table de mouvements, gérer la séquence puis reconstruire le snapshot. Côté Qlik, le script dépend du Partial Reload et la clé utilisée par <code>ON</code> doit être parfaitement cohérente avec la clé des mouvements.</p><p>Le choix doit donc être fonctionnel et technique. Si remplacer un objet métier complet est peu coûteux, un DELTA peut être plus simple et très performant. Si l’objet est trop volumineux ou si l’on a réellement besoin d’une granularité ligne à ligne, le MERGE devient intéressant malgré ses contraintes supplémentaires.</p>
+<div class="takeaway"><h2>À retenir</h2><ul><li>Le MERGE compare l’état courant à un <strong>snapshot N-1</strong> ligne par ligne.</li><li>La clé doit être unique et stable entre la source, le snapshot, les mouvements et le QVD.</li><li>INSERT, UPDATE et DELETE sont construits côté base avant d’être appliqués dans Qlik.</li><li><code>ID_DELTA</code> conserve l’ordre des mouvements.</li><li>Le snapshot est reconstruit seulement après la détection complète des mouvements.</li><li><code>MERGE ONLY</code> applique les mouvements à la table Qlik selon la clé indiquée par <code>ON</code>.</li><li>Le mécanisme impose davantage de contraintes, notamment le Partial Reload et un traitement plus élaboré côté base.</li><li>Le MERGE n’est pas nécessairement plus rapide qu’un DELTA : il apporte avant tout une granularité plus fine.</li></ul></div></section>
+</article></main></BaseLayout>

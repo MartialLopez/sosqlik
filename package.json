@@ -5,9 +5,15 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "preview": "astro preview"
+    "preview": "npm run build && wrangler dev",
+    "generate-types": "wrangler types",
+    "deploy": "npm run build && wrangler deploy"
   },
   "dependencies": {
+    "@astrojs/cloudflare": "^14.3.1",
     "astro": "latest"
+  },
+  "devDependencies": {
+    "wrangler": "^4.131.2"
   }
 }

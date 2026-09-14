@@ -4,8 +4,20 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 <BaseLayout title="Articles — SOSQLIK">
 <section class="subhero"><div class="container"><p class="eyebrow">ARTICLES</p><h1>Articles</h1><p>Analyses, tutoriels et retours d’expérience autour de Qlik.</p></div></section>
 <section class="page-section"><div class="container article-grid">
-  <article class="article-card"><img src="/assets/article-qvd.jpg" alt=""><div class="article-card-body"><small>QLIK SENSE</small><h3>Optimiser la taille de vos QVD</h3><p>5 septembre 2026</p></div></article>
-  <article class="article-card"><img src="/assets/article-incremental.jpg" alt=""><div class="article-card-body"><small>SCRIPT</small><h3>Gérer les chargements incrémentaux</h3><p>28 août 2026</p></div></article>
-  <article class="article-card"><img src="/assets/article-bonnes-pratiques.jpg" alt=""><div class="article-card-body"><small>BONNES PRATIQUES</small><h3>Structurer efficacement vos applications</h3><p>20 août 2026</p></div></article>
+  <a class="article-card" href="/articles/chargement-delta-qvd">
+    <div class="article-card-body">
+      <small>CHARGEMENT INCRÉMENTAL · DELTA</small>
+      <h3>Construire un chargement DELTA fiable entre une base de données et un QVD</h3>
+      <p>Par Martial LOPEZ · 14 septembre 2026 <span>→</span></p>
+    </div>
+  </a>
+
+  <a class="article-card" href="/articles/merge-qvd-ligne-a-ligne">
+    <div class="article-card-body">
+      <small>CHARGEMENT INCRÉMENTAL · MERGE</small>
+      <h3>Mettre à jour un QVD ligne par ligne avec un véritable MERGE</h3>
+      <p>Par Martial LOPEZ · 14 septembre 2026 <span>→</span></p>
+    </div>
+  </a>
 </div></section>
 </BaseLayout>
