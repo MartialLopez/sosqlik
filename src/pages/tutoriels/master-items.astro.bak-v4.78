@@ -147,7 +147,6 @@ const sources = [
   {label:'Dimensions', url:'https://help.qlik.com/en-US/sense/November2025/Subsystems/Hub/Content/Sense_Hub/Dimensions/dimensions.htm'},
   {label:'Master measures', url:'https://help.qlik.com/en-US/sense/May2025/Subsystems/Hub/Content/Sense_Hub/Measures/create-master-measure.htm'}
 ];
-import RelatedContent from '../../components/RelatedContent.astro';
 ---
 
 <BaseLayout title="Master Items — SOSQLIK">
@@ -160,9 +159,4 @@ import RelatedContent from '../../components/RelatedContent.astro';
     sourceText="Ce tutoriel s’appuie sur la documentation officielle Qlik. Les explications, exemples et recommandations SOSQLIK sont reformulés dans une approche volontairement pratique."
     sourceLinks={sources}
   />
-<!-- SOSQLIK-V478-RELATED -->
-<RelatedContent links={[
-  { type: 'Tutoriel', title: 'Variables', description: 'Complétez les Master Items avec une gestion claire des variables.', href: '/tutoriels/variables' },
-  { type: 'Tutoriel', title: 'Favoris', description: 'Poursuivez avec les outils de réutilisation côté utilisateur.', href: '/tutoriels/favoris' }
-]} />
 </BaseLayout>

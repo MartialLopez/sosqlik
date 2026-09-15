@@ -1,0 +1,98 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import TutorialLayout from '../../components/TutorialLayout.astro';
+const lessons=[
+{id:'principe',n:'01',title:'Récupérer une valeur selon un ordre',level:'Avancé',intro:'FirstSortedValue() renvoie une valeur associée à la première position d’un critère de tri.',detail:'Elle sert par exemple à retrouver le statut associé à la première date.',example:`<pre><code>FirstSortedValue(Statut, DateStatut)</code></pre>`,facts:[['1er argument','valeur retournée'],['2e argument','poids de tri']],note:'Le poids le plus faible arrive en premier.',advantages:['Expression compacte'],disadvantages:['Attention aux ex æquo']},
+{id:'recent',n:'02',title:'Récupérer la valeur la plus récente',level:'Avancé',intro:'Un poids négatif inverse l’ordre.',detail:'Avec -DateStatut, la date la plus élevée passe en première position.',example:`<pre><code>FirstSortedValue(Statut, -DateStatut)</code></pre>`,facts:[['DateStatut','plus ancien'],['-DateStatut','plus récent']],note:'Le poids de tri doit être maîtrisé.',advantages:['Pratique pour dernier statut/prix'],disadvantages:['Le contexte de dimension compte']},
+{id:'ties',n:'03',title:'Le piège des ex æquo',level:'Expert',intro:'Plusieurs candidats au même premier poids peuvent produire NULL.',detail:'La fonction évite ainsi de choisir arbitrairement entre plusieurs valeurs concurrentes.',example:`<div class="master-demo"><b>Réflexe SOSQLIK</b><span>Vérifier l’unicité du poids de tri</span><i>deux premiers candidats peuvent rendre NULL</i></div>`,facts:[['égalité','plusieurs candidats'],['résultat','peut être NULL']],note:'Ne masquez pas un problème de grain.',advantages:['Révèle une ambiguïté'],disadvantages:['Surprenant si on ignore les ex æquo']}
+];
+
+// Coloration syntaxique Qlik Sense — palette globale SOSQLIK V4.40.
+const qlikKeywords = new Set([
+  'LOAD','FROM','WHERE','DISTINCT','AS','SQL','SELECT','LEFT','RIGHT','INNER','OUTER','JOIN','KEEP',
+  'CONCATENATE','NOCONCATENATE','RESIDENT','GROUP','BY','MAPPING','STORE','INTO','DROP','TABLE','FIELD',
+  'INLINE','ORDER','ASC','DESC','AUTOGENERATE','WHILE','IF','THEN','ELSE','ENDIF','LET','SET','QUALIFY',
+  'UNQUALIFY','BINARY','SECTION','ACCESS','APPLICATION','REPLACE','ADD','MERGE','ONLY','ON','INSERT','UPDATE',
+  'DELETE','IS','NULL','NOT','AND','OR','TRUE','FALSE','QVD','OOXML','TXT','EMBEDDED','LABELS'
+]);
+
+function escapeCode(value) {
+  return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function highlightQlik(code) {
+  let out = '';
+  let i = 0;
+  const len = code.length;
+  while (i < len) {
+    if (code.startsWith('//', i)) {
+      const end = code.indexOf('\n', i);
+      const stop = end === -1 ? len : end;
+      out += `<span class="qs-comment">${escapeCode(code.slice(i, stop))}</span>`;
+      i = stop;
+      continue;
+    }
+    const ch = code[i];
+    if (ch === "'") {
+      let j = i + 1;
+      while (j < len) {
+        if (code[j] === "'" && code[j + 1] === "'") { j += 2; continue; }
+        if (code[j] === "'") { j++; break; }
+        j++;
+      }
+      out += `<span class="qs-string">${escapeCode(code.slice(i, j))}</span>`;
+      i = j;
+      continue;
+    }
+    if (ch === '[') {
+      const end = code.indexOf(']', i + 1);
+      if (end !== -1) {
+        const token = code.slice(i, end + 1);
+        const cls = token.includes('lib://') ? 'qs-string' : 'qs-field';
+        out += `<span class="${cls}">${escapeCode(token)}</span>`;
+        i = end + 1;
+        continue;
+      }
+    }
+    if (/\d/.test(ch)) {
+      const m = code.slice(i).match(/^\d+(?:[.,]\d+)?/);
+      out += `<span class="qs-number">${m[0]}</span>`;
+      i += m[0].length;
+      continue;
+    }
+    if (/[A-Za-zÀ-ÿ_$]/.test(ch)) {
+      const m = code.slice(i).match(/^[A-Za-zÀ-ÿ_$][A-Za-zÀ-ÿ0-9_.$]*/);
+      const word = m[0];
+      const upper = word.toUpperCase();
+      let j = i + word.length;
+      while (j < len && /\s/.test(code[j])) j++;
+      let cls = '';
+      if (qlikKeywords.has(upper)) cls = 'qs-keyword';
+      else if (code[j] === '(') cls = 'qs-function';
+      else if (/^[A-ZÀ-ÖØ-Þ][A-ZÀ-ÖØ-Þ0-9_.$]*$/.test(word) || word.includes('_')) cls = 'qs-field';
+      if (cls) out += `<span class="${cls}">${escapeCode(word)}</span>`;
+      else out += escapeCode(word);
+      i += word.length;
+      continue;
+    }
+    if ('=+-*/<>'.includes(ch)) {
+      out += `<span class="qs-operator">${escapeCode(ch)}</span>`;
+      i++;
+      continue;
+    }
+    out += escapeCode(ch);
+    i++;
+  }
+  return out;
+}
+
+function colorizeExample(html) {
+  return html.replace(/<pre><code>([\s\S]*?)<\/code><\/pre>/g, (_match, code) =>
+    `<pre><code class="qlik-syntax">${highlightQlik(code)}</code></pre>`
+  );
+}
+
+for (const lesson of lessons) lesson.example = colorizeExample(lesson.example);
+
+---
+<BaseLayout title="FirstSortedValue — SOSQLIK"><TutorialLayout title="Maîtriser FirstSortedValue()" description="Retrouver une valeur selon un ordre et comprendre le piège des ex æquo." navTitle="FirstSortedValue()" lessons={lessons}/></BaseLayout>

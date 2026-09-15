@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import '../../styles/article-qmc-custom-v461.css';
+import RelatedContent from '../../components/RelatedContent.astro';
 ---
 <BaseLayout title="Planifier une tâche Qlik avec un trigger Custom dans la QMC — SOSQLIK">
 <section class="qc-hero"><div class="container"><p class="qc-eye">QLIK SENSE · QMC</p><h1>Planifier finement une tâche Qlik avec un trigger <span>Custom</span></h1><p>Fréquence, fenêtre horaire, jours autorisés : comprendre et combiner <code>Custom increment</code> et <code>Custom filter</code>.</p><small>Par Martial LOPEZ · 15 septembre 2026 · Lecture ~10 min</small></div></section>
@@ -61,4 +62,8 @@ Custom filter
 <script is:inline>
 document.querySelectorAll('.qc-code button,.qc-examples button').forEach(b=>b.addEventListener('click',async()=>{const c=b.closest('.qc-code,.qc-examples>div')?.querySelector('code');if(!c)return;try{await navigator.clipboard.writeText(c.textContent||'')}catch{const t=document.createElement('textarea');t.value=c.textContent||'';document.body.appendChild(t);t.select();document.execCommand('copy');t.remove()}const x=b.textContent;b.textContent='✓';b.classList.add('copied');setTimeout(()=>{b.textContent=x;b.classList.remove('copied')},1400)}));
 </script>
+
+<RelatedContent links={[
+  { href: '/articles?find=DELTA', kind: 'Articles', title: 'Chargements incrémentaux', description: "Retrouver les retours d'expérience liés aux traitements planifiés." }
+]} />
 </BaseLayout>

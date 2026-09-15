@@ -1,0 +1,131 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+<BaseLayout title="Recherche · SOSQLIK" description="Rechercher dans l'ensemble des contenus SOSQLIK.">
+<section class="search-page"><div class="container">
+<div class="search-page-head"><span class="search-kicker">RECHERCHE SOSQLIK</span><h1>Que cherchez-vous ?</h1>
+<p>Recherchez dans l’ensemble des pages, tutoriels, astuces et articles SOSQLIK.</p>
+<form class="search-page-form" action="/recherche" method="get" role="search">
+<span aria-hidden="true">⌕</span><input id="global-search-input" name="q" type="search" placeholder="Ex. ApplyMap, Set Analysis, MERGE, Custom filter…" autocomplete="off" aria-label="Rechercher dans SOSQLIK"><button type="submit">Rechercher</button>
+</form></div>
+<div id="search-summary" class="search-summary" aria-live="polite"></div><div id="search-results" class="search-results"></div>
+<div id="search-empty" class="search-empty" hidden><h2>Aucun résultat</h2><p>Essayez avec un autre mot-clé ou une expression plus précise.</p></div>
+</div></section>
+
+<script is:inline>
+(()=>{
+// SOSQLIK V4.77b — pertinence + extrait contextualisé
+const input=document.getElementById('global-search-input'),
+      results=document.getElementById('search-results'),
+      summary=document.getElementById('search-summary'),
+      empty=document.getElementById('search-empty'),
+      form=document.querySelector('.search-page-form');
+if(!input||!results||!summary||!empty||!form)return;
+
+const norm=v=>String(v||'').toLocaleLowerCase('fr').normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+const esc=v=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const reEsc=v=>String(v).replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+let index=[];
+
+// Un terme alphanumérique simple doit être un mot/token complet.
+// Ainsi "Alt" ne correspond plus à "alternative".
+function tokenMatch(text,term){
+  const t=norm(text), q=norm(term);
+  if(!q)return null;
+  if(/^[a-z0-9_-]+$/i.test(q)){
+    const rx=new RegExp(`(^|[^a-z0-9_])(${reEsc(q)})(?=$|[^a-z0-9_])`,'i');
+    const m=rx.exec(t);
+    if(!m)return null;
+    return {pos:m.index+m[1].length,len:m[2].length};
+  }
+  const pos=t.indexOf(q);
+  return pos<0?null:{pos,len:q.length};
+}
+
+function queryTerms(query){
+  const clean=query.trim();
+  // Une expression avec ponctuation Qlik est conservée comme une recherche littérale.
+  if(/[{}()[\]$<>=+*/]/.test(clean))return [clean];
+  return clean.split(/\s+/).filter(Boolean);
+}
+
+function firstMatch(text,terms){
+  let best=null;
+  for(const term of terms){
+    const m=tokenMatch(text,term);
+    if(m && (!best || m.pos<best.pos))best={...m,term};
+  }
+  return best;
+}
+
+function excerpt(text,terms){
+  const m=firstMatch(text,terms);
+  if(!m)return '';
+  const start=Math.max(0,m.pos-115), end=Math.min(text.length,m.pos+m.len+210);
+  const before=text.slice(start,m.pos), hit=text.slice(m.pos,m.pos+m.len), after=text.slice(m.pos+m.len,end);
+  return (start?'…':'')+esc(before.trimStart())+
+    `<mark class="search-hit">${esc(hit)}</mark>`+
+    esc(after.trimEnd())+(end<text.length?'…':'');
+}
+
+function run(query){
+  const clean=query.trim();
+  results.innerHTML=''; empty.hidden=true;
+  if(!clean){summary.textContent='Saisissez un mot ou une expression pour lancer la recherche.';return}
+
+  const terms=queryTerms(clean);
+  const found=index.map(item=>{
+    let score=0;
+    for(const term of terms){
+      const inTitle=tokenMatch(item.title,term), inText=tokenMatch(item.text,term);
+      if(!inTitle&&!inText)return null;
+      if(inTitle)score+=30;
+      if(inText)score+=5;
+    }
+    if(norm(item.title)===norm(clean))score+=50;
+    return {...item,score};
+  }).filter(Boolean).sort((a,b)=>b.score-a.score||a.title.localeCompare(b.title,'fr'));
+
+  summary.textContent=`${found.length} résultat${found.length>1?'s':''} pour « ${clean} »`;
+  empty.hidden=found.length!==0;
+
+  for(const item of found){
+    const card=document.createElement('article');
+    card.className='search-result-card';
+    const sep=item.url.includes('?')?'&':'?';
+    const deepUrl=item.url+sep+'find='+encodeURIComponent(clean);
+    const snippet=excerpt(item.text,terms) || esc(item.text.slice(0,300));
+    card.innerHTML=`<div class="search-result-meta">${esc(item.type)}</div>
+      <h2><a href="${esc(deepUrl)}">${esc(item.title)}</a></h2>
+      <p>${snippet}</p>
+      <a class="search-result-link" href="${esc(deepUrl)}">Ouvrir au bon endroit →</a>`;
+    results.appendChild(card);
+  }
+}
+
+async function init(){
+  const q=new URLSearchParams(location.search).get('q')||'';
+  input.value=q; summary.textContent='Chargement de l’index…';
+  try{
+    const r=await fetch('/search-index.json',{cache:'no-store'});
+    if(!r.ok)throw new Error(`HTTP ${r.status}`);
+    index=await r.json(); run(q);
+  }catch(e){
+    console.error(e); summary.textContent='L’index de recherche est indisponible.';
+  }
+}
+form.addEventListener('submit',e=>{
+  e.preventDefault();
+  const q=input.value.trim();
+  history.replaceState(null,'',q?`/recherche?q=${encodeURIComponent(q)}`:'/recherche');
+  run(q);
+});
+init();
+})();
+</script>
+
+<style>
+/* SOSQLIK V4.77b — occurrence trouvée */
+.search-hit{background:rgba(84,189,104,.22);color:inherit;border-radius:.18em;padding:0 .08em;font-weight:700}
+</style>
+</BaseLayout>

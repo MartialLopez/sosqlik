@@ -268,7 +268,7 @@ Sum({1<Annee={2026}>} Montant)`,
     note: 'Retourner NULL permet souvent de distinguer “non calculable” de 0 %, qui est une vraie valeur métier. Le comportement attendu reste à définir avec le métier.'
   }
 ];
-import RelatedContent from '../../components/RelatedContent.astro';
+import RelatedContent from '../components/RelatedContent.astro';
 ---
 
 <BaseLayout title="Astuces — SOSQLIK">

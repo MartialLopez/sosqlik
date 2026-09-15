@@ -30,5 +30,46 @@ const {
   <Header />
   <main><slot /></main>
   <Footer />
+
+<script is:inline>
+/* SOSQLIK V4.73 - navigation profonde */
+(() => {
+  const raw = new URLSearchParams(location.search).get('find');
+  if (!raw) return;
+  const norm = v => String(v || '').toLocaleLowerCase('fr').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ').trim();
+  const wanted = norm(raw);
+  const visible = el => el && getComputedStyle(el).display !== 'none' && getComputedStyle(el).visibility !== 'hidden';
+  const contains = el => norm(el?.textContent).includes(wanted);
+
+  function interactive() {
+    return [...document.querySelectorAll('button,a,[role="button"],[data-index],[data-id],.tutorial-nav-item,.tip-nav-item')]
+      .filter(el => visible(el) && contains(el))
+      .sort((a,b)=>a.textContent.trim().length-b.textContent.trim().length)[0] || null;
+  }
+  function content() {
+    return [...document.querySelectorAll('h1,h2,h3,h4,h5,h6,p,li,pre,code,td,th,article')]
+      .filter(el => visible(el) && contains(el))
+      .sort((a,b)=>a.textContent.trim().length-b.textContent.trim().length)[0] || null;
+  }
+  function mark() {
+    const el=content();
+    if(!el) return false;
+    el.classList.add('sosqlik-search-hit');
+    el.scrollIntoView({behavior:'smooth',block:'center'});
+    setTimeout(()=>el.classList.remove('sosqlik-search-hit'),4200);
+    return true;
+  }
+  function go() {
+    const nav=interactive();
+    if(nav){
+      nav.click();
+      setTimeout(()=>{if(!mark()){nav.classList.add('sosqlik-search-hit');nav.scrollIntoView({behavior:'smooth',block:'center'});}},180);
+    } else mark();
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',()=>setTimeout(go,100),{once:true});
+  else setTimeout(go,100);
+})();
+</script>
+
 </body>
 </html>

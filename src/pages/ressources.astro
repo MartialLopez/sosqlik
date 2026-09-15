@@ -2,71 +2,68 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 ---
 <BaseLayout title="Ressources — SOSQLIK">
-<section class="subhero"><div class="container"><h1>Ressources</h1><p>Modèles, snippets, Qlik Community… pour aller plus loin avec Qlik.</p></div></section>
-<section class="page-section"><div class="container resource-grid">
-  <article class="mini-card"><b>▣</b><h3>Documentation officielle Qlik</h3><p>La référence technique : Qlik Sense, script, fonctions, Set Analysis, performances et nouveautés.</p><div class="resource-links"><a href="https://help.qlik.com/" target="_blank" rel="noopener noreferrer">Documentation Qlik ↗</a><a href="https://help.qlik.com/en-US/sense/May2026/Subsystems/Hub/Content/Sense_Hub/ChartFunctions/SetAnalysis/syntax-for-sets.htm" target="_blank" rel="noopener noreferrer">Set Analysis ↗</a></div></article>
-  <article class="mini-card"><b>▤</b><h3>Articles HIC</h3><p>Les articles pédagogiques de Henric Cronström pour comprendre le pourquoi derrière Qlik.</p><div class="resource-links"><a href="https://community.qlik.com/t5/Design/Natural-Sets/ba-p/1470953" target="_blank" rel="noopener noreferrer">Natural Sets ↗</a><a href="https://community.qlik.com/t5/Design/A-Primer-on-Set-Analysis/ba-p/1468344" target="_blank" rel="noopener noreferrer">A Primer on Set Analysis ↗</a><a href="https://community.qlik.com/t5/Design/Why-is-it-called-Set-Analysis/ba-p/1468208" target="_blank" rel="noopener noreferrer">Why is it called Set Analysis? ↗</a></div></article>
-  <article class="mini-card"><b>◉</b><h3>Outils SOSQLIK</h3><p>Scripts, snippets, modèles et exemples réutilisables produits pour SOSQLIK.</p><div class="resource-links"><a href="/tutoriels">Voir les tutoriels SOSQLIK →</a><span class="resource-coming">Téléchargements et snippets à venir</span></div></article>
-  <article class="mini-card"><b>♢</b><h3>Communauté & références</h3><p>Qlik Community et une sélection de ressources externes utiles et vérifiées.</p><div class="resource-links"><a href="https://community.qlik.com/" target="_blank" rel="noopener noreferrer">Qlik Community ↗</a></div></article>
+<section class="subhero"><div class="container"><h1>Ressources</h1><p>Un point d’entrée unique pour explorer SOSQLIK par thème et retrouver les références qui nous servent au quotidien.</p></div></section>
+
+<section class="page-section resources-hub-v475">
+<div class="container">
+  <div class="resources-hub-intro">
+    <div>
+      <span class="resources-hub-label">EXPLORER SOSQLIK</span>
+      <h2>Choisissez ce que vous voulez approfondir</h2>
+      <p>Tutoriels, astuces et retours d’expérience sont regroupés ici par grands thèmes. Pour une fonction ou une syntaxe précise, le moteur de recherche reste le chemin le plus rapide.</p>
+    </div>
+    <a class="resources-search-cta" href="/recherche">Rechercher sur tout le site →</a>
+  </div>
+
+  <div class="resources-theme-grid">
+    <article class="resources-theme-card"><b>∑</b><div><small>EXPRESSIONS</small><h3>Set Analysis</h3><p>Ensembles, modificateurs, sélections, P(), E(), historique et cas pratiques.</p><div class="resource-links"><a href="/tutoriels/set-analysis">Tutoriel Set Analysis →</a><a href="/astuces?find=Set%20Analysis">Astuce sur {1} →</a></div></div></article>
+    <article class="resources-theme-card"><b>ƒ</b><div><small>EXPRESSIONS · SCRIPT</small><h3>Fonctions Qlik</h3><p>AGGR(), ApplyMap(), Exists(), Peek(), Previous(), Dual(), RangeSum() et les fonctions utiles du quotidien.</p><div class="resource-links"><a href="/tutoriels/fonctions-utiles">Fonctions utiles →</a><a href="/tutoriels/aggr">Comprendre AGGR() →</a><a href="/astuces?find=ApplyMap">Astuce ApplyMap() →</a></div></div></article>
+    <article class="resources-theme-card"><b>⇄</b><div><small>CHARGEMENT</small><h3>QVD & incrémental</h3><p>Construire des chargements fiables et choisir entre une logique DELTA et un véritable MERGE.</p><div class="resource-links"><a href="/articles/delta">Chargement DELTA →</a><a href="/articles/merge">MERGE ligne par ligne →</a><a href="/astuces?find=Exists">Exists() / Not Exists() →</a></div></div></article>
+    <article class="resources-theme-card"><b>◎</b><div><small>MODÈLE DE DONNÉES</small><h3>Modèle associatif</h3><p>Comprendre les associations, les clés et la façon dont Qlik relie données et sélections.</p><div class="resource-links"><a href="/tutoriels/modele-associatif">Modèle associatif →</a><a href="/tutoriels/selections-couleurs">Sélections & couleurs →</a></div></div></article>
+    <article class="resources-theme-card"><b>$</b><div><small>CONCEPTION</small><h3>Variables & Master Items</h3><p>Centraliser les expressions, exploiter les variables et rendre les applications plus faciles à maintenir.</p><div class="resource-links"><a href="/tutoriels/variables">Variables →</a><a href="/tutoriels/master-items">Master Items →</a></div></div></article>
+    <article class="resources-theme-card"><b>⚙</b><div><small>ADMINISTRATION</small><h3>QMC & planification</h3><p>Administration et planification fine des traitements Qlik Sense.</p><div class="resource-links"><a href="/articles/qmc-custom-task">Trigger Custom dans la QMC →</a><a href="/recherche?q=QMC">Rechercher QMC →</a></div></div></article>
+    <article class="resources-theme-card"><b>★</b><div><small>PRATIQUE</small><h3>Astuces</h3><p>Des réponses courtes aux pièges et besoins fréquents dans les scripts et expressions.</p><div class="resource-links"><a href="/astuces">Parcourir les astuces →</a></div></div></article>
+    <article class="resources-theme-card resources-theme-search"><b>⌕</b><div><small>TOUT SOSQLIK</small><h3>Vous cherchez autre chose ?</h3><p>Recherchez directement une fonction, un concept ou un morceau de syntaxe dans tout le contenu du site.</p><div class="resource-links"><a href="/recherche">Recherche globale →</a><a href="/tutoriels">Tous les tutoriels →</a><a href="/articles">Tous les articles →</a></div></div></article>
+  </div>
+
+  <section class="resources-paths">
+    <span class="resources-hub-label">PARCOURS CONSEILLÉS</span><h2>Trois chemins pour progresser</h2>
+    <div class="resources-path-grid">
+      <a href="/tutoriels/modele-associatif"><b>01</b><span><strong>Comprendre Qlik</strong><small>Modèle associatif → sélections → expressions</small></span></a>
+      <a href="/tutoriels/set-analysis"><b>02</b><span><strong>Maîtriser les calculs</strong><small>Fonctions → Set Analysis → AGGR()</small></span></a>
+      <a href="/articles/delta"><b>03</b><span><strong>Industrialiser les chargements</strong><small>QVD → DELTA → MERGE → planification</small></span></a>
+    </div>
+  </section>
+</div>
+</section>
+
+<section class="page-section resources-references"><div class="container">
+  <div class="resource-directory-head"><span class="resources-hub-label">SOURCES & RÉFÉRENCES</span><h2>Pour aller plus loin</h2><p>Les ressources externes que nous utilisons réellement pour construire et vérifier les contenus SOSQLIK.</p></div>
+  <div class="resource-source-grid">
+    <article class="resource-source-card"><div class="resource-source-kicker">OFFICIEL</div><h3>Qlik Help</h3><p>La documentation officielle pour la syntaxe, les fonctions, le Set Analysis, Aggr() et les performances.</p><ul>
+      <li><a href="https://help.qlik.com/" target="_blank" rel="noopener noreferrer">Qlik Help</a></li>
+      <li><a href="https://help.qlik.com/en-US/sense/May2026/Subsystems/Hub/Content/Sense_Hub/ChartFunctions/SetAnalysis/syntax-for-sets.htm" target="_blank" rel="noopener noreferrer">Syntaxe du Set Analysis</a></li>
+      <li><a href="https://help.qlik.com/en-US/sense/May2026/Subsystems/Hub/Content/Sense_Hub/ChartFunctions/SetAnalysis/set-modifiers.htm" target="_blank" rel="noopener noreferrer">Set modifiers</a></li>
+      <li><a href="https://help.qlik.com/en-US/sense/May2026/Subsystems/Hub/Content/Sense_Hub/ChartFunctions/aggr.htm" target="_blank" rel="noopener noreferrer">Fonction Aggr()</a></li>
+      <li><a href="https://help.qlik.com/en-US/sense/May2026/Subsystems/Hub/Content/Sense_Hub/ChartFunctions/NestedAggregations/nested-aggregations.htm" target="_blank" rel="noopener noreferrer">Agrégations imbriquées</a></li>
+      <li><a href="https://help.qlik.com/en-US/sense/November2024/Subsystems/Hub/Content/Sense_Hub/Expressions/work-with-expression-editor.htm" target="_blank" rel="noopener noreferrer">Éditeur d’expressions</a></li>
+    </ul></article>
+    <article class="resource-source-card"><div class="resource-source-kicker">RÉFÉRENCE PÉDAGOGIQUE</div><h3>Henric Cronström — HIC</h3><p>Des articles de fond particulièrement utiles pour comprendre le « pourquoi » derrière Qlik.</p><ul>
+      <li><a href="https://community.qlik.com/t5/Design/Natural-Sets/ba-p/1470953" target="_blank" rel="noopener noreferrer">Natural Sets</a></li>
+      <li><a href="https://community.qlik.com/t5/Design/Why-is-it-called-Set-Analysis/ba-p/1468208" target="_blank" rel="noopener noreferrer">Why is it called Set Analysis?</a></li>
+      <li><a href="https://community.qlik.com/t5/Design/A-Primer-on-Set-Analysis/ba-p/1468344" target="_blank" rel="noopener noreferrer">A Primer on Set Analysis</a></li>
+      <li><a href="https://community.qlik.com/t5/Design/New-Set-Analysis-syntax/ba-p/1983110" target="_blank" rel="noopener noreferrer">New Set Analysis syntax</a></li>
+      <li><a href="https://community.qlik.com/t5/Design/Aggregations-and-Function-Classes/ba-p/1462653" target="_blank" rel="noopener noreferrer">Aggregations and Function Classes</a></li>
+      <li><a href="https://community.qlik.com/t5/Design/Count-or-Count-distinct/ba-p/1469730" target="_blank" rel="noopener noreferrer">Count or Count distinct?</a></li>
+      <li><a href="https://community.qlik.com/t5/Design/Average-Which-average/ba-p/1466654" target="_blank" rel="noopener noreferrer">Average – Which average?</a></li>
+      <li><a href="https://community.qlik.com/t5/Design/The-Above-Function/ba-p/1465357" target="_blank" rel="noopener noreferrer">The Above Function</a></li>
+      <li><a href="https://community.qlik.com/t5/Design/Accumulations/ba-p/1466581" target="_blank" rel="noopener noreferrer">Accumulations</a></li>
+    </ul></article>
+    <article class="resource-source-card"><div class="resource-source-kicker">COMMUNAUTÉ</div><h3>Qlik Community</h3><p>Le forum et le blog Design regroupent des réponses techniques, des exemples et de nombreux articles historiques de référence.</p><ul>
+      <li><a href="https://community.qlik.com/" target="_blank" rel="noopener noreferrer">Qlik Community</a></li>
+      <li><a href="https://community.qlik.com/t5/Design/bg-p/qlik-design-blog" target="_blank" rel="noopener noreferrer">Qlik Design Blog</a></li>
+    </ul></article>
+  </div>
+  <p class="resource-source-note">SOSQLIK est un site indépendant, non affilié à QlikTech. Les ressources externes restent la propriété de leurs auteurs et éditeurs respectifs.</p>
 </div></section>
 </BaseLayout>
-
-
-
-
-
-
-<!-- SOSQLIK-V4-42-RESOURCE-DIRECTORY -->
-<section class="resource-directory">
-  <div class="resource-directory-head">
-    <h2>Sources et références utilisées</h2>
-    <p>Les ressources ci-dessous sont celles que nous utilisons réellement pour construire et vérifier les tutoriels SOSQLIK.</p>
-  </div>
-
-  <div class="resource-source-grid">
-    <article class="resource-source-card">
-      <div class="resource-source-kicker">OFFICIEL</div>
-      <h3>Qlik Help</h3>
-      <p>La documentation officielle pour la syntaxe, les fonctions, le Set Analysis, Aggr() et les performances.</p>
-      <ul>
-        <li><a href="https://help.qlik.com/" target="_blank" rel="noopener noreferrer">Qlik Help</a></li>
-        <li><a href="https://help.qlik.com/en-US/sense/May2026/Subsystems/Hub/Content/Sense_Hub/ChartFunctions/SetAnalysis/syntax-for-sets.htm" target="_blank" rel="noopener noreferrer">Syntaxe du Set Analysis</a></li>
-        <li><a href="https://help.qlik.com/en-US/sense/May2026/Subsystems/Hub/Content/Sense_Hub/ChartFunctions/SetAnalysis/set-modifiers.htm" target="_blank" rel="noopener noreferrer">Set modifiers</a></li>
-        <li><a href="https://help.qlik.com/en-US/sense/May2026/Subsystems/Hub/Content/Sense_Hub/ChartFunctions/aggr.htm" target="_blank" rel="noopener noreferrer">Fonction Aggr()</a></li>
-        <li><a href="https://help.qlik.com/en-US/sense/May2026/Subsystems/Hub/Content/Sense_Hub/ChartFunctions/NestedAggregations/nested-aggregations.htm" target="_blank" rel="noopener noreferrer">Agrégations imbriquées</a></li>
-        <li><a href="https://help.qlik.com/en-US/sense/November2024/Subsystems/Hub/Content/Sense_Hub/Expressions/work-with-expression-editor.htm" target="_blank" rel="noopener noreferrer">Éditeur d’expressions</a></li>
-      </ul>
-    </article>
-
-    <article class="resource-source-card">
-      <div class="resource-source-kicker">RÉFÉRENCE PÉDAGOGIQUE</div>
-      <h3>Henric Cronström — HIC</h3>
-      <p>Des articles de fond particulièrement utiles pour comprendre le « pourquoi » derrière Qlik.</p>
-      <ul>
-        <li><a href="https://community.qlik.com/t5/Design/Natural-Sets/ba-p/1470953" target="_blank" rel="noopener noreferrer">Natural Sets</a></li>
-        <li><a href="https://community.qlik.com/t5/Design/Why-is-it-called-Set-Analysis/ba-p/1468208" target="_blank" rel="noopener noreferrer">Why is it called Set Analysis?</a></li>
-        <li><a href="https://community.qlik.com/t5/Design/A-Primer-on-Set-Analysis/ba-p/1468344" target="_blank" rel="noopener noreferrer">A Primer on Set Analysis</a></li>
-        <li><a href="https://community.qlik.com/t5/Design/New-Set-Analysis-syntax/ba-p/1983110" target="_blank" rel="noopener noreferrer">New Set Analysis syntax</a></li>
-        <li><a href="https://community.qlik.com/t5/Design/Aggregations-and-Function-Classes/ba-p/1462653" target="_blank" rel="noopener noreferrer">Aggregations and Function Classes</a></li>
-        <li><a href="https://community.qlik.com/t5/Design/Count-or-Count-distinct/ba-p/1469730" target="_blank" rel="noopener noreferrer">Count or Count distinct?</a></li>
-        <li><a href="https://community.qlik.com/t5/Design/Average-Which-average/ba-p/1466654" target="_blank" rel="noopener noreferrer">Average – Which average?</a></li>
-        <li><a href="https://community.qlik.com/t5/Design/The-Above-Function/ba-p/1465357" target="_blank" rel="noopener noreferrer">The Above Function</a></li>
-        <li><a href="https://community.qlik.com/t5/Design/Accumulations/ba-p/1466581" target="_blank" rel="noopener noreferrer">Accumulations</a></li>
-      </ul>
-    </article>
-
-    <article class="resource-source-card">
-      <div class="resource-source-kicker">COMMUNAUTÉ</div>
-      <h3>Qlik Community</h3>
-      <p>Le forum et le blog Design regroupent des réponses techniques, des exemples et de nombreux articles historiques de référence.</p>
-      <ul>
-        <li><a href="https://community.qlik.com/" target="_blank" rel="noopener noreferrer">Qlik Community</a></li>
-        <li><a href="https://community.qlik.com/t5/Design/bg-p/qlik-design-blog" target="_blank" rel="noopener noreferrer">Qlik Design Blog</a></li>
-      </ul>
-    </article>
-  </div>
-
-  <p class="resource-source-note">
-    SOSQLIK est un site indépendant, non affilié à QlikTech. Les ressources externes restent la propriété de leurs auteurs et éditeurs respectifs.
-  </p>
-</section>

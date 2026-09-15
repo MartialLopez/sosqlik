@@ -4659,23 +4659,3 @@ html[data-theme="dark"] .resources-theme-card,html[data-theme="dark"] .resources
 html[data-theme="dark"] .related-content-v478__card{background:rgba(255,255,255,.035);border-color:rgba(255,255,255,.09)}
 @media(max-width:680px){.related-content-v478__grid{grid-template-columns:1fr}}
 
-
-/* SOSQLIK V4.78c — cadrage liens contextuels
-   Le bloc V4.78 était injecté hors du conteneur des tutoriels et prenait
-   toute la largeur de la fenêtre. On le recadre sans toucher au composant. */
-.related-content-v478{
-  width:calc(100% - 40px);
-  max-width:1130px;
-  margin:28px auto 0;
-  padding-top:24px;
-  box-sizing:border-box;
-}
-.related-content-v478__grid{
-  width:100%;
-}
-@media (max-width:680px){
-  .related-content-v478{
-    width:calc(100% - 28px);
-    margin-top:22px;
-  }
-}

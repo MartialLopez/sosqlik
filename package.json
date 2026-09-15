@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "astro build && node scripts/build-search-index.mjs",
     "preview": "npm run build && wrangler dev",
     "generate-types": "wrangler types",
     "deploy": "npm run build && wrangler deploy"

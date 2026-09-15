@@ -268,7 +268,6 @@ Sum({1<Annee={2026}>} Montant)`,
     note: 'Retourner NULL permet souvent de distinguer “non calculable” de 0 %, qui est une vraie valeur métier. Le comportement attendu reste à définir avec le métier.'
   }
 ];
-import RelatedContent from '../../components/RelatedContent.astro';
 ---
 
 <BaseLayout title="Astuces — SOSQLIK">
@@ -450,9 +449,4 @@ import RelatedContent from '../../components/RelatedContent.astro';
       });
     });
   </script>
-<!-- SOSQLIK-V478-RELATED -->
-<RelatedContent links={[
-  { type: 'Tutoriel', title: 'Fonctions utiles', description: 'Retrouvez les fonctions Qlik utiles dans un parcours plus complet.', href: '/tutoriels/fonctions-utiles' },
-  { type: 'Tutoriel', title: 'Set Analysis', description: 'Approfondissez les ensembles, modificateurs et sélections.', href: '/tutoriels/set-analysis' }
-]} />
 </BaseLayout>

@@ -1,0 +1,21 @@
+---
+const { links = [] } = Astro.props;
+---
+{links.length > 0 && (
+  <aside class="related-content-v478" aria-label="Pour aller plus loin">
+    <div class="related-content-v478__head">
+      <span>POUR ALLER PLUS LOIN</span>
+      <h2>Continuez sur ce sujet</h2>
+    </div>
+    <div class="related-content-v478__grid">
+      {links.map((link) => (
+        <a class="related-content-v478__card" href={link.href}>
+          <small>{link.type}</small>
+          <strong>{link.title}</strong>
+          <p>{link.description}</p>
+          <span>Découvrir →</span>
+        </a>
+      ))}
+    </div>
+  </aside>
+)}

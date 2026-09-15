@@ -1,0 +1,30 @@
+---
+interface LinkItem {
+  href: string;
+  title: string;
+  description?: string;
+  kind?: string;
+}
+interface Props {
+  links: LinkItem[];
+}
+const { links = [] } = Astro.props;
+---
+{links.length > 0 && (
+  <aside class="related-content" aria-label="Pour aller plus loin">
+    <div class="related-content-head">
+      <span class="related-content-kicker">POUR ALLER PLUS LOIN</span>
+      <h2>Contenus associés</h2>
+    </div>
+    <div class="related-content-grid">
+      {links.map((link) => (
+        <a class="related-content-card" href={link.href}>
+          <span class="related-content-kind">{link.kind || 'SOSQLIK'}</span>
+          <strong>{link.title}</strong>
+          {link.description && <span>{link.description}</span>}
+          <i aria-hidden="true">→</i>
+        </a>
+      ))}
+    </div>
+  </aside>
+)}

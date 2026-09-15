@@ -1,0 +1,338 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import TutorialLayout from '../../components/TutorialLayout.astro';
+const lessons=[
+{id:'repere',n:'01',title:'Comprendre ce que fait un chargement Qlik',level:'Débutant',intro:'Les données utilisées par une application Qlik proviennent d’une source : une base de données, un QVD, un fichier Excel, un CSV… Le script de chargement lit ces données et les charge dans Qlik sous forme de tables. Ces tables peuvent ensuite être transformées, associées ou utilisées dans les visualisations.',detail:'Un fichier Clients.qvd peut par exemple contenir une liste de clients. Tant que le script ne le charge pas, ces données restent uniquement dans le fichier. Une instruction LOAD peut les lire et créer dans Qlik une table appelée Clients. Les instructions placées plus loin dans le script peuvent alors utiliser cette table. À la fin du rechargement, les tables qui n’ont pas été supprimées constituent le modèle de données de l’application.',example:`<div class="master-demo"><b>Du fichier source au modèle de données</b><span>Source externe → LOAD → données disponibles dans une table Qlik → transformations → modèle de données</span><i>STORE peut aussi écrire le contenu d’une table chargée dans Qlik dans un fichier QVD</i></div>`,facts:[['Source externe','BDD, QVD, Excel, CSV…'],['LOAD','fait entrer des données dans Qlik'],['Données chargées','après un LOAD, elles sont disponibles dans Qlik pour les instructions suivantes'],['Modèle final','tables encore présentes à la fin']],note:'La source d’origine et la table chargée dans Qlik sont deux choses différentes. Un fichier QVD reste sur le disque tandis que les données lues dans ce fichier sont chargées dans l’application.',advantages:['Les données chargées peuvent ensuite être transformées et associées à d’autres tables'],disadvantages:['Il faut distinguer la source d’origine des données présentes dans l’application']},
+{id:'load-qvd',n:'02',title:'Premier LOAD : charger des données depuis un QVD',level:'Débutant',intro:'Le fichier Clients.qvd contient des données que l’application doit utiliser. L’instruction LOAD permet de lire les champs souhaités dans ce fichier et de les charger dans Qlik.',detail:'Lorsque Qlik exécute ce LOAD, il lit dans Clients.qvd les trois champs indiqués : ID_CLIENT, NOM_CLIENT et VILLE. Ces données sont chargées dans l’application sous la forme d’une table appelée Clients. Le fichier Clients.qvd, lui, n’est pas modifié : il reste simplement la source des données sur le disque. La table Clients est maintenant chargée en mémoire par Qlik et les instructions suivantes du script peuvent l’utiliser.',example:`<pre><code>// Le fichier Clients.qvd est notre source de données.
+
+Clients:
+LOAD
+    ID_CLIENT,
+    NOM_CLIENT,
+    VILLE
+FROM [lib://Donnees/Clients.qvd] (qvd);
+
+// Les données lues dans le QVD sont maintenant disponibles dans la table Clients.</code></pre>`,facts:[['Clients:','nom donné à la table chargée dans l’application'],['LOAD','champs que Qlik doit charger'],['FROM','emplacement de la source'],['(qvd)','indique que la source est un QVD']],note:'Clients.qvd est le fichier source présent sur le disque. Clients est la table chargée dans l’application à partir de ce fichier. Une transformation appliquée ensuite à la table Clients ne modifie pas automatiquement le QVD d’origine.',advantages:['Permet de voir clairement le passage du fichier source vers la table chargée dans Qlik','Le QVD est un format particulièrement adapté aux chargements Qlik'],disadvantages:['La connexion lib:// doit exister dans l’environnement']},
+{id:'fichiers',n:'03',title:'Charger depuis Excel ou CSV : le principe reste le même',level:'Débutant',intro:'Un QVD n’est pas la seule source possible. Qlik peut aussi charger un fichier Excel ou CSV. Le principe reste le même : LOAD lit les données de la source et les rend disponibles dans l’application.',detail:'Dans cet exemple, Produits.xlsx contient les données de départ. FROM indique où se trouve le fichier. La partie entre parenthèses précise comment Qlik doit lire ce fichier Excel. Une fois le LOAD terminé, les champs demandés sont disponibles dans une table Qlik appelée Produits. Le fichier Excel reste inchangé sur le disque.',example:`<pre><code>// Produits.xlsx contient les données à charger.
+
+Produits:
+LOAD
+    ID_PRODUIT,
+    LIBELLE_PRODUIT,
+    CATEGORIE
+FROM [lib://Donnees/Produits.xlsx]
+(ooxml, embedded labels, table is Produits);
+
+// Les données sélectionnées sont maintenant disponibles dans la table Produits.</code></pre>`,facts:[['Source','fichier Excel externe'],['LOAD','choisit les colonnes à charger'],['Clause ooxml','explique à Qlik comment lire Excel'],['Résultat','les données sont disponibles dans la table Qlik Produits']],note:'FROM désigne la source et LOAD indique les champs à charger dans Qlik. Les options comme ooxml ou txt précisent simplement à Qlik comment lire le type de fichier concerné.',advantages:['Même logique pour de nombreux fichiers'],disadvantages:['Les paramètres de lecture changent selon le format']},
+{id:'sql',n:'04',title:'Charger depuis une base de données : comprendre SELECT et LOAD',level:'Débutant',intro:'Avec une base de données, la source n’est plus un fichier. Une requête SQL demande d’abord les données à la BDD. Qlik peut ensuite appliquer un LOAD à ces données avant de les rendre disponibles dans l’application.',detail:'Dans l’exemple, SQL SELECT demande quatre colonnes à la table COMMANDES de la base de données. Les lignes renvoyées par la BDD sont ensuite traitées par le LOAD placé au-dessus. Ce LOAD renomme plusieurs champs et transforme la date. Le résultat final est chargé dans Qlik sous le nom Commandes. Il n’existe pas une première table créée par SELECT puis une seconde par LOAD : les deux instructions font partie du même chargement.',example:`<pre><code>// Les données de départ se trouvent dans la table COMMANDES de la BDD.
+
+Commandes:
+LOAD
+    ORDER_ID AS ID_COMMANDE,
+    CUSTOMER_ID AS ID_CLIENT,
+    Date(ORDER_DATE) AS DATE_COMMANDE,
+    AMOUNT AS CA_HT;
+SQL SELECT
+    ORDER_ID,
+    CUSTOMER_ID,
+    ORDER_DATE,
+    AMOUNT
+FROM COMMANDES;
+
+// Le résultat est maintenant disponible dans la table Qlik Commandes.</code></pre>`,facts:[['SQL SELECT','la BDD fournit les lignes'],['LOAD','Qlik reçoit et transforme ces lignes'],['AS / Date()','transformations faites par Qlik'],['Commandes','table Qlik qui reçoit le résultat final']],note:'Pour comprendre les données, lisez ici le bloc depuis la source : la BDD fournit les lignes avec SELECT, puis le LOAD Qlik les transforme. Cette construction est un Preceding Load ; nous l’expliquerons tranquillement plus loin.',advantages:['Sépare clairement extraction SQL et logique Qlik'],disadvantages:['Une fonction Qlik ne doit pas être confondue avec une fonction SQL']},
+{id:'transformer',n:'05',title:'Transformer pendant le LOAD',level:'Débutant',intro:'Un LOAD ne sert pas seulement à copier des colonnes. Pendant que les lignes entrent dans Qlik, vous pouvez renommer des champs et en calculer de nouveaux.',detail:'Le QVD contient notamment DATE_BRUTE, QUANTITE et PRIX_UNITAIRE. Pendant le chargement, Qlik applique Date() à DATE_BRUTE et calcule QUANTITE * PRIX_UNITAIRE pour chaque ligne. Les résultats sont stockés dans les champs DATE_COMMANDE et CA_HT de la table Commandes chargée dans l’application.',example:`<pre><code>// Le QVD fournit les données ; le LOAD les prépare avant de les charger dans Commandes.
+
+Commandes:
+LOAD
+    ID_COMMANDE,
+    ID_CLIENT,
+    Date(DATE_BRUTE) AS DATE_COMMANDE,
+    QUANTITE,
+    PRIX_UNITAIRE,
+    QUANTITE * PRIX_UNITAIRE AS CA_HT
+FROM [lib://Donnees/Commandes.qvd] (qvd);
+
+// Commandes contient maintenant DATE_COMMANDE et CA_HT.</code></pre>`,facts:[['Champ source','DATE_BRUTE'],['AS','donne un nom au résultat'],['Expression','calculée ligne par ligne'],['Commandes','table Qlik qui contient les champs obtenus']],note:'Le LOAD ne sert donc pas seulement à choisir des champs : il peut aussi préparer les données au moment de leur chargement dans Qlik.',advantages:['Prépare directement les données utiles au modèle'],disadvantages:['Un mauvais renommage peut créer ou casser une association entre tables']},
+{id:'where-distinct',n:'06',title:'WHERE et DISTINCT : choisir les lignes à charger',level:'Débutant',intro:'Jusqu’ici, toutes les lignes de la source étaient chargées. WHERE permet de ne charger que celles qui répondent à une condition. DISTINCT permet, lui, de ne conserver qu’une seule fois des lignes identiques dans le résultat.',detail:'Le QVD contient des clients actifs et inactifs. WHERE ACTIF = 1 indique que seuls les clients actifs doivent être chargés dans ClientsActifs. DISTINCT s’applique aux champs chargés, ici ID_CLIENT et NOM_CLIENT, et évite de conserver plusieurs fois une même combinaison identique.',example:`<pre><code>// Le QVD contient tous les clients.
+
+ClientsActifs:
+LOAD DISTINCT
+    ID_CLIENT,
+    NOM_CLIENT
+FROM [lib://Donnees/Clients.qvd] (qvd)
+WHERE ACTIF = 1;
+
+// ClientsActifs contient uniquement les lignes qui ont passé le filtre.</code></pre>`,facts:[['WHERE','filtre les lignes à charger'],['DISTINCT','retire les lignes identiques du résultat'],['ClientsActifs','nouvelle table chargée dans Qlik, contenant uniquement les lignes retenues']],note:'DISTINCT ne doit pas servir à supprimer des doublons sans en comprendre la cause. Avant de l’utiliser, vérifiez pourquoi plusieurs lignes identiques sont présentes.',advantages:['Réduit les données inutiles dès le chargement'],disadvantages:['Un filtre incorrect peut éliminer des données nécessaires']},
+{id:'associations',n:'07',title:'Charger une deuxième table : comprendre l’association automatique',level:'Débutant',intro:'Nous allons maintenant conserver deux tables dans l’application. La première, Clients, est chargée depuis son QVD. La seconde, Commandes, est chargée juste après. Elles possèdent toutes les deux un champ appelé ID_CLIENT.',detail:'Une fois les deux LOAD terminés, Qlik conserve Clients et Commandes comme deux tables distinctes. Comme elles possèdent un champ portant exactement le même nom, ID_CLIENT, Qlik les associe automatiquement par ce champ. Aucun JOIN n’est nécessaire pour créer cette relation.',example:`<pre><code>// 1. On charge d’abord la table Clients.
+Clients:
+LOAD ID_CLIENT, NOM_CLIENT, VILLE
+FROM [lib://Donnees/Clients.qvd] (qvd);
+
+// 2. On charge ensuite la table Commandes.
+Commandes:
+LOAD ID_COMMANDE, ID_CLIENT, DATE_COMMANDE, CA_HT
+FROM [lib://Donnees/Commandes.qvd] (qvd);
+
+// Qlik associe automatiquement les deux tables grâce à ID_CLIENT.</code></pre>`,facts:[['Avant le 2e LOAD','Clients a déjà été chargée dans Qlik'],['Après le 2e LOAD','Clients et Commandes sont toutes les deux chargées'],['ID_CLIENT','champ commun = association']],note:'Dans Qlik, deux champs portant exactement le même nom sont associés. C’est voulu pour les clés, mais dangereux pour les homonymes accidentels.',advantages:['Pas besoin de fusionner toutes les tables'],disadvantages:['Tout champ commun crée une association, même si vous ne la vouliez pas']},
+{id:'join',n:'08',title:'JOIN : fusionner les données de deux sources dans une seule table',level:'Débutant',intro:'Cette fois, nous ne voulons pas conserver deux tables séparées. Nous allons d’abord charger Clients, puis utiliser LEFT JOIN pour ajouter à cette table des informations provenant d’une seconde source.',detail:'Le premier LOAD charge la table Clients. LEFT JOIN (Clients) indique ensuite que les données lues dans Segments.qvd doivent être rapprochées de Clients à partir des champs communs, ici ID_CLIENT. Le champ SEGMENT est ajouté aux lignes correspondantes de Clients. Le second chargement ne reste donc pas sous la forme d’une table séparée.',example:`<pre><code>// ÉTAPE 1 : on charge d’abord Clients.
+Clients:
+LOAD ID_CLIENT, NOM_CLIENT
+FROM [lib://Donnees/Clients.qvd] (qvd);
+
+// ÉTAPE 2 : on lit Segments.qvd et on fusionne dans Clients.
+LEFT JOIN (Clients)
+LOAD ID_CLIENT, SEGMENT
+FROM [lib://Donnees/Segments.qvd] (qvd);
+
+// APRÈS : Clients contient aussi SEGMENT.</code></pre>`,facts:[['Table cible','Clients doit déjà exister'],['Source du JOIN','Segments.qvd est chargé pendant l’opération'],['ID_CLIENT','champ commun utilisé pour rapprocher'],['Résultat','une seule table Clients enrichie']],note:'Avant un JOIN, vérifiez qu’une même clé ne correspond pas à plusieurs lignes de façon inattendue. Sinon, le JOIN peut multiplier le nombre de lignes.',advantages:['Utile quand une vraie fusion est souhaitée'],disadvantages:['Un JOIN mal maîtrisé peut modifier le nombre de lignes']},
+{id:'keep',n:'09',title:'KEEP : filtrer deux tables sans les fusionner',level:'Débutant',intro:'KEEP compare deux tables à partir de leurs champs communs, comme le ferait un JOIN, mais il ne les fusionne pas. Avec INNER KEEP, on peut le voir comme une intersection : Qlik conserve dans les deux tables uniquement les lignes dont la valeur de la clé existe des deux côtés.',detail:'Le premier LOAD charge la table Clients. Supposons qu’elle contienne les clients 1, 2, 3 et 4. Le second LOAD charge Commandes avec INNER KEEP (Clients) et contient des commandes pour les clients 1, 3 et 5. Le champ commun est ID_CLIENT. Les valeurs présentes dans les deux tables sont donc 1 et 3. Qlik écarte le client 2 et le client 4, qui n’ont aucune commande, ainsi que la commande du client 5, qui n’existe pas dans Clients. Les deux tables restent séparées : seules leurs lignes ont été filtrées.',example:`<pre><code>// 1. Clients est d’abord chargée dans Qlik.
+Clients:
+LOAD
+    ID_CLIENT,
+    NOM_CLIENT
+FROM [lib://Donnees/Clients.qvd] (qvd);
+
+// 2. Commandes est chargée puis comparée à Clients sur ID_CLIENT.
+INNER KEEP (Clients)
+Commandes:
+LOAD
+    ID_COMMANDE,
+    ID_CLIENT,
+    CA_HT
+FROM [lib://Donnees/Commandes.qvd] (qvd);</code></pre>
+<div class="master-demo"><b>Exemple avec les valeurs de ID_CLIENT</b><span>Clients : 1 · 2 · 3 · 4 &nbsp;&nbsp; | &nbsp;&nbsp; Commandes : 1 · 3 · 5</span><i>INNER KEEP → valeurs communes : 1 et 3. Clients et Commandes restent deux tables distinctes.</i></div>`,facts:[['Champ commun','ID_CLIENT'],['Clients avant KEEP','1 · 2 · 3 · 4'],['Commandes avant KEEP','1 · 3 · 5'],['INNER KEEP','conserve les correspondances 1 et 3'],['Résultat','deux tables toujours séparées']],note:'INNER KEEP se rapproche donc d’une intersection sur les valeurs des champs communs. La différence essentielle avec INNER JOIN est le résultat : JOIN fusionne les données dans une même table ; KEEP filtre les lignes mais conserve les tables séparées.',advantages:['Filtre les données tout en conservant des tables séparées'],disadvantages:['LEFT KEEP et RIGHT KEEP ne sont pas de simples intersections : le côté conservé dépend du type de KEEP utilisé']},
+{id:'concat',n:'10',title:'CONCATENATE : ajouter des lignes à une table déjà chargée',level:'Débutant',intro:'CONCATENATE sert à empiler des lignes. Nous allons d’abord charger les ventes 2025 dans une table Ventes, puis ajouter à cette même table les lignes provenant du fichier 2026.',detail:'Le premier LOAD crée la table Ventes à partir de Ventes_2025.qvd. Le second LOAD lit Ventes_2026.qvd. Grâce à CONCATENATE (Ventes), ses lignes sont ajoutées à la table Ventes déjà chargée au lieu de créer une seconde table. Le résultat est une seule table contenant les ventes des deux années.',example:`<pre><code>// 1. Ventes est créée avec les lignes 2025.
+Ventes:
+LOAD ID_VENTE, DATE_VENTE, CA_HT
+FROM [lib://Donnees/Ventes_2025.qvd] (qvd);
+
+// 2. On ajoute les lignes 2026 à la table Ventes déjà chargée.
+CONCATENATE (Ventes)
+LOAD ID_VENTE, DATE_VENTE, CA_HT
+FROM [lib://Donnees/Ventes_2026.qvd] (qvd);
+
+// APRÈS : une seule table Ventes contient 2025 + 2026.</code></pre>`,facts:[['Premier LOAD','crée Ventes'],['Second LOAD','lit une autre source'],['CONCATENATE','ajoute ses lignes dans Ventes'],['Résultat','une seule table Ventes chargée dans Qlik']],note:'CONCATENATE empile des lignes verticalement ; JOIN rapproche des lignes et ajoute généralement des colonnes.',advantages:['Idéal pour empiler années, mois ou sources comparables'],disadvantages:['Des structures différentes créent des valeurs nulles dans les champs absents']},
+{id:'noconcat',n:'11',title:'NoConcatenate : demander explicitement deux tables séparées',level:'Débutant',intro:'Qlik peut concaténer automatiquement deux tables qui ont exactement les mêmes champs. NoConcatenate sert à dire : « même structure, mais je veux quand même une nouvelle table ».',detail:'Le premier LOAD charge Ventes_2025.qvd dans une table appelée Ventes. Nous chargeons ensuite Ventes_2026.qvd, qui contient exactement les mêmes champs. Dans ce cas, Qlik pourrait ajouter automatiquement les nouvelles lignes à Ventes. NoConcatenate lui demande au contraire de créer une deuxième table, Ventes_2026. Nous pouvons ainsi comprendre NoConcatenate sans utiliser encore Resident, qui sera expliqué à l’étape suivante.',example:`<pre><code>// 1 — On charge les ventes 2025.
+Ventes:
+LOAD ID_VENTE, DATE_VENTE, CA_HT
+FROM [lib://Donnees/Ventes_2025.qvd] (qvd);
+
+// 2 — Même structure, autre source.
+// NoConcatenate impose la création d’une nouvelle table.
+Ventes_2026:
+NoConcatenate
+LOAD
+    ID_VENTE,
+    DATE_VENTE,
+    CA_HT
+FROM [lib://Donnees/Ventes_2026.qvd] (qvd);
+
+// À la fin, Ventes et Ventes_2026 restent deux tables distinctes.</code></pre>`,facts:[['Premier LOAD','charge les ventes 2025 dans Ventes'],['Second LOAD','lit une autre source ayant les mêmes champs'],['NoConcatenate','empêche Qlik d’ajouter automatiquement ces lignes à Ventes'],['Résultat','Ventes et Ventes_2026 restent deux tables distinctes']],note:'Sans NoConcatenate, deux chargements ayant exactement les mêmes champs peuvent être regroupés automatiquement par Qlik. Ici, nous demandons explicitement de conserver deux tables.',advantages:['Permet de choisir clairement si deux chargements doivent rester séparés'],disadvantages:['Deux tables de même structure ne doivent rester séparées que si cela répond à un besoin précis']},
+{id:'resident',n:'12',title:'Resident LOAD : relire une table déjà chargée dans Qlik',level:'Débutant',intro:'Resident sert à repartir de données que Qlik a déjà chargées. Avant de pouvoir écrire Resident Commandes, il faut donc qu’une instruction précédente du script ait créé la table Commandes.',detail:'Dans la première partie, Qlik lit Commandes.qvd et charge les données dans une table appelée Commandes. Ces données sont alors disponibles dans l’application. Dans la seconde partie, Resident Commandes indique à Qlik de relire cette table déjà chargée, et non le fichier QVD. Qlik regroupe alors les lignes par ID_CLIENT, calcule Sum(CA_HT) et charge le résultat dans une nouvelle table appelée CA_Par_Client.',example:`<pre><code>// ÉTAPE 1 — On charge d’abord Commandes depuis le QVD.
+Commandes:
+LOAD
+    ID_COMMANDE,
+    ID_CLIENT,
+    CA_HT
+FROM [lib://Donnees/Commandes.qvd] (qvd);
+
+// À ce stade, les données de Commandes sont déjà chargées dans Qlik.
+
+// ÉTAPE 2 — Resident repart de cette table déjà chargée.
+CA_Par_Client:
+LOAD
+    ID_CLIENT,
+    Sum(CA_HT) AS CA_CLIENT
+Resident Commandes
+Group By ID_CLIENT;
+
+// Le script dispose maintenant de Commandes et de CA_Par_Client.</code></pre>`,facts:[['FROM ...qvd','lit la source externe'],['Commandes','table chargée lors de la première étape'],['Resident Commandes','relit cette table déjà chargée'],['CA_Par_Client','nouvelle table créée à partir de Commandes']],note:'Resident ne relit pas le fichier ou la base de données d’origine. Il utilise comme source une table déjà chargée plus haut dans le script.',advantages:['Permet une seconde étape de transformation très lisible'],disadvantages:['La table source doit avoir été chargée avant le Resident']},
+{id:'preceding',n:'13',title:'Preceding Load : enchaîner les transformations sans créer de table intermédiaire',level:'Débutant',intro:'Avec Resident, une première table a déjà été chargée et on la relit ensuite. Le Preceding Load évite cette étape intermédiaire : le résultat du chargement placé en dessous est transmis directement au LOAD placé au-dessus.',detail:'Lisez le flux de bas en haut. Le LOAD inférieur lit le CSV et transforme le texte DATE_TEXTE en DATE_BRUTE. Chaque résultat est immédiatement transmis au LOAD supérieur, qui crée DATE_COMMANDE. Il n’existe pas de table intermédiaire nommée entre les deux LOAD.',example:`<pre><code>// Le flux des données remonte du LOAD inférieur vers le LOAD supérieur.
+Commandes:
+LOAD
+    ID_COMMANDE,
+    Date(DATE_BRUTE) AS DATE_COMMANDE;
+LOAD
+    ID_COMMANDE,
+    Timestamp#(DATE_TEXTE,'YYYY-MM-DD hh:mm:ss') AS DATE_BRUTE
+FROM [lib://Donnees/Commandes.csv]
+(txt, utf8, embedded labels, delimiter is ',');
+
+// APRÈS : seule Commandes est créée comme table de ce bloc.</code></pre>`,facts:[['LOAD inférieur','lit la source et produit un premier résultat'],['LOAD supérieur','reçoit directement ce résultat'],['Table intermédiaire','aucune table nommée n’est créée'],['Commandes','table finale du bloc']],note:'Resident : je repars d’une table déjà chargée dans Qlik. Preceding Load : le résultat de l’instruction du dessous est traité directement par le LOAD du dessus.',advantages:['Évite certaines tables intermédiaires'],disadvantages:['La lecture de bas en haut peut surprendre au début']},
+{id:'mapping',n:'14',title:'Mapping LOAD + ApplyMap() : préparer une correspondance puis l’utiliser',level:'Débutant',intro:'Un mapping se déroule en deux temps. D’abord Qlik charge une petite correspondance clé → valeur. Ensuite un autre LOAD utilise ApplyMap() pour rechercher la valeur correspondant à chaque clé.',detail:'MapSegment est chargé en premier et devient une table de mapping interne à Qlik. Puis Commandes est chargée depuis son QVD. Pour chaque ID_CLIENT, ApplyMap cherche la valeur dans MapSegment et place le résultat dans le nouveau champ SEGMENT.',example:`<pre><code>// ÉTAPE 1 — On charge d’abord la table de correspondance.
+MapSegment:
+Mapping LOAD
+    ID_CLIENT,
+    SEGMENT
+FROM [lib://Donnees/Segments.qvd] (qvd);
+
+// ÉTAPE 2 — Charger Commandes et consulter le mapping ligne par ligne.
+Commandes:
+LOAD
+    ID_COMMANDE,
+    ID_CLIENT,
+    ApplyMap('MapSegment', ID_CLIENT, 'Non classé') AS SEGMENT,
+    CA_HT
+FROM [lib://Donnees/Commandes.qvd] (qvd);
+
+// APRÈS : Commandes contient le champ SEGMENT enrichi.</code></pre>`,facts:[['Mapping LOAD','prépare une correspondance à deux colonnes'],['ApplyMap()','cherche une clé pendant un autre LOAD'],['3e argument','valeur si la clé n’est pas trouvée'],['Résultat','SEGMENT est créé dans Commandes']],note:'Le mapping doit être chargé avant le LOAD qui appelle ApplyMap(), puisque Qlik doit déjà connaître la correspondance au moment de la recherche.',advantages:['Très clair pour un enrichissement clé → valeur'],disadvantages:['Ne remplace pas tous les besoins de jointure']},
+{id:'store',n:'15',title:'STORE : enregistrer dans un QVD une table déjà chargée',level:'Débutant',intro:'Jusqu’ici, LOAD faisait entrer des données dans Qlik. STORE fait autre chose : il prend les données d’une table déjà chargée dans Qlik et les enregistre dans un fichier, généralement un QVD.',detail:'Dans l’exemple, le premier LOAD charge les données dans la table Commandes. STORE peut alors enregistrer le contenu actuel de cette table dans Commandes.qvd. STORE ne retire pas Commandes de l’application : après l’écriture du fichier, la table reste disponible pour la suite du script.',example:`<pre><code>// ÉTAPE 1 — On charge d’abord Commandes.
+Commandes:
+LOAD ID_COMMANDE, ID_CLIENT, DATE_COMMANDE, CA_HT
+FROM [lib://Donnees/Commandes_Source.qvd] (qvd);
+
+// ÉTAPE 2 — Le contenu de la table déjà chargée dans Qlik est écrit sur disque.
+STORE Commandes
+INTO [lib://QVD/Commandes.qvd] (qvd);
+
+// À la fin : Commandes reste disponible dans Qlik
+//             et Commandes.qvd existe aussi sur le disque.</code></pre>`,facts:[['Avant STORE','Commandes doit déjà avoir été chargée'],['STORE Commandes','prend le contenu actuel de cette table Qlik'],['INTO','désigne le fichier à écrire'],['Après STORE','Commandes reste disponible dans Qlik et le QVD existe sur le disque']],note:'LOAD charge des données dans Qlik ; STORE écrit dans un fichier le contenu d’une table déjà chargée dans Qlik.',advantages:['Permet de réutiliser des données déjà préparées'],disadvantages:['STORE sauvegarde l’état de la table exactement au moment où il est exécuté']},
+{id:'store-drop',n:'16',title:'LOAD → STORE → DROP : comprendre le cycle complet',level:'Débutant',intro:'Nous pouvons maintenant réunir trois instructions que l’on rencontre souvent ensemble. LOAD charge les données dans Qlik, STORE enregistre ces données dans un QVD, puis DROP TABLE retire la table de l’application lorsqu’elle n’est plus nécessaire pour la suite du script.',detail:'L’ordre est important. Le LOAD doit passer en premier car STORE a besoin d’une table déjà chargée. STORE crée ensuite le fichier QVD sur le disque. Enfin, DROP TABLE retire Commandes des données actuellement chargées dans Qlik. Cette dernière instruction ne supprime pas le fichier QVD : le fichier et la table Qlik sont deux choses différentes.',example:`<pre><code>// 1 — On charge les données dans Qlik.
+Commandes:
+LOAD
+    ID_COMMANDE,
+    ID_CLIENT,
+    DATE_COMMANDE,
+    CA_HT
+FROM [lib://Donnees/Commandes_Source.qvd] (qvd);
+
+// 2 — On enregistre le résultat dans un QVD.
+STORE Commandes
+INTO [lib://QVD/Commandes.qvd] (qvd);
+
+// 3 — On retire la table de Qlik si elle n’est plus utile.
+DROP TABLE Commandes;
+
+// À la fin : Commandes a été retirée de Qlik,
+//             mais Commandes.qvd reste bien sur le disque.</code></pre>`,facts:[['LOAD','charge les données dans une table Qlik'],['STORE','enregistre le contenu de la table dans un fichier'],['DROP TABLE','retire la table des données chargées dans Qlik'],['QVD','reste sur disque après le DROP']],note:'Après STORE, le QVD existe sur le disque et la table reste chargée dans Qlik. DROP TABLE retire ensuite cette table de l’application sans supprimer le QVD.',advantages:['Permet d’enregistrer un résultat intermédiaire ou final dans un QVD puis de libérer la table devenue inutile'],disadvantages:['DROP avant STORE supprimerait la table avant son écriture']},
+{id:'drop-field',n:'17',title:'DROP TABLE et DROP FIELD : retirer ce qui n’est plus utile',level:'Débutant',intro:'DROP ne charge aucune donnée. Il sert à retirer une table ou un champ que Qlik a déjà chargé auparavant dans le script.',detail:'Une table temporaire peut par exemple servir à préparer un calcul puis devenir inutile. DROP TABLE retire alors cette table des données chargées dans Qlik. DROP FIELD retire seulement un champ d’une table. Après le DROP, les instructions suivantes ne peuvent plus utiliser l’élément supprimé.',example:`<pre><code>// On suppose que ces objets ont été créés plus haut dans le script.
+
+DROP TABLE Commandes_Temp;
+DROP FIELD CleTechnique FROM Commandes;
+
+// Commandes_Temp a été retirée de Qlik.
+// Commandes est toujours présente, mais sans CleTechnique.</code></pre>`,facts:[['Précondition','la table ou le champ doit déjà avoir été chargé'],['DROP TABLE','retire la table du modèle de données'],['DROP FIELD','supprime seulement un champ']],note:'Attention à la distinction : DROP TABLE Commandes retire la table Commandes de Qlik. Il ne supprime ni Commandes.qvd sur le disque, ni une table COMMANDES dans une base de données.',advantages:['Évite de conserver des objets techniques inutiles'],disadvantages:['Une suppression trop tôt casse les étapes suivantes qui en dépendent']},
+{id:'inline',n:'18',title:'INLINE : écrire une petite table directement dans le script',level:'Débutant',intro:'Avec INLINE, il n’y a ni fichier ni base de données à lire : les quelques valeurs à charger sont écrites directement dans le script.',detail:'Le bloc entre crochets joue le rôle de source. La première ligne contient les noms de champs et les lignes suivantes contiennent les valeurs. LOAD * charge l’ensemble et crée la table Statuts dans Qlik. INLINE est particulièrement pratique pour de petites listes de référence ou pour faire des essais.',example:`<pre><code>// Les données sont écrites directement dans le script.
+Statuts:
+LOAD * INLINE [
+CODE_STATUT, LIBELLE_STATUT
+O, Ouverte
+C, Clôturée
+A, Annulée
+];
+
+// La table Statuts est maintenant chargée dans Qlik avec 3 lignes.</code></pre>`,facts:[['Source','valeurs écrites dans le script'],['LOAD *','charge les colonnes du bloc INLINE'],['Statuts','table créée directement à partir des valeurs INLINE']],note:'INLINE est idéal pour expérimenter : vous voyez la source et le résultat sans dépendre d’un fichier externe.',advantages:['Permet de tester rapidement un exemple sans préparer de fichier externe'],disadvantages:['Pas adapté aux gros volumes ou aux référentiels maintenus ailleurs']},
+{id:'modele',n:'19',title:'Assembler le tout : construire un premier modèle de données',level:'Débutant',intro:'Nous savons maintenant charger plusieurs tables et nous avons vu que Qlik les associe lorsque des champs portent le même nom. Construisons un premier modèle simple avec des clients, des commandes et des produits.',detail:'Le premier LOAD charge Clients. Le deuxième charge Commandes ; comme les deux tables possèdent ID_CLIENT, Qlik les associe par ce champ. Le troisième LOAD charge Produits ; ID_PRODUIT crée à son tour l’association avec Commandes. À la fin du rechargement, ces trois tables et leurs associations constituent le modèle de données utilisé par l’application.',example:`<pre><code>// 1 — On charge Clients.
+Clients:
+LOAD ID_CLIENT, NOM_CLIENT, VILLE
+FROM [lib://Donnees/Clients.qvd] (qvd);
+
+// 2 — On charge Commandes.
+Commandes:
+LOAD
+    ID_COMMANDE,
+    ID_CLIENT,
+    ID_PRODUIT,
+    DATE_COMMANDE,
+    QUANTITE,
+    CA_HT
+FROM [lib://Donnees/Commandes.qvd] (qvd);
+
+// 3 — On charge Produits.
+Produits:
+LOAD ID_PRODUIT, LIBELLE_PRODUIT, CATEGORIE
+FROM [lib://Donnees/Produits.qvd] (qvd);
+
+// Associations : Clients ← ID_CLIENT → Commandes ← ID_PRODUIT → Produits</code></pre>`,facts:[['Clients','table contenant les informations sur les clients'],['Commandes','table contenant les commandes et les identifiants qui les relient aux clients et aux produits'],['Produits','table contenant les informations sur les produits'],['Fin du script','les trois tables et leurs associations forment le modèle de données']],note:'Ouvrez ensuite le Data Model Viewer : il permet de voir les trois tables chargées et les associations que Qlik a créées entre elles.',advantages:['Montre comment plusieurs chargements forment progressivement le modèle de données de l’application'],disadvantages:['Des champs portant le même nom peuvent créer des associations non souhaitées ; ce point sera approfondi dans le tutoriel sur le modèle associatif']},
+{id:'reflexes',n:'20',title:'Les principales instructions de chargement en un coup d’œil',level:'Débutant',intro:'Les instructions vues dans ce parcours n’ont pas toutes le même rôle. Certaines lisent une source externe, d’autres réutilisent ou enrichissent des données déjà chargées, écrivent un fichier ou retirent une table devenue inutile.',detail:'LOAD ... FROM lit une source externe. Resident repart d’une table déjà chargée. JOIN et CONCATENATE ajoutent des données à une table existante, selon des mécanismes différents. STORE écrit une table dans un fichier et DROP retire une table ou un champ de l’application. Cette distinction permet de lire plus facilement un script de chargement.',example:`<div class="master-demo"><b>Les rôles essentiels</b><span>Lire une source → charger les données → les transformer ou les associer → éventuellement les enregistrer → conserver dans l’application uniquement les tables utiles.</span><i>Chaque instruction intervient à une étape précise du chargement.</i></div>`,facts:[['LOAD ... FROM','lit une source externe et charge le résultat dans une table Qlik'],['Resident','relit une table déjà chargée dans Qlik pour créer un nouveau résultat'],['Preceding Load','résultat inférieur → LOAD supérieur, sans table intermédiaire nommée'],['JOIN','charge des données puis les fusionne avec une table déjà chargée dans Qlik'],['CONCATENATE','charge de nouvelles lignes et les ajoute à une table déjà chargée dans Qlik'],['Mapping / ApplyMap','charge une correspondance puis l’utilise'],['STORE','écrit dans un fichier le contenu d’une table déjà chargée dans Qlik'],['DROP','retire une table ou un champ des données chargées dans Qlik']],note:'Resident, Preceding Load, Mapping/ApplyMap et le modèle associatif sont approfondis dans les tutoriels dédiés.',advantages:['Ces rôles permettent d’identifier rapidement ce que fait chaque partie d’un script'],disadvantages:['Les traitements complexes peuvent combiner plusieurs de ces mécanismes']}
+
+]
+
+// Coloration syntaxique Qlik Sense — réutilise la palette globale SOSQLIK V4.40.
+const qlikKeywords = new Set([
+  'LOAD','FROM','WHERE','DISTINCT','AS','SQL','SELECT','LEFT','RIGHT','INNER','OUTER','JOIN','KEEP',
+  'CONCATENATE','NOCONCATENATE','RESIDENT','GROUP','BY','MAPPING','STORE','INTO','DROP','TABLE','FIELD',
+  'INLINE','ORDER','ASC','DESC','AUTOGENERATE','WHILE','IF','THEN','ELSE','ENDIF','LET','SET','QUALIFY',
+  'UNQUALIFY','BINARY','SECTION','ACCESS','APPLICATION','REPLACE','ADD','MERGE','ONLY','ON','INSERT','UPDATE',
+  'DELETE','IS','NULL','NOT','AND','OR','TRUE','FALSE','QVD','OOXML','TXT','EMBEDDED','LABELS'
+]);
+
+function escapeCode(value) {
+  return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function highlightQlik(code) {
+  let out = '';
+  let i = 0;
+  const len = code.length;
+  while (i < len) {
+    if (code.startsWith('//', i)) {
+      const end = code.indexOf('\n', i);
+      const stop = end === -1 ? len : end;
+      out += `<span class="qs-comment">${escapeCode(code.slice(i, stop))}</span>`;
+      i = stop;
+      continue;
+    }
+    const ch = code[i];
+    if (ch === "'") {
+      let j = i + 1;
+      while (j < len) {
+        if (code[j] === "'" && code[j + 1] === "'") { j += 2; continue; }
+        if (code[j] === "'") { j++; break; }
+        j++;
+      }
+      out += `<span class="qs-string">${escapeCode(code.slice(i, j))}</span>`;
+      i = j;
+      continue;
+    }
+    if (ch === '[') {
+      const end = code.indexOf(']', i + 1);
+      if (end !== -1) {
+        const token = code.slice(i, end + 1);
+        const cls = token.includes('lib://') ? 'qs-string' : 'qs-field';
+        out += `<span class="${cls}">${escapeCode(token)}</span>`;
+        i = end + 1;
+        continue;
+      }
+    }
+    if (/\d/.test(ch)) {
+      const m = code.slice(i).match(/^\d+(?:[.,]\d+)?/);
+      out += `<span class="qs-number">${m[0]}</span>`;
+      i += m[0].length;
+      continue;
+    }
+    if (/[A-Za-zÀ-ÿ_$]/.test(ch)) {
+      const m = code.slice(i).match(/^[A-Za-zÀ-ÿ_$][A-Za-zÀ-ÿ0-9_.$]*/);
+      const word = m[0];
+      const upper = word.toUpperCase();
+      let j = i + word.length;
+      while (j < len && /\s/.test(code[j])) j++;
+      let cls = '';
+      if (qlikKeywords.has(upper)) cls = 'qs-keyword';
+      else if (code[j] === '(') cls = 'qs-function';
+      else if (/^[A-ZÀ-ÖØ-Þ][A-ZÀ-ÖØ-Þ0-9_.$]*$/.test(word) || word.includes('_')) cls = 'qs-field';
+      if (cls) out += `<span class="${cls}">${escapeCode(word)}</span>`;
+      else out += escapeCode(word);
+      i += word.length;
+      continue;
+    }
+    if ('=+-*/<>'.includes(ch)) {
+      out += `<span class="qs-operator">${escapeCode(ch)}</span>`;
+      i++;
+      continue;
+    }
+    out += escapeCode(ch);
+    i++;
+  }
+  return out;
+}
+
+function colorizeExample(html) {
+  return html.replace(/<pre><code>([\s\S]*?)<\/code><\/pre>/g, (_match, code) =>
+    `<pre><code class="qlik-syntax">${highlightQlik(code)}</code></pre>`
+  );
+}
+
+for (const lesson of lessons) lesson.example = colorizeExample(lesson.example);
+---
+<BaseLayout title="Débuter avec le script de chargement Qlik — SOSQLIK"><TutorialLayout title="Débuter avec le script de chargement Qlik" description="Apprendre pas à pas le chargement des données dans Qlik : LOAD, sources QVD, Excel et SQL, transformations, associations, JOIN, KEEP, CONCATENATE, Resident, Preceding Load, Mapping, STORE et DROP." navTitle="Débuter en script" lessons={lessons}/></BaseLayout>
