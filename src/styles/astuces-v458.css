@@ -1,5 +1,5 @@
 
-/* SOSQLIK V4.58 — Astuces & Tips */
+/* SOSQLIK V4.58 — Astuces */
 .tips-hero{padding:58px 0 52px;background:linear-gradient(135deg,#101b22 0%,#172a2b 58%,#17362c 100%);color:#fff;overflow:hidden;position:relative}
 .tips-hero:after{content:"";position:absolute;width:420px;height:420px;border-radius:50%;right:-100px;top:-210px;background:radial-gradient(circle,rgba(83,202,98,.18),transparent 68%)}
 .tips-hero .eyebrow{font-size:.78rem;letter-spacing:.18em;font-weight:800;color:#65d36e;margin:0 0 14px}
@@ -71,4 +71,220 @@
 @media(max-width:480px){
   .copy-label{display:none}
   .code-copy{padding:6px 8px}
+}
+
+/* SOSQLIK V4.64 — cohérence visuelle du mode sombre Astuces */
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .tips-section{
+  color:#e8f0f1;
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .tips-nav-inner{
+  background:#101d24;
+  border-color:#294047;
+  box-shadow:0 14px 34px rgba(0,0,0,.18);
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .tips-nav-title{
+  color:#91a3a6;
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .tips-nav a{
+  color:#cbd7da;
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .tips-nav a:hover{
+  background:rgba(83,190,94,.12);
+  color:#f5f8f8;
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .tips-intro-card{
+  background:linear-gradient(135deg,#10312c 0%,#0d2728 55%,#0d2027 100%);
+  border-color:#205a43;
+  box-shadow:0 12px 30px rgba(0,0,0,.14);
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .tips-intro-card h2{
+  color:#f4f8f7;
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .tips-intro-card p{
+  color:#aebfc0;
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .tip-card{
+  background:#102028;
+  border-color:#294047;
+  box-shadow:0 14px 34px rgba(0,0,0,.20);
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .tip-head h2{
+  color:#f2f7f7;
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .tip-head p{
+  color:#b3c1c3;
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .tip-problem{
+  background:rgba(224,164,72,.105);
+  border-left-color:#e0a448;
+  color:#dce5e5;
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .tip-problem p{
+  color:#c6d1d2;
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .tip-remember{
+  background:rgba(77,185,87,.105);
+  border:1px solid rgba(77,185,87,.16);
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .tip-remember p{
+  color:#c8d5d5;
+}
+
+/* Repli si le thème du site suit directement le thème sombre du système. */
+@media (prefers-color-scheme:dark){
+  html:not([data-theme="light"]):not(.light):not(.light-mode):not(.light-theme) .tips-nav-inner{background:#101d24;border-color:#294047}
+  html:not([data-theme="light"]):not(.light):not(.light-mode):not(.light-theme) .tips-nav-title{color:#91a3a6}
+  html:not([data-theme="light"]):not(.light):not(.light-mode):not(.light-theme) .tips-nav a{color:#cbd7da}
+  html:not([data-theme="light"]):not(.light):not(.light-mode):not(.light-theme) .tips-intro-card{background:linear-gradient(135deg,#10312c 0%,#0d2728 55%,#0d2027 100%);border-color:#205a43}
+  html:not([data-theme="light"]):not(.light):not(.light-mode):not(.light-theme) .tips-intro-card h2{color:#f4f8f7}
+  html:not([data-theme="light"]):not(.light):not(.light-mode):not(.light-theme) .tips-intro-card p{color:#aebfc0}
+  html:not([data-theme="light"]):not(.light):not(.light-mode):not(.light-theme) .tip-card{background:#102028;border-color:#294047;box-shadow:0 14px 34px rgba(0,0,0,.20)}
+  html:not([data-theme="light"]):not(.light):not(.light-mode):not(.light-theme) .tip-head h2{color:#f2f7f7}
+  html:not([data-theme="light"]):not(.light):not(.light-mode):not(.light-theme) .tip-head p{color:#b3c1c3}
+  html:not([data-theme="light"]):not(.light):not(.light-mode):not(.light-theme) .tip-problem{background:rgba(224,164,72,.105);color:#dce5e5}
+  html:not([data-theme="light"]):not(.light):not(.light-mode):not(.light-theme) .tip-problem p{color:#c6d1d2}
+  html:not([data-theme="light"]):not(.light):not(.light-mode):not(.light-theme) .tip-remember{background:rgba(77,185,87,.105);border:1px solid rgba(77,185,87,.16)}
+  html:not([data-theme="light"]):not(.light):not(.light-mode):not(.light-theme) .tip-remember p{color:#c8d5d5}
+}
+
+/* SOSQLIK V4.65 — navigation cohérente avec les tutoriels + pédagogie */
+.tips-nav-button{width:100%;display:grid;grid-template-columns:28px minmax(0,1fr);gap:8px;align-items:start;text-align:left;border:0;background:transparent;padding:9px 8px;border-radius:9px;color:inherit;font:inherit;font-size:.78rem;line-height:1.3;cursor:pointer}
+.tips-nav-button:hover{background:rgba(80,190,90,.09)}
+.tips-nav-button[aria-current="true"]{background:rgba(80,190,90,.14);box-shadow:inset 3px 0 #53b95e}
+.tips-nav-button>span:first-child{font-weight:850;color:#53b95e}
+.tips-nav-button>span:last-child{min-width:0}
+.tip-card[hidden]{display:none!important}
+.tip-teach{margin:23px 0 17px;padding:17px 18px;border:1px solid rgba(68,155,205,.18);background:rgba(68,155,205,.065);border-radius:12px}
+.tip-teach p{margin:5px 0 0;line-height:1.65}
+.tips-mobile-select-wrap{display:none;margin:0 0 18px}
+.tips-mobile-select-wrap label{display:block;font-size:.72rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;margin:0 0 7px;color:var(--muted-color,#66716b)}
+.tips-mobile-select-wrap select{width:100%;padding:12px 13px;border:1px solid var(--border-color,#dfe5e2);border-radius:11px;background:var(--card-bg,#fff);color:inherit;font:inherit}
+.tip-pager{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center;margin-top:24px;padding-top:20px;border-top:1px solid var(--border-color,#dfe5e2)}
+.tip-pager>span{text-align:center;font-size:.78rem;color:var(--muted-color,#66716b)}
+.tip-pager-button{justify-self:start;border:1px solid rgba(76,175,86,.3);background:rgba(76,175,86,.07);color:inherit;border-radius:10px;padding:9px 12px;font:750 .78rem/1.2 ui-sans-serif,system-ui,sans-serif;cursor:pointer}
+.tip-pager-next{justify-self:end}
+.tip-pager-button:hover:not(:disabled){background:rgba(76,175,86,.14);border-color:rgba(76,175,86,.5)}
+.tip-pager-button:disabled{opacity:.35;cursor:not-allowed}
+.tips-content{scroll-margin-top:90px}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .tips-nav-button{color:#cbd7da}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .tips-nav-button:hover{background:rgba(83,190,94,.12)}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .tips-nav-button[aria-current="true"]{background:rgba(83,190,94,.16)}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .tip-teach{background:rgba(72,154,200,.10);border-color:rgba(92,180,225,.22)}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .tip-teach p{color:#c8d5d8}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .tip-pager{border-top-color:#294047}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .tip-pager-button{color:#dce8e8;background:rgba(83,190,94,.09)}
+@media(max-width:900px){.tips-mobile-select-wrap{display:block}.tips-intro-card{margin-bottom:16px}}
+@media(max-width:600px){.tip-pager{grid-template-columns:1fr 1fr}.tip-pager>span{grid-column:1/-1;grid-row:1}.tip-pager-button{grid-row:2}.tip-pager-next{justify-self:end}.tip-teach{padding:15px}}
+
+
+/* SOSQLIK V4.66 — bandeau Cap Canaille harmonisé avec Tutoriels */
+.tips-hero{
+  position:relative;
+  min-height:198px;
+  padding:36px 0 34px;
+  display:flex;
+  align-items:center;
+  overflow:hidden;
+  color:#fff;
+  background:
+    linear-gradient(90deg,rgba(5,25,34,.78) 0%,rgba(5,25,34,.58) 47%,rgba(5,25,34,.24) 100%),
+    url('/assets/hero-cap-canaille-v418.jpg') center 52% / cover no-repeat;
+}
+.tips-hero:after{display:none}
+.tips-hero .container{position:relative;z-index:1}
+.tips-hero .eyebrow{margin:0 0 13px;color:#61e5b0;font-size:.72rem;letter-spacing:.28em;font-weight:850}
+.tips-hero h1{margin:0;font-size:clamp(2rem,3.25vw,2.8rem);line-height:1.08;letter-spacing:.015em;max-width:760px;color:#fff}
+.tips-lead{margin:13px 0 0;max-width:720px;color:#f2f6f5;font-size:1rem;line-height:1.55}
+.tips-stats{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.tips-section{padding-top:44px}
+@media(max-width:600px){
+  .tips-hero{min-height:190px;padding:32px 0;background-position:center center}
+  .tips-hero .eyebrow{letter-spacing:.18em;line-height:1.45}
+  .tips-hero h1{font-size:2rem}
+  .tips-lead{font-size:.94rem}
+}
+
+/* SOSQLIK V4.67 — blocs de code harmonisés avec les Tutoriels */
+.code-compare{gap:18px}
+.code-panel{
+  background:#fff;
+  border:1px solid #d9e3e7;
+  border-radius:12px;
+  box-shadow:none;
+  overflow:hidden;
+}
+.code-panel-good{border-color:#b9dec1}
+.code-title{
+  min-height:55px;
+  padding:11px 16px;
+  border-bottom:1px solid #d9e3e7;
+  background:#f6f9fa;
+  color:#132b3a;
+  font-size:.72rem;
+  font-weight:800;
+  letter-spacing:.035em;
+}
+.code-panel-good .code-title{border-bottom-color:#cfe4d3}
+.code-title .dot{background:#d89b48}
+.code-panel-good .dot{background:#58c664}
+.qlik-code{
+  min-height:108px;
+  padding:22px 18px;
+  background:#fff;
+  color:#183044;
+  font-size:.84rem;
+  line-height:1.65;
+}
+.code-copy{
+  border:1px solid #d7e0e4;
+  background:#fff;
+  color:#183044;
+  border-radius:7px;
+  padding:7px 10px;
+}
+.code-copy:hover{background:#f0f5f6;border-color:#bdcbd1;color:#0b2230}
+.code-copy.is-copied{background:#edf8ef;border-color:#8bc795;color:#287d36}
+/* Même palette syntaxique que l'identité visuelle des tutoriels en mode clair. */
+.code-panel .qs-function{color:#4d79df}
+.code-panel .qs-keyword{color:#8b5cc7}
+.code-panel .qs-string{color:#4f9a54}
+.code-panel .qs-number{color:#b78634}
+.code-panel .qs-variable{color:#9b63ca}
+.code-panel .qs-set{color:#238f84}
+.code-panel .qs-comment{color:#75868f;font-style:italic}
+
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .code-panel{
+  background:#102028;
+  border-color:#294047;
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .code-panel-good{border-color:#315f3a}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .code-title{
+  background:#13242c;
+  border-bottom-color:#294047;
+  color:#c9d5d8;
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qlik-code{
+  background:#102028;
+  color:#dce5e8;
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .code-copy{
+  background:#182a32;
+  border-color:#3a5059;
+  color:#d5dfe2;
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .code-copy:hover{background:#223740;border-color:#536a73;color:#fff}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .code-panel .qs-function{color:#72b7ff}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .code-panel .qs-keyword{color:#c998ff}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .code-panel .qs-string{color:#8bd17c}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .code-panel .qs-number{color:#e9c46a}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .code-panel .qs-variable{color:#d6a0ff}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .code-panel .qs-set{color:#70d7c7}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .code-panel .qs-comment{color:#87989f}
+
+@media (prefers-color-scheme:dark){
+  html:not([data-theme="light"]):not(.light):not(.light-mode):not(.light-theme) .code-panel{background:#102028;border-color:#294047}
+  html:not([data-theme="light"]):not(.light):not(.light-mode):not(.light-theme) .code-panel-good{border-color:#315f3a}
+  html:not([data-theme="light"]):not(.light):not(.light-mode):not(.light-theme) .code-title{background:#13242c;border-bottom-color:#294047;color:#c9d5d8}
+  html:not([data-theme="light"]):not(.light):not(.light-mode):not(.light-theme) .qlik-code{background:#102028;color:#dce5e8}
+  html:not([data-theme="light"]):not(.light):not(.light-mode):not(.light-theme) .code-copy{background:#182a32;border-color:#3a5059;color:#d5dfe2}
 }

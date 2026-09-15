@@ -2,3 +2,40 @@
 
 /* SOSQLIK V4.63 — décodage pédagogique du Custom filter */
 .qc-decode-intro{margin:4px 0 10px!important;font-size:.86rem;color:#65736c}.qc-decode>div{display:flex;min-height:142px;flex-direction:column;align-items:center;justify-content:center}.qc-decode>div>small{font-size:.58rem;font-weight:850;letter-spacing:.08em;color:#8a9690}.qc-decode>div>b{font-size:1.3rem;margin:5px 0 1px}.qc-decode>div>span{font-size:.73rem}.qc-decode>div>p{margin:5px 0 0!important;font-size:.69rem!important;line-height:1.35!important;color:#748079}.qc-special{margin:14px 0 18px;padding:15px 17px;border:1px solid var(--border-color,#dce4df);border-radius:11px;background:rgba(80,190,90,.045)}.qc-special>b{display:block;margin-bottom:10px;font-size:.8rem}.qc-special>div{display:grid;grid-template-columns:34px 1fr;gap:8px;align-items:start;margin:7px 0;font-size:.75rem;line-height:1.45}.qc-special code{display:inline-grid;place-items:center;width:28px;min-height:25px;border-radius:6px;background:#111b22;color:#84d98c;font-weight:800}.qc-special span{padding-top:3px}@media(max-width:760px){.qc-decode>div{min-height:130px}.qc-special>div{grid-template-columns:30px 1fr}}
+
+/* SOSQLIK V4.68 — article QMC harmonisé avec la charte Tutoriels */
+.qc-hero{
+  position:relative;min-height:198px;padding:32px 0 28px;display:flex;align-items:center;overflow:hidden;color:#fff;
+  background:linear-gradient(90deg,rgba(5,25,34,.80) 0%,rgba(5,25,34,.58) 48%,rgba(5,25,34,.25) 100%),url('/assets/hero-cap-canaille-v418.jpg') center 52% / cover no-repeat;
+}
+.qc-hero .container{position:relative;z-index:1}.qc-hero h1{margin:8px 0 10px;font-size:clamp(1.85rem,3.1vw,2.65rem);max-width:900px}.qc-hero p{margin:0 0 9px;color:#f2f6f5}.qc-hero small{color:#d4dfdc}.qc-eye{color:#61e5b0!important}
+.qc-main{max-width:1000px!important;padding-top:32px}.qc-nav{background:var(--surface,#fff)}
+/* Les blocs techniques reprennent le langage des cartes et blocs de code Tutoriels. */
+.qc-filter{position:relative;text-align:left;background:#fff;color:#183044;border:1px solid #d9e3e7;border-radius:12px;padding:52px 18px 18px;margin:18px 0;box-shadow:none}
+.qc-filter:before{content:'Expression Qlik Sense / QMC';position:absolute;inset:0 0 auto 0;height:38px;display:flex;align-items:center;padding:0 15px;border-bottom:1px solid #d9e3e7;background:#f6f9fa;color:#132b3a;font-size:.7rem;font-weight:800;border-radius:12px 12px 0 0}
+.qc-filter code{color:#4f9a54;font-weight:700}
+.qc-positions>div{background:#fff;border-color:#d9e3e7;box-shadow:none}.qc-decode>div>small{color:#7b8983}.qc-decode>div>b{color:#50b95c}.qc-decode>div>p{color:#687872}
+.qc-special{background:#f4fbf6;border-color:#b9dec1}.qc-special code{background:#eef7f0;color:#318b3d}.qc-special>b{color:#287d36}
+.qc-code{background:#fff;border-color:#d9e3e7}.qc-code header{background:#f6f9fa;border-bottom-color:#d9e3e7;color:#132b3a}.qc-code pre{background:#fff;color:#183044}.qc-code button,.qc-examples button{background:#fff;border-color:#d7e0e4;color:#183044}
+.qc-examples>div,.qc-memo>div,.qc-formula>div{background:#fff;border-color:#d9e3e7}.qc-examples p{background:#f6f9fa;color:#183044;border:1px solid #e1e8eb}
+/* Mode sombre : surfaces hiérarchisées, pas de grands aplats noir/bleu concurrents. */
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-nav,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-positions>div,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-examples>div,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-memo>div,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-formula>div{background:#10242d;border-color:#31505a;color:#edf5f3}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-filter,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-code{background:#102028;border-color:#31505a;color:#edf5f3}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-filter:before,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-code header{background:#132b35;border-bottom-color:#31505a;color:#dce8e5}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-filter code{color:#78db84}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-code pre{background:#102028;color:#dce8e5}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-special{background:#0f302b;border-color:#287357;color:#e8f5f0}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-special>b{color:#6ee09a}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-special code{background:#102820;color:#78db84}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-decode>div>small,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-decode>div>p{color:#a9bbb6}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-examples p{background:#132b35;border-color:#31505a;color:#edf5f3}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-code button,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-examples button{background:#102028;border-color:#405862;color:#dce8e5}
+@media(max-width:600px){.qc-hero{min-height:190px;padding:30px 0 27px;background-position:center center}.qc-hero h1{font-size:1.9rem}}

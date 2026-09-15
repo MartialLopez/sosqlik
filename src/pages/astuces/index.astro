@@ -10,6 +10,8 @@ const tips = [
     title: 'NULL : pourquoi Sum(A + B) peut vous piéger',
     intro: 'Une addition ligne à ligne contenant NULL peut faire disparaître la ligne du calcul. RangeSum() permet souvent d’exprimer plus clairement l’intention.',
     problem: 'Supposons trois lignes. Sur la deuxième, MARGE est NULL. L’expression CA_HT + MARGE est alors NULL pour cette ligne : Sum() ne reçoit donc aucune valeur numérique pour cette addition.',
+    teachLabel: 'Ce qui se passe',
+    teach: 'Qlik évalue d’abord l’expression ligne par ligne. Si une composante de l’addition vaut NULL, le résultat de cette ligne peut devenir NULL avant même que Sum() n’agrège les résultats. C’est donc l’endroit où l’addition est effectuée qui change le résultat.',
     bad: `Sum(CA_HT + MARGE)`,
     good: `Sum(CA_HT) + Sum(MARGE)
 
@@ -24,6 +26,8 @@ Sum(RangeSum(CA_HT, MARGE))`,
     title: 'Exists() et Not Exists() : le piège du chargement en cours',
     intro: 'Exists() ne regarde pas seulement une table précédente : il travaille sur les valeurs déjà présentes dans le symbole du champ, y compris celles chargées pendant le LOAD courant.',
     problem: 'Avec Not Exists(Client), la première occurrence d’un client peut être chargée puis rendre les occurrences suivantes non admissibles. Ce comportement est parfois voulu, parfois très surprenant.',
+    teachLabel: 'Le bon réflexe',
+    teach: 'Imaginez Exists() comme une question posée au dictionnaire des valeurs déjà connues par Qlik : « cette valeur a-t-elle déjà été rencontrée ? ». Pendant un LOAD, ce dictionnaire évolue au fur et à mesure des lignes chargées.',
     bad: `Clients:
 LOAD *
 FROM [lib://Data/clients.qvd] (qvd)
@@ -46,6 +50,8 @@ WHERE NOT Exists(Client_Existant, Client);`,
     title: 'ApplyMap() : éviter un JOIN juste pour récupérer une valeur',
     intro: 'Pour enrichir une table avec une correspondance simple clé → valeur, une Mapping Table est souvent plus lisible qu’un JOIN.',
     problem: 'Un JOIN modifie la structure de la table et peut multiplier les lignes si la clé n’est pas réellement unique. Pour une simple traduction de code, c’est souvent disproportionné.',
+    teachLabel: 'Quand l’utiliser',
+    teach: 'Si chaque CodeProduit doit simplement récupérer un libellé unique, vous avez une correspondance clé → valeur : c’est exactement le terrain d’ApplyMap(). Si une clé peut ramener plusieurs lignes, ce n’est plus un simple mapping.',
     bad: `LEFT JOIN (Ventes)
 LOAD
     CodeProduit,
@@ -75,6 +81,8 @@ RESIDENT Ventes;`,
     title: 'Peek() ou Previous() ? Deux fonctions qui ne regardent pas au même endroit',
     intro: 'Previous() lit l’enregistrement d’entrée précédent ; Peek() lit une valeur déjà présente dans une table Qlik.',
     problem: 'La nuance devient importante dès qu’un WHERE, une transformation ou un tri intervient dans le chargement.',
+    teachLabel: 'Image mentale',
+    teach: 'Previous() regarde en arrière dans le flux qui entre dans le LOAD. Peek() regarde dans une table Qlik déjà construite. Avec un WHERE ou un ORDER BY, ces deux « lignes précédentes » peuvent donc ne plus être les mêmes.',
     bad: `// Les deux fonctions ne sont pas interchangeables.
 LOAD
     Date,
@@ -97,6 +105,8 @@ ORDER BY Date;`,
     title: 'NoConcatenate : empêcher Qlik de fusionner deux tables sans vous prévenir',
     intro: 'Deux tables ayant exactement la même structure de champs peuvent être concaténées automatiquement par Qlik.',
     problem: 'Vous pensiez créer une table temporaire séparée, mais elle disparaît comme table autonome parce que ses lignes ont été ajoutées à une table existante.',
+    teachLabel: 'Pourquoi Qlik le fait',
+    teach: 'L’auto-concaténation est volontaire : lorsque deux tables possèdent exactement les mêmes champs, Qlik considère souvent qu’elles décrivent le même type de données. NoConcatenate lui indique explicitement que vous voulez malgré tout deux tables distinctes.',
     bad: `TableA:
 LOAD Client, Montant RESIDENT SourceA;
 
@@ -123,6 +133,8 @@ RESIDENT SourceB;`,
     title: 'TRACE : votre meilleur ami pour comprendre un script',
     intro: 'TRACE écrit un message dans le journal de rechargement. C’est simple, mais redoutablement efficace pour contrôler variables et étapes.',
     problem: 'Un filtre dynamique ne retourne rien et vous ne savez pas quelle valeur contient réellement votre variable au moment du SQL.',
+    teachLabel: 'Méthode de diagnostic',
+    teach: 'Placez un TRACE avant l’étape suspecte, affichez les variables qui pilotent le traitement, puis un autre après. Dans le journal, vous voyez immédiatement jusqu’où le script est allé et avec quelles valeurs.',
     bad: `LET vAnnee = Year(Today());
 
 SQL SELECT *
@@ -147,6 +159,8 @@ TRACE === Fin chargement COMMANDES ===;`,
     title: 'Must_Include : échouer franchement plutôt que continuer avec un script incomplet',
     intro: 'Include et Must_Include chargent du script externe, mais Must_Include provoque une erreur si le fichier attendu est inaccessible.',
     problem: 'Un fichier contient des variables ou des SUB indispensables. Continuer le rechargement sans lui peut produire un résultat incohérent.',
+    teachLabel: 'Pourquoi c’est plus sûr',
+    teach: 'Si Variables.qvs définit des chemins, connexions ou paramètres indispensables, poursuivre sans ce fichier rend la suite du script imprévisible. Must_Include transforme cette dépendance en contrat explicite : absent = rechargement en erreur.',
     bad: `$(Include=lib://Includes/Variables.qvs);`,
     good: `$(Must_Include=lib://Includes/Variables.qvs);`,
     note: 'Pour une dépendance obligatoire, l’échec explicite est généralement préférable. Include reste pertinent lorsqu’un fichier est réellement facultatif.'
@@ -158,6 +172,8 @@ TRACE === Fin chargement COMMANDES ===;`,
     title: 'Créer une clé composée propre avec AutoNumberHash128()',
     intro: 'Quand l’unicité dépend de plusieurs champs, une clé technique évite de propager partout une longue concaténation.',
     problem: 'Concaténer des valeurs sans séparateur fiable peut créer des collisions logiques : 12 & 34 et 1 & 234 donnent tous deux 1234.',
+    teachLabel: 'Exemple concret',
+    teach: 'Une facture peut être identifiée par Société + Année + Numéro. Ces trois champs forment la clé métier ; AutoNumberHash128() permet d’en produire une clé technique compacte pour les associations, sans bricoler une chaîne ambiguë.',
     bad: `LOAD
     Societe & Annee & Numero AS %CleFacture,
     *
@@ -179,6 +195,8 @@ RESIDENT Factures;`,
     title: 'Dual() : afficher « Septembre » tout en triant comme le mois 9',
     intro: 'Dual() associe une représentation texte à une valeur numérique. Parfait pour les mois, statuts ordonnés et libellés métier.',
     problem: 'Un tri alphabétique des mois donne Avril, Août, Décembre… au lieu de l’ordre chronologique.',
+    teachLabel: 'Deux valeurs en une',
+    teach: 'Dual() conserve simultanément un texte visible et une valeur numérique. L’utilisateur voit « Septembre », tandis que Qlik peut utiliser 9 pour le tri. On sépare ainsi présentation et ordre logique.',
     bad: `Month(DateCommande) AS Mois`,
     good: `Dual(
     Month(DateCommande),
@@ -199,6 +217,8 @@ Dual(
     title: 'Resident : transformer ce que Qlik a déjà chargé',
     intro: 'Un Resident LOAD permet de retravailler une table déjà en mémoire sans retourner vers la source.',
     problem: 'Après avoir chargé une source coûteuse, refaire une requête simplement pour créer une agrégation ou une transformation ajoute un accès inutile à la source.',
+    teachLabel: 'Le chemin des données',
+    teach: 'La source a déjà été chargée dans la table Ventes. Un Resident LOAD repart de cette table en mémoire pour fabriquer CA_Clients : aucune nouvelle requête vers la base n’est nécessaire pour cette transformation.',
     bad: `SQL SELECT
     Client,
     SUM(Montant) AS CA
@@ -219,6 +239,8 @@ GROUP BY Client;`,
     title: '{1} : ignorer les sélections… mais pas la logique de votre expression',
     intro: 'L’identificateur 1 part de l’ensemble de tous les enregistrements de l’application. Cela ne transforme pas pour autant n’importe quelle expression en calcul universel.',
     problem: 'On résume parfois {1} par “sans filtre”. C’est pratique, mais trop simplificateur pour raisonner correctement sur des expressions plus complexes.',
+    teachLabel: 'Raisonnement',
+    teach: 'Le Set Analysis se lit en deux temps : choisissez d’abord l’ensemble de départ, ici 1 = tous les enregistrements ; appliquez ensuite les éventuels modificateurs. {1<Annee={2026}>} signifie donc « partir de tout, puis ne garder que 2026 ».',
     bad: `// Raccourci mental trop vague :
 // {1} = "aucun filtre"`,
     good: `Sum({1} Montant)
@@ -235,6 +257,8 @@ Sum({1<Annee={2026}>} Montant)`,
     title: 'Sécuriser un ratio quand le dénominateur vaut zéro',
     intro: 'Un KPI doit expliciter ce qu’il fait lorsque le dénominateur est nul plutôt que laisser le cas limite implicite.',
     problem: 'Une marge %, un taux de transformation ou un prix moyen peut rencontrer un dénominateur nul selon les sélections.',
+    teachLabel: 'Pourquoi NULL plutôt que 0',
+    teach: 'Si CA_HT vaut zéro, le ratio de marge n’est pas calculable. Retourner 0 % affirmerait au contraire qu’un ratio valide a été calculé et vaut zéro. NULL permet de conserver cette différence métier.',
     bad: `Sum(Marge) / Sum(CA_HT)`,
     good: `If(
     Sum(CA_HT) <> 0,
@@ -246,12 +270,12 @@ Sum({1<Annee={2026}>} Montant)`,
 ];
 ---
 
-<BaseLayout title="Astuces & Tips — SOSQLIK">
+<BaseLayout title="Astuces — SOSQLIK">
   <section class="tips-hero">
     <div class="container">
-      <p class="eyebrow">ASTUCES & TIPS</p>
-      <h1>Les petits détails Qlik<br><span>qui font gagner beaucoup de temps.</span></h1>
-      <p class="tips-lead">Un problème précis, une explication courte, du code directement exploitable et le piège à éviter. Pas de détour.</p>
+      <p class="eyebrow">APPRENDRE · COMPRENDRE · GAGNER DU TEMPS</p>
+      <h1>Les astuces SOSQLIK</h1>
+      <p class="tips-lead">Des conseils concrets, des bonnes pratiques et des petits détails qui font la différence.</p>
       <div class="tips-stats">
         <span><strong>{tips.length}</strong> astuces</span>
         <span><strong>2–5 min</strong> par sujet</span>
@@ -262,24 +286,27 @@ Sum({1<Annee={2026}>} Montant)`,
 
   <section class="tips-section">
     <div class="container tips-layout">
-      <aside class="tips-nav">
+      <aside class="tips-nav" aria-label="Navigation des astuces">
         <div class="tips-nav-inner">
-          <p class="tips-nav-title">Dans cette fiche</p>
-          {tips.map((tip) => (
-            <a href={`#${tip.id}`}><span>{tip.n}</span>{tip.title}</a>
+          <p class="tips-nav-title">Astuces</p>
+          {tips.map((tip, index) => (
+            <button class="tips-nav-button" type="button" data-tip-target={index} aria-current={index === 0 ? 'true' : undefined}>
+              <span>{tip.n}</span><span>{tip.title}</span>
+            </button>
           ))}
         </div>
       </aside>
 
       <main class="tips-content">
-        <div class="tips-intro-card">
-          <span class="tips-badge">FICHE RÉFLEXE</span>
-          <h2>Le format SOSQLIK</h2>
-          <p>Chaque astuce part d’un cas que l’on rencontre réellement dans une application : ce qui surprend, pourquoi cela arrive, puis une écriture plus sûre ou plus lisible.</p>
+        <div class="tips-mobile-select-wrap">
+          <label for="tips-mobile-select">Choisir une astuce</label>
+          <select id="tips-mobile-select">
+            {tips.map((tip, index) => <option value={index}>{tip.n} — {tip.title}</option>)}
+          </select>
         </div>
 
-        {tips.map((tip) => (
-          <article class="tip-card" id={tip.id}>
+        {tips.map((tip, index) => (
+          <article class="tip-card" id={tip.id} data-tip-panel={index} hidden={index !== 0}>
             <header class="tip-head">
               <span class="tip-number">{tip.n}</span>
               <div>
@@ -288,6 +315,11 @@ Sum({1<Annee={2026}>} Montant)`,
                 <p>{tip.intro}</p>
               </div>
             </header>
+
+            <div class="tip-teach">
+              <span class="tip-label">{tip.teachLabel}</span>
+              <p>{tip.teach}</p>
+            </div>
 
             <div class="tip-problem">
               <span class="tip-label">LE PIÈGE</span>
@@ -298,29 +330,26 @@ Sum({1<Annee={2026}>} Montant)`,
               <div class="code-panel">
                 <div class="code-title">
                   <span class="code-title-label"><span class="dot"></span>À surveiller</span>
-                  <button class="code-copy" type="button" aria-label="Copier le code" title="Copier le code">
-                    <span class="copy-icon" aria-hidden="true">⧉</span>
-                    <span class="copy-label">Copier</span>
-                  </button>
+                  <button class="code-copy" type="button" aria-label="Copier le code" title="Copier le code"><span class="copy-icon" aria-hidden="true">⧉</span><span class="copy-label">Copier</span></button>
                 </div>
                 <pre class="qlik-code"><code>{tip.bad}</code></pre>
               </div>
               <div class="code-panel code-panel-good">
                 <div class="code-title">
                   <span class="code-title-label"><span class="dot"></span>Écriture conseillée</span>
-                  <button class="code-copy" type="button" aria-label="Copier le code" title="Copier le code">
-                    <span class="copy-icon" aria-hidden="true">⧉</span>
-                    <span class="copy-label">Copier</span>
-                  </button>
+                  <button class="code-copy" type="button" aria-label="Copier le code" title="Copier le code"><span class="copy-icon" aria-hidden="true">⧉</span><span class="copy-label">Copier</span></button>
                 </div>
                 <pre class="qlik-code"><code>{tip.good}</code></pre>
               </div>
             </div>
 
-            <div class="tip-remember">
-              <span>À RETENIR</span>
-              <p>{tip.note}</p>
-            </div>
+            <div class="tip-remember"><span>À RETENIR</span><p>{tip.note}</p></div>
+
+            <nav class="tip-pager" aria-label="Navigation entre les astuces">
+              <button type="button" class="tip-pager-button" data-tip-prev disabled={index === 0}>← Astuce précédente</button>
+              <span><strong>{tip.n}</strong> / {String(tips.length).padStart(2,'0')}</span>
+              <button type="button" class="tip-pager-button tip-pager-next" data-tip-next disabled={index === tips.length - 1}>Astuce suivante →</button>
+            </nav>
           </article>
         ))}
       </main>
@@ -358,6 +387,34 @@ Sum({1<Annee={2026}>} Montant)`,
     document.querySelectorAll('.qlik-code code').forEach(el => {
       el.innerHTML = highlightQlik(el.textContent || '');
     });
+
+    const panels = [...document.querySelectorAll('[data-tip-panel]')];
+    const navButtons = [...document.querySelectorAll('[data-tip-target]')];
+    const mobileSelect = document.querySelector('#tips-mobile-select');
+
+    function showTip(index, updateHash = true) {
+      const safeIndex = Math.max(0, Math.min(index, panels.length - 1));
+      panels.forEach((panel, i) => { panel.hidden = i !== safeIndex; });
+      navButtons.forEach((button, i) => {
+        if (i === safeIndex) button.setAttribute('aria-current', 'true');
+        else button.removeAttribute('aria-current');
+      });
+      if (mobileSelect) mobileSelect.value = String(safeIndex);
+      if (updateHash && panels[safeIndex]?.id) history.replaceState(null, '', `#${panels[safeIndex].id}`);
+      document.querySelector('.tips-content')?.scrollIntoView({behavior:'smooth', block:'start'});
+    }
+
+    navButtons.forEach(button => button.addEventListener('click', () => showTip(Number(button.dataset.tipTarget))));
+    mobileSelect?.addEventListener('change', () => showTip(Number(mobileSelect.value)));
+    document.querySelectorAll('[data-tip-prev]').forEach(button => button.addEventListener('click', () => {
+      const panel = button.closest('[data-tip-panel]'); showTip(Number(panel?.dataset.tipPanel || 0) - 1);
+    }));
+    document.querySelectorAll('[data-tip-next]').forEach(button => button.addEventListener('click', () => {
+      const panel = button.closest('[data-tip-panel]'); showTip(Number(panel?.dataset.tipPanel || 0) + 1);
+    }));
+
+    const hashIndex = panels.findIndex(panel => `#${panel.id}` === window.location.hash);
+    showTip(hashIndex >= 0 ? hashIndex : 0, false);
 
     document.querySelectorAll('.code-copy').forEach(button => {
       button.addEventListener('click', async () => {
