@@ -1,0 +1,74 @@
+
+/* SOSQLIK V4.58 — Astuces & Tips */
+.tips-hero{padding:58px 0 52px;background:linear-gradient(135deg,#101b22 0%,#172a2b 58%,#17362c 100%);color:#fff;overflow:hidden;position:relative}
+.tips-hero:after{content:"";position:absolute;width:420px;height:420px;border-radius:50%;right:-100px;top:-210px;background:radial-gradient(circle,rgba(83,202,98,.18),transparent 68%)}
+.tips-hero .eyebrow{font-size:.78rem;letter-spacing:.18em;font-weight:800;color:#65d36e;margin:0 0 14px}
+.tips-hero h1{font-size:clamp(2rem,4.3vw,3.65rem);line-height:1.03;letter-spacing:-.04em;margin:0;max-width:900px}
+.tips-hero h1 span{color:#69d672}
+.tips-lead{font-size:1.08rem;line-height:1.7;color:#c9d4d4;max-width:760px;margin:22px 0 26px}
+.tips-stats{display:flex;gap:12px;flex-wrap:wrap}
+.tips-stats span{border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.055);padding:9px 13px;border-radius:999px;font-size:.82rem;color:#cbd7d7}
+.tips-stats strong{color:#fff}
+.tips-section{padding:44px 0 80px}
+.tips-layout{display:grid;grid-template-columns:250px minmax(0,1fr);gap:38px;align-items:start}
+.tips-nav{position:relative;min-width:0}
+.tips-nav-inner{position:sticky;top:90px;border:1px solid var(--border-color,#dfe5e2);border-radius:16px;padding:16px;background:var(--card-bg,#fff);max-height:calc(100vh - 120px);overflow:auto}
+.tips-nav-title{font-size:.72rem;font-weight:800;letter-spacing:.12em;color:#738079;margin:2px 8px 10px}
+.tips-nav a{display:flex;gap:9px;padding:8px;border-radius:9px;text-decoration:none;color:inherit;font-size:.78rem;line-height:1.3}
+.tips-nav a:hover{background:rgba(80,190,90,.09)}
+.tips-nav a span{font-weight:800;color:#53b95e;flex:0 0 auto}
+.tips-content{min-width:0}
+.tips-intro-card{padding:25px 27px;border-radius:18px;background:linear-gradient(135deg,rgba(74,187,86,.12),rgba(74,187,86,.035));border:1px solid rgba(74,187,86,.22);margin-bottom:24px}
+.tips-badge,.tip-tag,.tip-label,.tip-remember>span{font-size:.68rem;letter-spacing:.12em;font-weight:850;color:#45a651}
+.tips-intro-card h2{margin:7px 0 6px;font-size:1.35rem}
+.tips-intro-card p{margin:0;line-height:1.65;color:var(--muted-color,#66716b)}
+.tip-card{scroll-margin-top:90px;border:1px solid var(--border-color,#dfe5e2);border-radius:20px;background:var(--card-bg,#fff);padding:28px;margin-bottom:25px;box-shadow:0 9px 28px rgba(15,30,22,.045)}
+.tip-head{display:grid;grid-template-columns:52px 1fr;gap:17px;align-items:start}
+.tip-number{width:48px;height:48px;display:grid;place-items:center;border-radius:14px;background:#54bd60;color:#fff;font-weight:900;font-size:1.05rem}
+.tip-head h2{font-size:clamp(1.3rem,2.2vw,1.75rem);letter-spacing:-.025em;line-height:1.15;margin:5px 0 9px}
+.tip-head p{margin:0;color:var(--muted-color,#65716b);line-height:1.65}
+.tip-problem{margin:23px 0 17px;padding:16px 18px;border-left:3px solid #e0a448;background:rgba(224,164,72,.075);border-radius:0 11px 11px 0}
+.tip-problem p{margin:5px 0 0;line-height:1.6}
+.code-compare{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:17px}
+.code-panel{min-width:0;background:#111b22;border:1px solid #26343c;border-radius:14px;overflow:hidden}
+.code-panel-good{border-color:#315f3a}
+.code-title{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid #26343c;color:#aebbc1;font-size:.72rem;font-weight:750;text-transform:uppercase;letter-spacing:.07em}
+.code-title .dot{width:7px;height:7px;border-radius:50%;background:#d89b48}
+.code-panel-good .dot{background:#58c664}
+.qlik-code{margin:0;padding:17px;overflow:auto;white-space:pre;tab-size:4;font:500 .82rem/1.65 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:#dce5e8;background:transparent}
+.qs-function{color:#72b7ff}.qs-keyword{color:#c998ff}.qs-string{color:#8bd17c}.qs-number{color:#e9c46a}.qs-variable{color:#d6a0ff}.qs-set{color:#70d7c7}.qs-comment{color:#778890;font-style:italic}
+.tip-remember{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:start;margin-top:17px;padding:15px 17px;border-radius:12px;background:rgba(77,185,87,.075)}
+.tip-remember p{margin:0;line-height:1.6}
+@media(max-width:900px){.tips-layout{grid-template-columns:1fr}.tips-nav{display:none}.code-compare{grid-template-columns:1fr}.tips-section{padding-top:28px}}
+@media(max-width:600px){.tips-hero{padding:42px 0 38px}.tip-card{padding:20px 16px;border-radius:16px}.tip-head{grid-template-columns:1fr}.tip-number{width:42px;height:42px}.qlik-code{font-size:.76rem;padding:14px}.tip-remember{grid-template-columns:1fr;gap:5px}.tips-intro-card{padding:21px 18px}}
+
+
+/* SOSQLIK V4.60 — bouton Copier sur les blocs de code */
+.code-title{justify-content:space-between;min-height:42px}
+.code-title-label{display:flex;align-items:center;gap:8px;min-width:0}
+.code-copy{
+  appearance:none;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  flex:0 0 auto;
+  border:1px solid #3a4a53;
+  border-radius:8px;
+  padding:5px 9px;
+  background:#18242b;
+  color:#c9d4d8;
+  font:700 .68rem/1 ui-sans-serif,system-ui,sans-serif;
+  letter-spacing:.02em;
+  text-transform:none;
+  cursor:pointer;
+  transition:background .16s ease,border-color .16s ease,color .16s ease,transform .16s ease
+}
+.code-copy:hover{background:#22323a;border-color:#53666f;color:#fff}
+.code-copy:active{transform:translateY(1px)}
+.code-copy:focus-visible{outline:2px solid #63cf6c;outline-offset:2px}
+.code-copy.is-copied{background:#193a22;border-color:#4fa95a;color:#83df8c}
+.copy-icon{font-size:.9rem;line-height:1}
+@media(max-width:480px){
+  .copy-label{display:none}
+  .code-copy{padding:6px 8px}
+}

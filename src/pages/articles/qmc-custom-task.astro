@@ -1,0 +1,53 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import '../../styles/article-qmc-custom-v461.css';
+---
+<BaseLayout title="Planifier une tâche Qlik avec un trigger Custom dans la QMC — SOSQLIK">
+<section class="qc-hero"><div class="container"><p class="qc-eye">QLIK SENSE · QMC</p><h1>Planifier finement une tâche Qlik avec un trigger <span>Custom</span></h1><p>Fréquence, fenêtre horaire, jours autorisés : comprendre et combiner <code>Custom increment</code> et <code>Custom filter</code>.</p><small>Par Martial LOPEZ · 15 septembre 2026 · Lecture ~10 min</small></div></section>
+<article class="container qc-main">
+<nav class="qc-nav"><b>Dans cet article</b><a href="#principe">Principe</a><a href="#increment">Increment</a><a href="#filter">Filter</a><a href="#combine">Combiner</a><a href="#exemples">Exemples</a><a href="#memo">Mémo</a></nav>
+
+<section id="principe"><em>01 — PRINCIPE</em><h2>Quand passer à une planification Custom ?</h2>
+<p>Une planification standard suffit souvent. Le mode Custom devient intéressant lorsqu'il faut répéter une tâche à intervalle court tout en limitant strictement les heures et les jours pendant lesquels elle peut s'exécuter.</p>
+<div class="qc-goal"><small>OBJECTIF DE L'EXEMPLE</small><b>Toutes les 10 minutes · de 02h00 à 04h59 · du mardi au samedi</b></div>
+<div class="qc-window"><header><i>QMC</i><span>Reload task</span><b>•••</b></header><main>
+<label>Name<div>VENTES_RAW</div></label><label>Trigger type<div>Custom <span>⌄</span></div></label>
+<div class="qc-cols"><label>Custom increment<div class="mono">10 0 0 0</div></label><label>Custom filter<div class="mono">* 2-4 - 2-6 * * * *</div></label></div>
+</main></div><p class="caption">Reconstitution pédagogique d'une fenêtre QMC. <code>VENTES_RAW</code> est un nom fictif.</p></section>
+
+<section id="increment"><em>02 — CUSTOM INCREMENT</em><h2>Définir le rythme</h2>
+<p>Le <code>Custom increment</code> comporte quatre positions, séparées par des espaces.</p>
+<div class="qc-positions four"><div><b>10</b><span>Minutes</span></div><div><b>0</b><span>Heures</span></div><div><b>0</b><span>Jours</span></div><div><b>0</b><span>Semaines</span></div></div>
+<div class="qc-code"><header><span>TOUTES LES 10 MINUTES</span><button>⧉ Copier</button></header><pre><code>10 0 0 0</code></pre></div>
+<div class="qc-table"><b>Besoin</b><b>Increment</b><span>Toutes les 10 minutes</span><code>10 0 0 0</code><span>Toutes les 3 heures</span><code>0 3 0 0</code><span>Tous les 3 jours</span><code>0 0 3 0</code><span>Toutes les 2 semaines</span><code>0 0 0 2</code></div>
+<div class="qc-warn"><b>Attention</b> — les espaces sont des séparateurs obligatoires. Il faut bien conserver les quatre positions.</div></section>
+
+<section id="filter"><em>03 — CUSTOM FILTER</em><h2>Définir la fenêtre autorisée</h2>
+<p>Le <code>Custom filter</code> comporte huit positions. Il permet de préciser les minutes, heures, jours de semaine, jours du mois et mois pendant lesquels l'exécution est autorisée.</p>
+<div class="qc-filter"><code>* &nbsp; 2-4 &nbsp; - &nbsp; 2-6 &nbsp; * &nbsp; * &nbsp; * &nbsp; *</code></div>
+<div class="qc-positions eight"><div><b>1</b><span>Minute</span><small>0–59</small></div><div><b>2</b><span>Heure</span><small>plages jusqu’à 23</small></div><div><b>3</b><span>Préfixe jour</span><small>1,2,3,4,¤,-</small></div><div><b>4</b><span>Jour semaine</span><small>0=dim. → 6=sam.</small></div><div><b>5</b><span>Intervalle hebdo.</span><small>*, 2…</small></div><div><b>6</b><span>Jour du mois</span><small>1–31, ¤</small></div><div><b>7</b><span>Mois</span><small>1–12</small></div><div><b>8</b><span>Intervalle mensuel</span><small>*, 2…</small></div></div>
+<div class="qc-warn"><b>Attention aux plages horaires</b> — pour une plage allant jusqu’à la fin de la journée, utilisez <code>23</code> comme borne haute. Par exemple <code>20-23</code> couvre les déclenchements de 20h00 à 23h59. Une borne de type <code>x-24</code> est rejetée par la QMC.</div></section>
+
+<section id="combine"><em>04 — COMBINAISON</em><h2>Increment = rythme · Filter = fenêtre</h2>
+<div class="qc-formula"><div><small>RYTHME</small><b>10 0 0 0</b><span>Toutes les 10 min</span></div><strong>+</strong><div><small>FENÊTRE</small><b>* 2-4 - 2-6 * * * *</b><span>02h00–04h59 · mar.→sam.</span></div><strong>=</strong><div class="ok"><small>RÉSULTAT</small><b>Toutes les 10 min</b><span>dans la fenêtre autorisée</span></div></div>
+<div class="qc-code"><header><span>PARAMÉTRAGE COMPLET</span><button>⧉ Copier</button></header><pre><code>Custom increment
+10 0 0 0
+
+Custom filter
+* 2-4 - 2-6 * * * *</code></pre></div>
+<p>Les deux paramètres se complètent : l'increment fixe la périodicité ; le filter limite les moments pendant lesquels cette périodicité peut déclencher la tâche.</p></section>
+
+<section id="exemples"><em>05 — EXEMPLES</em><h2>Quelques Custom filters à garder sous la main</h2>
+<div class="qc-examples">
+<div><span>Lundi → vendredi · 20h00 à 23h59</span><p><code>* 20-23 - 1-5 * * * *</code><button>⧉</button></p></div>
+<div><span>Premier lundi du mois · 02h00 à 04h59</span><p><code>* 2-4 1 1 * * * *</code><button>⧉</button></p></div>
+<div><span>Mardi → samedi · 02h00 à 04h59</span><p><code>* 2-4 - 2-6 * * * *</code><button>⧉</button></p></div>
+<div><span>Mardi → samedi · 01h00 à 03h59</span><p><code>* 1-3 - 2-6 * * * *</code><button>⧉</button></p></div>
+</div></section>
+
+<section id="memo"><em>06 — FICHE RÉFLEXE</em><h2>À retenir</h2><div class="qc-memo"><div><small>INCREMENT</small><b>4 positions</b><p>Minutes · Heures · Jours · Semaines</p></div><div><small>FILTER</small><b>8 positions</b><p>Décrit précisément la fenêtre autorisée.</p></div><div><small>MÉTHODE</small><b>Rythme + fenêtre</b><p>Écrire d'abord le besoin en français, puis traduire séparément les deux parties.</p></div></div></section>
+</article>
+<script is:inline>
+document.querySelectorAll('.qc-code button,.qc-examples button').forEach(b=>b.addEventListener('click',async()=>{const c=b.closest('.qc-code,.qc-examples>div')?.querySelector('code');if(!c)return;try{await navigator.clipboard.writeText(c.textContent||'')}catch{const t=document.createElement('textarea');t.value=c.textContent||'';document.body.appendChild(t);t.select();document.execCommand('copy');t.remove()}const x=b.textContent;b.textContent='✓';b.classList.add('copied');setTimeout(()=>{b.textContent=x;b.classList.remove('copied')},1400)}));
+</script>
+</BaseLayout>

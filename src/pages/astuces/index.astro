@@ -1,0 +1,395 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import '../../styles/astuces-v458.css';
+
+const tips = [
+  {
+    id: 'rangesum-null',
+    n: '01',
+    tag: 'EXPRESSION',
+    title: 'NULL : pourquoi Sum(A + B) peut vous piéger',
+    intro: 'Une addition ligne à ligne contenant NULL peut faire disparaître la ligne du calcul. RangeSum() permet souvent d’exprimer plus clairement l’intention.',
+    problem: 'Supposons trois lignes. Sur la deuxième, MARGE est NULL. L’expression CA_HT + MARGE est alors NULL pour cette ligne : Sum() ne reçoit donc aucune valeur numérique pour cette addition.',
+    bad: `Sum(CA_HT + MARGE)`,
+    good: `Sum(CA_HT) + Sum(MARGE)
+
+// ou, pour une logique ligne à ligne :
+Sum(RangeSum(CA_HT, MARGE))`,
+    note: 'RangeSum() traite les valeurs non numériques, dont NULL, comme 0 dans le calcul de la plage. Le choix entre les deux écritures dépend de ce que vous voulez réellement calculer.'
+  },
+  {
+    id: 'exists',
+    n: '02',
+    tag: 'SCRIPT',
+    title: 'Exists() et Not Exists() : le piège du chargement en cours',
+    intro: 'Exists() ne regarde pas seulement une table précédente : il travaille sur les valeurs déjà présentes dans le symbole du champ, y compris celles chargées pendant le LOAD courant.',
+    problem: 'Avec Not Exists(Client), la première occurrence d’un client peut être chargée puis rendre les occurrences suivantes non admissibles. Ce comportement est parfois voulu, parfois très surprenant.',
+    bad: `Clients:
+LOAD *
+FROM [lib://Data/clients.qvd] (qvd)
+WHERE NOT Exists(Client);`,
+    good: `ClientsDejaCharges:
+LOAD DISTINCT
+    Client AS Client_Existant
+FROM [lib://Data/clients_reference.qvd] (qvd);
+
+NouveauxClients:
+LOAD *
+FROM [lib://Data/clients.qvd] (qvd)
+WHERE NOT Exists(Client_Existant, Client);`,
+    note: 'Utiliser un champ de contrôle distinct rend l’intention explicite et évite de confondre dédoublonnage implicite et filtrage métier.'
+  },
+  {
+    id: 'applymap',
+    n: '03',
+    tag: 'MODÈLE',
+    title: 'ApplyMap() : éviter un JOIN juste pour récupérer une valeur',
+    intro: 'Pour enrichir une table avec une correspondance simple clé → valeur, une Mapping Table est souvent plus lisible qu’un JOIN.',
+    problem: 'Un JOIN modifie la structure de la table et peut multiplier les lignes si la clé n’est pas réellement unique. Pour une simple traduction de code, c’est souvent disproportionné.',
+    bad: `LEFT JOIN (Ventes)
+LOAD
+    CodeProduit,
+    LibelleProduit
+RESIDENT Produits;`,
+    good: `MapProduit:
+MAPPING LOAD
+    CodeProduit,
+    LibelleProduit
+RESIDENT Produits;
+
+VentesFinales:
+LOAD
+    *,
+    ApplyMap(
+        'MapProduit',
+        CodeProduit,
+        'Produit inconnu'
+    ) AS LibelleProduit
+RESIDENT Ventes;`,
+    note: 'Une Mapping Table attend une correspondance clé → valeur. Si votre besoin est relationnel ou plusieurs-à-plusieurs, un JOIN ou le modèle associatif peut être plus approprié.'
+  },
+  {
+    id: 'peek-previous',
+    n: '04',
+    tag: 'SCRIPT',
+    title: 'Peek() ou Previous() ? Deux fonctions qui ne regardent pas au même endroit',
+    intro: 'Previous() lit l’enregistrement d’entrée précédent ; Peek() lit une valeur déjà présente dans une table Qlik.',
+    problem: 'La nuance devient importante dès qu’un WHERE, une transformation ou un tri intervient dans le chargement.',
+    bad: `// Les deux fonctions ne sont pas interchangeables.
+LOAD
+    Date,
+    Montant,
+    Previous(Montant) AS Montant_Precedent
+RESIDENT Ventes;`,
+    good: `VentesTriees:
+LOAD
+    Date,
+    Montant,
+    Montant - Peek('Montant') AS Ecart
+RESIDENT Ventes
+ORDER BY Date;`,
+    note: 'Peek() est particulièrement pratique pour travailler sur le résultat déjà construit. Previous() permet de remonter dans le flux d’entrée du LOAD.'
+  },
+  {
+    id: 'noconcatenate',
+    n: '05',
+    tag: 'SCRIPT',
+    title: 'NoConcatenate : empêcher Qlik de fusionner deux tables sans vous prévenir',
+    intro: 'Deux tables ayant exactement la même structure de champs peuvent être concaténées automatiquement par Qlik.',
+    problem: 'Vous pensiez créer une table temporaire séparée, mais elle disparaît comme table autonome parce que ses lignes ont été ajoutées à une table existante.',
+    bad: `TableA:
+LOAD Client, Montant RESIDENT SourceA;
+
+TableB:
+LOAD Client, Montant RESIDENT SourceB;`,
+    good: `TableA:
+LOAD
+    Client,
+    Montant
+RESIDENT SourceA;
+
+TableB:
+NoConcatenate
+LOAD
+    Client,
+    Montant
+RESIDENT SourceB;`,
+    note: 'NoConcatenate doit être utilisé quand la séparation des deux tables est intentionnelle. Ne l’ajoutez pas systématiquement : l’auto-concaténation est aussi une fonctionnalité très utile.'
+  },
+  {
+    id: 'trace',
+    n: '06',
+    tag: 'DÉBOGAGE',
+    title: 'TRACE : votre meilleur ami pour comprendre un script',
+    intro: 'TRACE écrit un message dans le journal de rechargement. C’est simple, mais redoutablement efficace pour contrôler variables et étapes.',
+    problem: 'Un filtre dynamique ne retourne rien et vous ne savez pas quelle valeur contient réellement votre variable au moment du SQL.',
+    bad: `LET vAnnee = Year(Today());
+
+SQL SELECT *
+FROM COMMANDES
+WHERE ANNEE = $(vAnnee);`,
+    good: `LET vAnnee = Year(Today());
+
+TRACE === Début chargement COMMANDES ===;
+TRACE vAnnee = $(vAnnee);
+
+SQL SELECT *
+FROM COMMANDES
+WHERE ANNEE = $(vAnnee);
+
+TRACE === Fin chargement COMMANDES ===;`,
+    note: 'Pour un diagnostic propre, préfixez vos traces avec un repère constant. Elles deviennent immédiatement visibles dans un log volumineux.'
+  },
+  {
+    id: 'mustinclude',
+    n: '07',
+    tag: 'SCRIPT',
+    title: 'Must_Include : échouer franchement plutôt que continuer avec un script incomplet',
+    intro: 'Include et Must_Include chargent du script externe, mais Must_Include provoque une erreur si le fichier attendu est inaccessible.',
+    problem: 'Un fichier contient des variables ou des SUB indispensables. Continuer le rechargement sans lui peut produire un résultat incohérent.',
+    bad: `$(Include=lib://Includes/Variables.qvs);`,
+    good: `$(Must_Include=lib://Includes/Variables.qvs);`,
+    note: 'Pour une dépendance obligatoire, l’échec explicite est généralement préférable. Include reste pertinent lorsqu’un fichier est réellement facultatif.'
+  },
+  {
+    id: 'autonumberhash',
+    n: '08',
+    tag: 'MODÈLE',
+    title: 'Créer une clé composée propre avec AutoNumberHash128()',
+    intro: 'Quand l’unicité dépend de plusieurs champs, une clé technique évite de propager partout une longue concaténation.',
+    problem: 'Concaténer des valeurs sans séparateur fiable peut créer des collisions logiques : 12 & 34 et 1 & 234 donnent tous deux 1234.',
+    bad: `LOAD
+    Societe & Annee & Numero AS %CleFacture,
+    *
+RESIDENT Factures;`,
+    good: `LOAD
+    AutoNumberHash128(
+        Societe,
+        Annee,
+        Numero
+    ) AS %CleFacture,
+    *
+RESIDENT Factures;`,
+    note: 'Une clé technique sert au modèle. Conservez séparément les champs métier nécessaires à l’affichage, au contrôle et à l’analyse.'
+  },
+  {
+    id: 'dual',
+    n: '09',
+    tag: 'EXPRESSION',
+    title: 'Dual() : afficher « Septembre » tout en triant comme le mois 9',
+    intro: 'Dual() associe une représentation texte à une valeur numérique. Parfait pour les mois, statuts ordonnés et libellés métier.',
+    problem: 'Un tri alphabétique des mois donne Avril, Août, Décembre… au lieu de l’ordre chronologique.',
+    bad: `Month(DateCommande) AS Mois`,
+    good: `Dual(
+    Month(DateCommande),
+    Month(DateCommande)
+) AS Mois
+
+// Variante explicite :
+Dual(
+    Date(DateCommande, 'MMMM'),
+    Month(DateCommande)
+) AS Mois`,
+    note: 'Le principe à retenir est texte pour l’affichage, nombre pour l’ordre. Selon vos paramètres régionaux et votre modèle calendrier, adaptez le libellé.'
+  },
+  {
+    id: 'resident',
+    n: '10',
+    tag: 'SCRIPT',
+    title: 'Resident : transformer ce que Qlik a déjà chargé',
+    intro: 'Un Resident LOAD permet de retravailler une table déjà en mémoire sans retourner vers la source.',
+    problem: 'Après avoir chargé une source coûteuse, refaire une requête simplement pour créer une agrégation ou une transformation ajoute un accès inutile à la source.',
+    bad: `SQL SELECT
+    Client,
+    SUM(Montant) AS CA
+FROM VENTES
+GROUP BY Client;`,
+    good: `CA_Clients:
+LOAD
+    Client,
+    Sum(Montant) AS CA
+RESIDENT Ventes
+GROUP BY Client;`,
+    note: 'Resident n’est pas automatiquement “plus rapide” dans tous les cas. Il est surtout pertinent lorsque les données nécessaires sont déjà présentes dans Qlik.'
+  },
+  {
+    id: 'set1',
+    n: '11',
+    tag: 'SET ANALYSIS',
+    title: '{1} : ignorer les sélections… mais pas la logique de votre expression',
+    intro: 'L’identificateur 1 part de l’ensemble de tous les enregistrements de l’application. Cela ne transforme pas pour autant n’importe quelle expression en calcul universel.',
+    problem: 'On résume parfois {1} par “sans filtre”. C’est pratique, mais trop simplificateur pour raisonner correctement sur des expressions plus complexes.',
+    bad: `// Raccourci mental trop vague :
+// {1} = "aucun filtre"`,
+    good: `Sum({1} Montant)
+
+// On part de l'ensemble 1 puis on peut encore
+// le modifier explicitement :
+Sum({1<Annee={2026}>} Montant)`,
+    note: 'Raisonnez toujours en termes d’ensemble de départ + modificateur. C’est beaucoup plus robuste dès que vos Set Analysis deviennent complexes.'
+  },
+  {
+    id: 'safe-div',
+    n: '12',
+    tag: 'EXPRESSION',
+    title: 'Sécuriser un ratio quand le dénominateur vaut zéro',
+    intro: 'Un KPI doit expliciter ce qu’il fait lorsque le dénominateur est nul plutôt que laisser le cas limite implicite.',
+    problem: 'Une marge %, un taux de transformation ou un prix moyen peut rencontrer un dénominateur nul selon les sélections.',
+    bad: `Sum(Marge) / Sum(CA_HT)`,
+    good: `If(
+    Sum(CA_HT) <> 0,
+    Sum(Marge) / Sum(CA_HT),
+    Null()
+)`,
+    note: 'Retourner NULL permet souvent de distinguer “non calculable” de 0 %, qui est une vraie valeur métier. Le comportement attendu reste à définir avec le métier.'
+  }
+];
+---
+
+<BaseLayout title="Astuces & Tips — SOSQLIK">
+  <section class="tips-hero">
+    <div class="container">
+      <p class="eyebrow">ASTUCES & TIPS</p>
+      <h1>Les petits détails Qlik<br><span>qui font gagner beaucoup de temps.</span></h1>
+      <p class="tips-lead">Un problème précis, une explication courte, du code directement exploitable et le piège à éviter. Pas de détour.</p>
+      <div class="tips-stats">
+        <span><strong>{tips.length}</strong> astuces</span>
+        <span><strong>2–5 min</strong> par sujet</span>
+        <span><strong>100 %</strong> pratique</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="tips-section">
+    <div class="container tips-layout">
+      <aside class="tips-nav">
+        <div class="tips-nav-inner">
+          <p class="tips-nav-title">Dans cette fiche</p>
+          {tips.map((tip) => (
+            <a href={`#${tip.id}`}><span>{tip.n}</span>{tip.title}</a>
+          ))}
+        </div>
+      </aside>
+
+      <main class="tips-content">
+        <div class="tips-intro-card">
+          <span class="tips-badge">FICHE RÉFLEXE</span>
+          <h2>Le format SOSQLIK</h2>
+          <p>Chaque astuce part d’un cas que l’on rencontre réellement dans une application : ce qui surprend, pourquoi cela arrive, puis une écriture plus sûre ou plus lisible.</p>
+        </div>
+
+        {tips.map((tip) => (
+          <article class="tip-card" id={tip.id}>
+            <header class="tip-head">
+              <span class="tip-number">{tip.n}</span>
+              <div>
+                <span class="tip-tag">{tip.tag}</span>
+                <h2>{tip.title}</h2>
+                <p>{tip.intro}</p>
+              </div>
+            </header>
+
+            <div class="tip-problem">
+              <span class="tip-label">LE PIÈGE</span>
+              <p>{tip.problem}</p>
+            </div>
+
+            <div class="code-compare">
+              <div class="code-panel">
+                <div class="code-title">
+                  <span class="code-title-label"><span class="dot"></span>À surveiller</span>
+                  <button class="code-copy" type="button" aria-label="Copier le code" title="Copier le code">
+                    <span class="copy-icon" aria-hidden="true">⧉</span>
+                    <span class="copy-label">Copier</span>
+                  </button>
+                </div>
+                <pre class="qlik-code"><code>{tip.bad}</code></pre>
+              </div>
+              <div class="code-panel code-panel-good">
+                <div class="code-title">
+                  <span class="code-title-label"><span class="dot"></span>Écriture conseillée</span>
+                  <button class="code-copy" type="button" aria-label="Copier le code" title="Copier le code">
+                    <span class="copy-icon" aria-hidden="true">⧉</span>
+                    <span class="copy-label">Copier</span>
+                  </button>
+                </div>
+                <pre class="qlik-code"><code>{tip.good}</code></pre>
+              </div>
+            </div>
+
+            <div class="tip-remember">
+              <span>À RETENIR</span>
+              <p>{tip.note}</p>
+            </div>
+          </article>
+        ))}
+      </main>
+    </div>
+  </section>
+
+  <script is:inline>
+    function escapeHtml(s) {
+      return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+    function highlightQlik(raw) {
+      let s = escapeHtml(raw);
+      const stash = [];
+      const hold = (html) => {
+        const key = `___SOSQLIK_${stash.length}___`;
+        stash.push(html);
+        return key;
+      };
+
+      s = s.replace(/(\/\/[^\n]*)/g, m => hold(`<span class="qs-comment">${m}</span>`));
+      s = s.replace(/'([^']|'')*'/g, m => hold(`<span class="qs-string">${m}</span>`));
+
+      s = s.replace(/\b(Sum|RangeSum|Exists|ApplyMap|Peek|Previous|AutoNumberHash128|Month|Date|Year|Today|Now|Null|If|FileSize|NoOfRows|FieldName|Alt)\b/g,
+        '<span class="qs-function">$1</span>');
+      s = s.replace(/\b(LOAD|RESIDENT|WHERE|FROM|MAPPING|LEFT|JOIN|NoConcatenate|TRACE|SQL|SELECT|GROUP BY|ORDER BY|AS|DISTINCT|STORE|INTO|LET|SET|CONCATENATE)\b/g,
+        '<span class="qs-keyword">$1</span>');
+      s = s.replace(/(\$\([^)]+\))/g, '<span class="qs-variable">$1</span>');
+      s = s.replace(/\b(\d+(?:[.,]\d+)?)\b/g, '<span class="qs-number">$1</span>');
+      s = s.replace(/(\{1(?:&lt;.*?&gt;)?\})/g, '<span class="qs-set">$1</span>');
+
+      s = s.replace(/___SOSQLIK_(\d+)___/g, (_, i) => stash[Number(i)]);
+      return s;
+    }
+
+    document.querySelectorAll('.qlik-code code').forEach(el => {
+      el.innerHTML = highlightQlik(el.textContent || '');
+    });
+
+    document.querySelectorAll('.code-copy').forEach(button => {
+      button.addEventListener('click', async () => {
+        const panel = button.closest('.code-panel');
+        const code = panel?.querySelector('.qlik-code code');
+        if (!code) return;
+
+        const text = code.textContent || '';
+        const label = button.querySelector('.copy-label');
+
+        try {
+          await navigator.clipboard.writeText(text);
+        } catch {
+          const textarea = document.createElement('textarea');
+          textarea.value = text;
+          textarea.setAttribute('readonly', '');
+          textarea.style.position = 'fixed';
+          textarea.style.opacity = '0';
+          document.body.appendChild(textarea);
+          textarea.select();
+          document.execCommand('copy');
+          textarea.remove();
+        }
+
+        button.classList.add('is-copied');
+        if (label) label.textContent = 'Copié !';
+
+        window.setTimeout(() => {
+          button.classList.remove('is-copied');
+          if (label) label.textContent = 'Copier';
+        }, 1600);
+      });
+    });
+  </script>
+</BaseLayout>
