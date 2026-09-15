@@ -25,7 +25,18 @@ import '../../styles/article-qmc-custom-v461.css';
 <section id="filter"><em>03 — CUSTOM FILTER</em><h2>Définir la fenêtre autorisée</h2>
 <p>Le <code>Custom filter</code> comporte huit positions. Il permet de préciser les minutes, heures, jours de semaine, jours du mois et mois pendant lesquels l'exécution est autorisée.</p>
 <div class="qc-filter"><code>* &nbsp; 2-4 &nbsp; - &nbsp; 2-6 &nbsp; * &nbsp; * &nbsp; * &nbsp; *</code></div>
-<div class="qc-positions eight"><div><b>1</b><span>Minute</span><small>0–59</small></div><div><b>2</b><span>Heure</span><small>plages jusqu’à 23</small></div><div><b>3</b><span>Préfixe jour</span><small>1,2,3,4,¤,-</small></div><div><b>4</b><span>Jour semaine</span><small>0=dim. → 6=sam.</small></div><div><b>5</b><span>Intervalle hebdo.</span><small>*, 2…</small></div><div><b>6</b><span>Jour du mois</span><small>1–31, ¤</small></div><div><b>7</b><span>Mois</span><small>1–12</small></div><div><b>8</b><span>Intervalle mensuel</span><small>*, 2…</small></div></div>
+<p class="qc-decode-intro">Les huit cellules ci-dessous décodent <strong>exactement l’exemple affiché au-dessus</strong>, position par position.</p>
+<div class="qc-positions eight qc-decode">
+<div><small>POSITION 1</small><b>*</b><span>Minute</span><p>Toutes les minutes</p></div>
+<div><small>POSITION 2</small><b>2-4</b><span>Heure</span><p>De 02h00 à 04h59</p></div>
+<div><small>POSITION 3</small><b>-</b><span>Préfixe jour</span><p>Aucun préfixe</p></div>
+<div><small>POSITION 4</small><b>2-6</b><span>Jour semaine</span><p>Du mardi au samedi</p></div>
+<div><small>POSITION 5</small><b>*</b><span>Intervalle hebdo.</span><p>Toutes les semaines</p></div>
+<div><small>POSITION 6</small><b>*</b><span>Jour du mois</span><p>Pas de restriction</p></div>
+<div><small>POSITION 7</small><b>*</b><span>Mois</span><p>Tous les mois</p></div>
+<div><small>POSITION 8</small><b>*</b><span>Intervalle mensuel</span><p>Tous les mois</p></div>
+</div>
+<div class="qc-special"><b>Comment lire les valeurs spéciales ?</b><div><code>*</code><span>Toutes les valeurs / aucune restriction sur ce critère.</span></div><div><code>-</code><span>Préfixe de jour désactivé.</span></div><div><code>¤</code><span>Dernier : par exemple le dernier jour du mois ou, avec un préfixe de jour, la dernière occurrence concernée.</span></div></div>
 <div class="qc-warn"><b>Attention aux plages horaires</b> — pour une plage allant jusqu’à la fin de la journée, utilisez <code>23</code> comme borne haute. Par exemple <code>20-23</code> couvre les déclenchements de 20h00 à 23h59. Une borne de type <code>x-24</code> est rejetée par la QMC.</div></section>
 
 <section id="combine"><em>04 — COMBINAISON</em><h2>Increment = rythme · Filter = fenêtre</h2>
