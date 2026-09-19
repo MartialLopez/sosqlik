@@ -1,0 +1,79 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import catalog from '../data/functions-qlik.json';
+const excludedWithoutVerifiedResult = new Set([
+  'Attribute',
+  'ConnectString',
+  'FilePath',
+  'rand',
+  'KMeans2D',
+  'KMeansCentroid2D',
+  'KMeansCentroidND',
+  'KMeansND',
+  'GeoAggrGeometry',
+  'GeoBoundingBox',
+  'GeoInvProjectGeometry',
+  'GeoProjectGeometry',
+  'EngineVersion',
+  'GetUserAttr',
+  'ProductVersion',
+]);
+const functions = catalog
+  .filter(item => !excludedWithoutVerifiedResult.has(item.name))
+  .map(item => ({ ...item, details: 'details' in item && Array.isArray(item.details) ? item.details : [] }));
+const objectives = [...new Set(functions.map(item => item.family))].map(name => ({ name, count: functions.filter(item => item.family === name).length }));
+const total = functions.length;
+const qlikKeywords = new Set(['and','as','distinct','else','false','if','not','null','or','resident','then','total','true']);
+const escapeHtml = value => value.replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
+const highlightQlik = code => {
+  const tokens = String(code).match(/\/\/[^\n]*|'(?:''|[^'])*'|\b\d+(?:[.,]\d+)?\b|[A-Za-z_À-ÿ#][A-Za-z0-9_À-ÿ#]*|\s+|./g) ?? [];
+  return tokens.map((token, index) => {
+    const escaped = escapeHtml(token);
+    if (/^\/\//.test(token)) return `<span class="qlik-comment">${escaped}</span>`;
+    if (/^'/.test(token)) return `<span class="qlik-string">${escaped}</span>`;
+    if (/^\d/.test(token)) return `<span class="qlik-number">${escaped}</span>`;
+    if (/^[A-Za-z_À-ÿ#]/.test(token)) {
+      const next = tokens.slice(index + 1).find(part => !/^\s+$/.test(part));
+      if (qlikKeywords.has(token.toLocaleLowerCase('fr'))) return `<span class="qlik-keyword">${escaped}</span>`;
+      if (next === '(') return `<span class="qlik-function">${escaped}</span>`;
+      return `<span class="qlik-field">${escaped}</span>`;
+    }
+    return escaped;
+  }).join('');
+};
+---
+<BaseLayout title="Référence complète des fonctions Qlik Sense · SOSQLIK">
+  <section class="tutorial-hero"><div class="container subhero-content"><p class="eyebrow">RÉFÉRENCE · QLIK SENSE</p><h1>Fonctions Qlik Sense</h1><p>{total} fonctions de script et de graphique, classées selon l’objectif recherché avec syntaxe, exemple concret et résultat.</p></div></section>
+  <section class="fn-shell container">
+    <aside class="fn-side"><strong>Objectifs</strong><div class="fn-family-list"><button class="fn-filter active" data-cat="">Toutes <span>{total}</span></button>{objectives.map(objective => <button class="fn-filter" data-cat={objective.name}>{objective.name} <span>{objective.count}</span></button>)}</div></aside>
+    <main class="fn-main">
+      <div class="fn-toolbar"><input id="fn-search" type="search" placeholder="Rechercher une fonction…" aria-label="Rechercher une fonction" /></div>
+      <div id="fn-list">{functions.map(item => (
+        <article class="fn-card" data-name={item.name.toLocaleLowerCase('fr')} data-cat={item.family}>
+          <div class="fn-head"><div><span class="fn-cat">{item.family}</span><h2>{item.name}()</h2></div><span class="fn-context">{item.context}</span></div>
+          <p class="fn-desc">{item.description}</p>
+          <h3>Syntaxe</h3><div class="codebox"><button class="fn-copy" data-copy={item.syntax}>⧉ Copier</button><pre><code set:html={highlightQlik(item.syntax)} /></pre></div>
+          <h3>Exemple concret</h3><div class="fn-example">
+            <div class="fn-example-data"><span>Donnée de départ</span><code>{item.data}</code></div>
+            <div class="codebox"><button class="fn-copy" data-copy={item.expression}>⧉ Copier</button><pre><code set:html={highlightQlik(item.expression)} /></pre></div>
+            <div class="fn-example-result"><span>Résultat</span><code>{item.result}</code></div>
+            {item.legend && <p class="fn-space-legend">{item.legend}</p>}<p class="fn-example-note">{item.note}</p>
+          </div>
+          {item.details.length > 0 && (
+            <div class="fn-details">
+              <h3>À retenir</h3>
+              <ul>{item.details.map(detail => <li>{detail}</li>)}</ul>
+            </div>
+          )}
+        </article>
+      ))}</div><p id="fn-empty" hidden>Aucune fonction ne correspond à cette recherche.</p>
+    </main>
+  </section>
+  <style>
+    .fn-shell{display:grid;grid-template-columns:275px minmax(0,1fr);gap:34px;padding-top:42px;padding-bottom:72px;align-items:start}.fn-side{position:sticky;top:90px;border:1px solid var(--line);border-radius:12px;background:var(--surface);overflow:hidden;box-shadow:var(--shadow)}.fn-side>strong{display:block;padding:16px 17px;border-bottom:1px solid var(--line)}.fn-family-list{max-height:calc(100vh - 170px);overflow:auto;scrollbar-width:thin}.fn-filter{width:100%;display:flex;justify-content:space-between;gap:10px;border:0;border-bottom:1px solid var(--line);padding:10px 14px;background:transparent;color:var(--text);cursor:pointer;text-align:left;font-size:.78rem}.fn-filter:hover,.fn-filter.active{background:color-mix(in srgb,var(--green) 10%,var(--surface));box-shadow:inset 3px 0 var(--green)}.fn-filter span{color:var(--green);font-weight:800;flex:0 0 auto}.fn-toolbar{display:flex;justify-content:flex-end;margin-bottom:22px}#fn-search{min-width:310px;padding:11px 13px;border:1px solid var(--line);border-radius:9px;background:var(--surface);color:var(--text)}.fn-card{border:1px solid var(--line);border-radius:14px;background:var(--surface);box-shadow:var(--shadow);padding:24px 26px;margin-bottom:22px}.fn-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start}.fn-head h2{margin:5px 0 0;font-size:1.7rem}.fn-cat{font-size:.68rem;letter-spacing:.08em;color:var(--green);font-weight:900;text-transform:uppercase}.fn-context{font-size:.7rem;padding:6px 9px;border-radius:20px;background:color-mix(in srgb,var(--green) 12%,var(--surface));color:var(--green);font-weight:800;white-space:nowrap}.fn-desc{line-height:1.65;color:var(--text)}.fn-card h3{font-size:.9rem;margin:20px 0 9px;color:var(--green)}.codebox{position:relative}.codebox pre{margin:0;padding:17px 92px 17px 17px;border-radius:10px;background:color-mix(in srgb,var(--text) 5%,var(--surface));border:1px solid var(--line);overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere}.codebox code,.fn-example-data code,.fn-example-result code{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace}.qlik-function{color:#005fb8;font-weight:800}.qlik-keyword{color:#8e248f;font-weight:800}.qlik-string{color:#a31515}.qlik-number{color:#16723a}.qlik-field{color:#006b6b}.qlik-comment{color:#557a39;font-style:italic}:global(html[data-theme="dark"]) .qlik-function{color:#67b7ed}:global(html[data-theme="dark"]) .qlik-keyword{color:#d6a3e8}:global(html[data-theme="dark"]) .qlik-string{color:#ffad7a}:global(html[data-theme="dark"]) .qlik-number{color:#b5e890}:global(html[data-theme="dark"]) .qlik-field{color:#55d6c2}:global(html[data-theme="dark"]) .qlik-comment{color:#8fc778}.fn-copy{position:absolute;right:8px;top:8px;border:1px solid var(--line);border-radius:7px;background:var(--surface);color:var(--text);padding:6px 8px;cursor:pointer;font-weight:700;font-size:.7rem}.fn-copy:hover{border-color:var(--green);color:var(--green)}.fn-example{border:1px solid color-mix(in srgb,var(--green) 28%,var(--line));border-radius:11px;padding:15px;background:color-mix(in srgb,var(--green) 4%,var(--surface))}.fn-example-data,.fn-example-result{display:flex;align-items:flex-start;gap:14px;padding:10px 12px;border-radius:8px;background:var(--surface)}.fn-example-data{margin-bottom:10px}.fn-example-result{margin-top:10px;border-left:4px solid var(--green)}.fn-example-data span,.fn-example-result span{min-width:118px;color:var(--muted);font-size:.72rem;font-weight:900;letter-spacing:.04em;text-transform:uppercase}.fn-example-data code,.fn-example-result code{font-weight:750;overflow-wrap:anywhere}.fn-example-result code{color:var(--green)}.fn-example-note{margin:12px 3px 1px;color:var(--muted);font-size:.86rem;line-height:1.55}.fn-space-legend{display:inline-block;margin:9px 2px 0;padding:4px 8px;border-radius:6px;background:color-mix(in srgb,var(--green) 12%,var(--surface));color:var(--green);font-size:.72rem;font-weight:800}#fn-empty{padding:30px;text-align:center;color:var(--muted)}@media(max-width:900px){.fn-shell{grid-template-columns:1fr}.fn-side{position:static}.fn-family-list{max-height:310px}.fn-toolbar{align-items:stretch;flex-direction:column}#fn-search{min-width:0;width:100%}.fn-card{padding:20px 16px}.fn-head{flex-direction:column}.fn-example-data,.fn-example-result{display:block}.fn-example-data span,.fn-example-result span{display:block;margin-bottom:6px}}
+    .fn-details{margin-top:14px;padding:14px 17px;border-radius:10px;border-left:4px solid var(--green);background:color-mix(in srgb,var(--green) 7%,var(--surface))}.fn-details h3{margin:0 0 9px}.fn-details ul{margin:0;padding-left:20px}.fn-details li{margin:7px 0;line-height:1.55;color:var(--text)}
+  </style>
+  <script is:inline>
+    (()=>{const filters=[...document.querySelectorAll('.fn-filter')],cards=[...document.querySelectorAll('.fn-card')],search=document.querySelector('#fn-search'),empty=document.querySelector('#fn-empty');let cat='';const norm=value=>String(value||'').toLocaleLowerCase('fr').normalize('NFD').replace(/[\u0300-\u036f]/g,'');function apply(){const query=norm(search.value.trim()).replace(/\(\)$/,'');const exact=query&&cards.some(card=>norm(card.dataset.name)===query);let visible=0;cards.forEach(card=>{const name=norm(card.dataset.name),matches=!query||(exact?name===query:norm(card.dataset.name+' '+card.textContent).includes(query));const ok=(!cat||card.dataset.cat===cat)&&matches;card.hidden=!ok;if(ok)visible++});empty.hidden=visible!==0}filters.forEach(button=>button.addEventListener('click',()=>{filters.forEach(x=>x.classList.remove('active'));button.classList.add('active');cat=button.dataset.cat||'';apply()}));search.addEventListener('input',()=>{if(search.value.trim()){cat='';filters.forEach(x=>x.classList.remove('active'));filters[0]?.classList.add('active')}apply()});document.querySelectorAll('.fn-copy').forEach(button=>button.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(button.dataset.copy);button.textContent='✓ Copié';setTimeout(()=>button.textContent='⧉ Copier',1200)}catch{button.textContent='Copie impossible'}}))})();
+  </script>
+</BaseLayout>

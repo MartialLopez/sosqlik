@@ -1,0 +1,36 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import TutorialLayout from '../../components/TutorialLayout.astro';
+import CodeEnhancer from '../../components/CodeEnhancer.astro';
+const lessons=[
+{id:'for',n:'01',title:'Répéter avec FOR...NEXT',level:'Intermédiaire',intro:'FOR...NEXT exécute plusieurs fois le même bloc en faisant évoluer un compteur.',detail:'Le compteur prend successivement les valeurs comprises entre la borne de départ et la borne de fin.',example:`<pre><code>FOR vMois = 1 TO 12
+    TRACE Chargement du mois $(vMois);
+NEXT vMois</code></pre>`,facts:[['Départ','1'],['Fin','12'],['Répétitions','12']],note:'Le compteur peut être utilisé dans les instructions exécutées à chaque passage.',advantages:['Évite de répéter douze blocs presque identiques'],disadvantages:['Une boucle inutile peut rendre le script plus difficile à lire']},
+{id:'fichiers',n:'02',title:'Charger une série de fichiers',level:'Intermédiaire',intro:'Une boucle devient utile lorsque le nom de la source suit une règle régulière.',detail:'Le compteur est injecté dans le nom du fichier. Chaque LOAD ajoute les lignes à la même table grâce à CONCATENATE.',example:`<pre><code>Ventes:
+LOAD * INLINE [ID_VENTE, Montant];
+
+FOR vMois = 1 TO 3
+    CONCATENATE (Ventes)
+    LOAD
+        ID_VENTE,
+        Montant
+    FROM [lib://Donnees/Ventes_$(vMois).qvd] (qvd);
+NEXT vMois</code></pre>`,facts:[['Sources','Ventes_1.qvd à Ventes_3.qvd'],['Cible','Ventes']],note:'Dans un vrai traitement, vérifiez que les fichiers attendus existent ou utilisez une liste de fichiers adaptée au besoin.',advantages:['Traitement compact de sources répétitives'],disadvantages:['Une convention de nommage fragile peut provoquer des erreurs']},
+{id:'foreach',n:'03',title:'Parcourir une liste avec FOR EACH',level:'Intermédiaire',intro:'FOR EACH convient lorsqu’il faut parcourir une liste de valeurs plutôt qu’une suite numérique.',detail:'La variable reçoit chaque valeur de la liste à tour de rôle.',example:`<pre><code>FOR EACH vRegion IN 'Nord', 'Sud', 'Ouest'
+    TRACE Région traitée : $(vRegion);
+NEXT vRegion</code></pre>`,facts:[['Liste','Nord, Sud, Ouest'],['Variable','vRegion']],note:'FOR EACH peut également être utilisé avec des listes construites pour le script.',advantages:['Très lisible pour une liste explicite'],disadvantages:['Une longue liste codée en dur devient difficile à maintenir']},
+{id:'doloop',n:'04',title:'Répéter tant qu’une condition est vraie',level:'Intermédiaire',intro:'DO...LOOP pilote la répétition avec une condition logique plutôt qu’avec un nombre de passages fixé.',detail:'La condition est évaluée à chaque passage. La variable utilisée doit évoluer pour que la boucle puisse se terminer.',example:`<pre><code>LET vPage = 1;
+
+DO WHILE vPage &lt;= 5
+    TRACE Traitement de la page $(vPage);
+    LET vPage = vPage + 1;
+LOOP</code></pre>`,facts:[['Condition','vPage <= 5'],['Arrêt','condition fausse']],note:'Une condition qui ne devient jamais fausse crée une boucle sans fin.',advantages:['Adapté aux traitements pilotés par une condition'],disadvantages:['La condition de sortie doit être maîtrisée']},
+{id:'while-load',n:'05',title:'WHILE dans un LOAD : créer plusieurs lignes',level:'Avancé',intro:'La clause WHILE d’un LOAD répond à un autre besoin : une ligne source peut produire plusieurs lignes en sortie.',detail:'IterNo() indique le numéro de l’itération pour la ligne source. Ici, une période est développée en une ligne par jour.',example:`<pre><code>CalendrierContrat:
+LOAD
+    ID_CONTRAT,
+    DateDebut + IterNo() - 1 AS Date
+RESIDENT Contrats
+WHILE DateDebut + IterNo() - 1 &lt;= DateFin;</code></pre>`,facts:[['Entrée','1 contrat'],['Sortie','1 ligne par date']],note:'Ne confondez pas cette clause WHILE du LOAD avec la structure de contrôle DO...LOOP.',advantages:['Très pratique pour développer des intervalles'],disadvantages:['Peut générer beaucoup de lignes']}
+];
+---
+<BaseLayout title="Boucles dans le script Qlik — SOSQLIK"><TutorialLayout title="Les boucles dans le script Qlik" description="Utiliser FOR...NEXT, FOR EACH, DO...LOOP et la clause WHILE sans perdre de vue les données produites." navTitle="Boucles de script" lessons={lessons}/><CodeEnhancer /></BaseLayout>

@@ -1,0 +1,49 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import TutorialLayout from '../../components/TutorialLayout.astro';
+import CodeEnhancer from '../../components/CodeEnhancer.astro';
+const lessons=[
+{id:'principe',n:'01',title:'À quoi sert Section Access ?',level:'Avancé',intro:'Section Access permet de définir dans le script quels utilisateurs peuvent ouvrir l’application et, si nécessaire, quelles données chacun peut voir.',detail:'La table de sécurité est chargée dans une section dédiée. Les données métier sont ensuite chargées dans Section Application.',example:`<pre><code>SECTION ACCESS;
+// table de sécurité
+
+SECTION APPLICATION;
+// données de l'application</code></pre>`,facts:[['Section Access','autorisations'],['Section Application','données métier']],note:'Une modification du script de sécurité prend effet après rechargement de l’application.',advantages:['Sécurité pilotée par les données'],disadvantages:['Une erreur peut bloquer l’accès à l’application']},
+{id:'acces',n:'02',title:'Définir les utilisateurs autorisés',level:'Avancé',intro:'La table Section Access contient notamment ACCESS et un identifiant utilisateur adapté à l’environnement Qlik.',detail:'ACCESS prend les valeurs ADMIN ou USER. L’identifiant doit correspondre à celui fourni par l’environnement d’authentification.',example:`<pre><code>SECTION ACCESS;
+
+Autorisation:
+LOAD * INLINE [
+ACCESS, USERID
+ADMIN, DOMAINE\\QLIKADMIN
+USER,  DOMAINE\\SOPHIE
+USER,  DOMAINE\\LUCAS
+];
+
+SECTION APPLICATION;</code></pre>`,facts:[['ACCESS','ADMIN / USER'],['USERID','identité reconnue par Qlik']],note:'Les identifiants et champs système à utiliser dépendent de l’environnement Qlik Sense. Validez-les avant de déployer la sécurité.',advantages:['Contrôle explicite des accès'],disadvantages:['Un utilisateur absent de la table peut perdre l’accès']},
+{id:'reduction',n:'03',title:'Réduire les lignes selon l’utilisateur',level:'Avancé',intro:'Un champ commun entre la table de sécurité et les données métier permet de limiter les lignes visibles.',detail:'Ici, chaque utilisateur reçoit une région. Le champ REGION existe également dans la table Ventes.',example:`<pre><code>SECTION ACCESS;
+Autorisation:
+LOAD * INLINE [
+ACCESS, USERID, REGION
+ADMIN, DOMAINE\\QLIKADMIN, *
+USER,  DOMAINE\\SOPHIE, NORD
+USER,  DOMAINE\\LUCAS, SUD
+];
+
+SECTION APPLICATION;
+Ventes:
+LOAD
+    Upper(REGION) AS REGION,
+    ID_VENTE,
+    CA_HT
+FROM [lib://Donnees/Ventes.qvd] (qvd);</code></pre>`,facts:[['Sophie','NORD'],['Lucas','SUD'],['Lien','REGION']],note:'Les champs et valeurs utilisés dans Section Access doivent respecter les règles de casse imposées par Qlik ; Upper() évite ici une différence de casse côté données.',advantages:['Réduction dynamique des lignes'],disadvantages:['Une valeur de réduction incohérente peut masquer des données']},
+{id:'omit',n:'04',title:'Masquer certains champs avec OMIT',level:'Avancé',intro:'Section Access peut également empêcher certains utilisateurs de voir un champ.',detail:'Le champ système OMIT contient le nom du champ à masquer pour l’utilisateur concerné.',example:`<pre><code>SECTION ACCESS;
+Autorisation:
+LOAD * INLINE [
+ACCESS, USERID, REGION, OMIT
+ADMIN, DOMAINE\\QLIKADMIN, *,
+USER,  DOMAINE\\SOPHIE, NORD,
+USER,  DOMAINE\\LUCAS, SUD, MARGE
+];</code></pre>`,facts:[['OMIT vide','aucun champ masqué'],['OMIT=MARGE','champ MARGE masqué']],note:'Une visualisation qui dépend d’un champ masqué peut ne plus disposer des données nécessaires pour s’afficher.',advantages:['Contrôle possible au niveau colonne'],disadvantages:['Impact à tester sur les objets de l’application']},
+{id:'securiser',n:'05',title:'Tester sans se verrouiller dehors',level:'Avancé',intro:'Section Access doit être testé avec prudence, car une erreur d’identité ou de réduction peut empêcher l’ouverture de l’application.',detail:'Travaillez sur une copie, conservez un accès administrateur valide et testez avec plusieurs profils avant publication.',example:`<div class="master-demo"><b>Avant publication</b><span>Copie → rechargement → tests ADMIN/USER → publication</span><i>ne jamais tester une nouvelle sécurité uniquement sur l’application de référence</i></div>`,facts:[['À conserver','un accès administrateur'],['À tester','identités + réductions + objets']],note:'La sécurité ne doit pas reposer sur la simple visibilité d’un graphique ou d’une feuille : la réduction doit être appliquée aux données elles-mêmes lorsque c’est le besoin.',advantages:['Déploiement plus sûr'],disadvantages:['Demande une vraie campagne de tests']}
+];
+---
+<BaseLayout title="Section Access — SOSQLIK"><TutorialLayout title="Sécuriser les données avec Section Access" description="Comprendre la table de sécurité, la réduction de lignes et le masquage de champs dans Qlik Sense." navTitle="Section Access" lessons={lessons}/><CodeEnhancer /></BaseLayout>

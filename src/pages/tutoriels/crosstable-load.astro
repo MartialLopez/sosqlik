@@ -1,0 +1,35 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import TutorialLayout from '../../components/TutorialLayout.astro';
+import CodeEnhancer from '../../components/CodeEnhancer.astro';
+const lessons=[
+{id:'probleme',n:'01',title:'Quand les mois sont stockés en colonnes',level:'Intermédiaire',intro:'Certains fichiers Excel présentent une ligne par produit et une colonne par mois. Cette disposition est pratique à lire dans un tableur, mais moins adaptée à l’analyse dans Qlik.',detail:'Pour analyser les ventes par mois, il est préférable d’obtenir un champ Mois et un champ Montant. Crosstable transforme les en-têtes de colonnes en valeurs.',example:`<pre><code>Produit | Janvier | Février | Mars
+Café    | 1200    | 1350    | 1280
+Thé     |  820    |  790    |  910</code></pre>`,facts:[['Avant','1 colonne par mois'],['Après','Mois + Montant']],note:'Le contenu métier ne change pas : seule la structure des données est transformée.',advantages:['Structure adaptée aux dimensions et mesures Qlik'],disadvantages:['Il faut identifier correctement les colonnes à conserver']},
+{id:'transformation',n:'02',title:'Transformer avec Crosstable',level:'Intermédiaire',intro:'Le préfixe Crosstable se place devant le LOAD qui lit la source.',detail:'Le premier paramètre donne le nom du futur champ contenant les anciens en-têtes. Le deuxième donne le nom du champ contenant leurs valeurs.',example:`<pre><code>Ventes:
+Crosstable(Mois, Montant, 1)
+LOAD
+    Produit,
+    Janvier,
+    Février,
+    Mars
+FROM [lib://Donnees/Ventes.xlsx]
+(ooxml, embedded labels, table is Feuil1);</code></pre>`,facts:[['Mois','anciens noms de colonnes'],['Montant','valeurs'],['1','champ Produit conservé']],note:'Le troisième paramètre indique ici qu’un champ, Produit, reste inchangé avant les colonnes à transposer.',advantages:['Une instruction suffit pour normaliser la table'],disadvantages:['Une mauvaise valeur du troisième paramètre transpose les mauvais champs']},
+{id:'resultat',n:'03',title:'Le résultat chargé dans Qlik',level:'Intermédiaire',intro:'Après le chargement, chaque combinaison Produit/Mois devient une ligne.',detail:'Le tableau initial à trois colonnes mensuelles devient une table verticale. Mois peut alors servir de dimension et Montant de mesure.',example:`<pre><code>Produit | Mois    | Montant
+Café    | Janvier | 1200
+Café    | Février | 1350
+Café    | Mars    | 1280
+Thé     | Janvier | 820</code></pre>`,facts:[['Dimension','Mois'],['Mesure','Sum(Montant)']],note:'Cette structure facilite aussi les filtres, les graphiques et les associations avec un calendrier.',advantages:['Analyse temporelle beaucoup plus naturelle'],disadvantages:['Les libellés de mois peuvent nécessiter une interprétation en vraie date']},
+{id:'plusieurs-qualifiants',n:'04',title:'Conserver plusieurs colonnes descriptives',level:'Intermédiaire',intro:'Une source peut contenir plusieurs champs à conserver avant les colonnes mensuelles.',detail:'Si Produit et Région doivent rester tels quels, le troisième paramètre vaut 2.',example:`<pre><code>Ventes:
+Crosstable(Mois, Montant, 2)
+LOAD
+    Produit,
+    Region,
+    Janvier,
+    Février,
+    Mars
+FROM [lib://Donnees/Ventes_Regions.xlsx]
+(ooxml, embedded labels, table is Feuil1);</code></pre>`,facts:[['2','Produit + Region conservés'],['Transposés','Janvier, Février, Mars']],note:'Comptez les champs descriptifs placés avant les colonnes à transformer.',advantages:['Fonctionne avec plusieurs dimensions fixes'],disadvantages:['La structure du fichier source doit rester cohérente']}
+];
+---
+<BaseLayout title="Crosstable LOAD — SOSQLIK"><TutorialLayout title="Transformer un tableau avec Crosstable" description="Passer d’un fichier avec une colonne par période à une structure adaptée à l’analyse dans Qlik." navTitle="Crosstable LOAD" lessons={lessons}/><CodeEnhancer /></BaseLayout>

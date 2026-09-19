@@ -1,0 +1,29 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import TutorialLayout from '../../components/TutorialLayout.astro';
+import CodeEnhancer from '../../components/CodeEnhancer.astro';
+const lessons=[
+{id:'pourquoi',n:'01',title:'Pourquoi créer une sous-routine ?',level:'Intermédiaire',intro:'Lorsqu’un même traitement revient plusieurs fois dans un script, une sous-routine permet de le définir une seule fois puis de l’appeler au besoin.',detail:'SUB délimite le traitement réutilisable. CALL déclenche son exécution.',example:`<pre><code>SUB Journaliser(pMessage)
+    TRACE === $(pMessage) ===;
+END SUB
+
+CALL Journaliser('Début du chargement');</code></pre>`,facts:[['SUB','définit'],['CALL','exécute']],note:'La sous-routine doit être définie avant l’appel qui l’utilise.',advantages:['Évite les copier-coller'],disadvantages:['Trop de sous-routines peuvent masquer le déroulement du script']},
+{id:'parametres',n:'02',title:'Passer des paramètres',level:'Intermédiaire',intro:'Les paramètres permettent d’utiliser la même logique avec des valeurs différentes.',detail:'Dans cet exemple, la sous-routine reçoit un nom de table et affiche son nombre de lignes.',example:`<pre><code>SUB AfficherNbLignes(pTable)
+    LET vNbLignes = NoOfRows('$(pTable)');
+    TRACE $(pTable) : $(vNbLignes) lignes;
+END SUB
+
+CALL AfficherNbLignes('Commandes');
+CALL AfficherNbLignes('Clients');</code></pre>`,facts:[['Paramètre','pTable'],['Appels','Commandes puis Clients']],note:'Un nom explicite pour les paramètres rend l’appel beaucoup plus facile à relire.',advantages:['Même traitement pour plusieurs tables'],disadvantages:['Les variables et expansions doivent rester lisibles']},
+{id:'cas',n:'03',title:'Un cas concret : stocker puis supprimer',level:'Intermédiaire',intro:'Une sous-routine peut regrouper plusieurs instructions qui doivent toujours être exécutées ensemble.',detail:'Le traitement reçoit le nom d’une table et le chemin de sortie, écrit le QVD puis retire la table de l’application.',example:`<pre><code>SUB StoreDrop(pTable, pDossier)
+    STORE [$(pTable)]
+    INTO [$(pDossier)/$(pTable).qvd] (qvd);
+
+    DROP TABLE [$(pTable)];
+END SUB
+
+CALL StoreDrop('Commandes', 'lib://QVD');</code></pre>`,facts:[['Entrée','nom de table + dossier'],['Actions','STORE puis DROP']],note:'Le regroupement est pertinent lorsque les deux opérations constituent réellement une règle commune.',advantages:['Centralise un traitement répétitif'],disadvantages:['Une sous-routine générique doit être testée sur tous les cas prévus']},
+{id:'limites',n:'04',title:'Garder des sous-routines simples',level:'Intermédiaire',intro:'Une sous-routine est surtout utile lorsqu’elle donne un nom clair à un traitement répétitif.',detail:'Si elle contient trop de conditions, modifie de nombreuses variables globales ou appelle plusieurs autres sous-routines, le diagnostic devient plus difficile.',example:`<div class="master-demo"><b>Bon repère</b><span>Une responsabilité claire par SUB</span><i>le nom doit permettre de comprendre son rôle</i></div>`,facts:[['Bon usage','traitement répétitif identifiable'],['À éviter','logique cachée et effets de bord']],note:'Une sous-routine n’améliore le script que si elle le rend plus lisible et plus maintenable.',advantages:['Structure le script'],disadvantages:['L’abstraction excessive complique le débogage']}
+];
+---
+<BaseLayout title="SUB et CALL dans Qlik — SOSQLIK"><TutorialLayout title="Réutiliser du script avec SUB et CALL" description="Factoriser un traitement répétitif dans une sous-routine Qlik claire et réutilisable." navTitle="SUB et CALL" lessons={lessons}/><CodeEnhancer /></BaseLayout>

@@ -103,7 +103,7 @@ html[data-theme="dark"] .ideas-box{background:#063b3a}
 .site-footer{border-top:1px solid var(--line);background:var(--surface);padding:17px 0 11px}.footer-main{display:grid;grid-template-columns:1.2fr 2fr .6fr .8fr;align-items:center;gap:24px}
 .footer-brand{display:flex;flex-direction:column}.footer-brand strong{font-size:1.55rem;font-weight:900;letter-spacing:-.06em}.footer-brand strong span{color:var(--green)}.footer-brand small{font-size:.65rem;color:var(--muted)}
 .footer-nav{display:flex;justify-content:center;gap:24px;font-size:.69rem}.socials{display:flex;gap:18px;font-weight:900}.footer-slogan{font-family:"Comic Sans MS","Segoe Print",cursive;font-size:.9rem;line-height:1.05;transform:rotate(-4deg)}
-.footer-slogan::after{content:"";display:block;width:68px;height:2px;background:var(--green);margin:6px 0 0 18px}.footer-bottom{border-top:1px solid var(--line);margin-top:12px;padding-top:9px;display:flex;justify-content:center;gap:30px;font-size:.57rem;color:var(--muted)}
+.footer-slogan::after{content:"";display:block;width:68px;height:2px;background:var(--green);margin:6px 0 0 18px}.footer-bottom{border-top:1px solid var(--line);margin-top:12px;padding-top:9px;display:flex;justify-content:center;gap:30px;font-size:.57rem;color:var(--muted)}.footer-legal{padding-top:6px;text-align:center;font-size:.55rem;line-height:1.45;color:var(--muted)}
 
 /* subpages */
 .subhero{padding:42px 0;background:linear-gradient(rgba(3,45,63,.62),rgba(3,45,63,.62)),url('/assets/hero-sosqlik.jpg') center 45%/cover;color:#fff}.subhero h1{font-size:2rem;margin:0 0 5px}.subhero p{margin:0}.page-section{padding:38px 0}.resource-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}.mini-card{padding:22px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}.mini-card b{color:var(--green);font-size:1.6rem}.mini-card h3{font-size:1rem}.mini-card p{font-size:.8rem;color:var(--muted)}
@@ -4679,3 +4679,15 @@ html[data-theme="dark"] .related-content-v478__card{background:rgba(255,255,255,
     margin-top:22px;
   }
 }
+.qlik-function{color:#005fb8;font-weight:800}
+.qlik-keyword{color:#8e248f;font-weight:800}
+.qlik-string{color:#a31515}
+.qlik-number{color:#16723a}
+.qlik-field{color:#006b6b}
+.qlik-comment{color:#557a39;font-style:italic}
+html[data-theme="dark"] .qlik-function{color:#67b7ed}
+html[data-theme="dark"] .qlik-keyword{color:#d6a3e8}
+html[data-theme="dark"] .qlik-string{color:#ffad7a}
+html[data-theme="dark"] .qlik-number{color:#b5e890}
+html[data-theme="dark"] .qlik-field{color:#55d6c2}
+html[data-theme="dark"] .qlik-comment{color:#8fc778}

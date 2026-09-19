@@ -85,22 +85,18 @@ LOAD ID_CLIENT, SEGMENT
 FROM [lib://Donnees/Segments.qvd] (qvd);
 
 // APRÈS : Clients contient aussi SEGMENT.</code></pre>`,facts:[['Table cible','Clients doit déjà exister'],['Source du JOIN','Segments.qvd est chargé pendant l’opération'],['ID_CLIENT','champ commun utilisé pour rapprocher'],['Résultat','une seule table Clients enrichie']],note:'Avant un JOIN, vérifiez qu’une même clé ne correspond pas à plusieurs lignes de façon inattendue. Sinon, le JOIN peut multiplier le nombre de lignes.',advantages:['Utile quand une vraie fusion est souhaitée'],disadvantages:['Un JOIN mal maîtrisé peut modifier le nombre de lignes']},
-{id:'keep',n:'09',title:'KEEP : filtrer deux tables sans les fusionner',level:'Débutant',intro:'KEEP compare deux tables à partir de leurs champs communs, comme le ferait un JOIN, mais il ne les fusionne pas. Avec INNER KEEP, on peut le voir comme une intersection : Qlik conserve dans les deux tables uniquement les lignes dont la valeur de la clé existe des deux côtés.',detail:'Le premier LOAD charge la table Clients. Supposons qu’elle contienne les clients 1, 2, 3 et 4. Le second LOAD charge Commandes avec INNER KEEP (Clients) et contient des commandes pour les clients 1, 3 et 5. Le champ commun est ID_CLIENT. Les valeurs présentes dans les deux tables sont donc 1 et 3. Qlik écarte le client 2 et le client 4, qui n’ont aucune commande, ainsi que la commande du client 5, qui n’existe pas dans Clients. Les deux tables restent séparées : seules leurs lignes ont été filtrées.',example:`<pre><code>// 1. Clients est d’abord chargée dans Qlik.
+{id:'keep',n:'09',title:'KEEP : comparer deux chargements sans les fusionner',level:'Débutant',intro:'KEEP rapproche également deux jeux de données grâce à leurs champs communs, mais contrairement à JOIN il ne les fusionne pas dans une seule table.',detail:'Le premier LOAD charge Clients. Le second charge Commandes avec INNER KEEP (Clients). Qlik compare alors les valeurs du champ commun ID_CLIENT et ne conserve que les enregistrements ayant une correspondance selon la logique du INNER KEEP. À la fin, Clients et Commandes restent deux tables distinctes.',example:`<pre><code>// 1. On charge d’abord Clients.
 Clients:
-LOAD
-    ID_CLIENT,
-    NOM_CLIENT
+LOAD ID_CLIENT, NOM_CLIENT
 FROM [lib://Donnees/Clients.qvd] (qvd);
 
-// 2. Commandes est chargée puis comparée à Clients sur ID_CLIENT.
+// 2. Commandes est chargée et comparée à Clients.
 INNER KEEP (Clients)
 Commandes:
-LOAD
-    ID_COMMANDE,
-    ID_CLIENT,
-    CA_HT
-FROM [lib://Donnees/Commandes.qvd] (qvd);</code></pre>
-<div class="master-demo"><b>Exemple avec les valeurs de ID_CLIENT</b><span>Clients : 1 · 2 · 3 · 4 &nbsp;&nbsp; | &nbsp;&nbsp; Commandes : 1 · 3 · 5</span><i>INNER KEEP → valeurs communes : 1 et 3. Clients et Commandes restent deux tables distinctes.</i></div>`,facts:[['Champ commun','ID_CLIENT'],['Clients avant KEEP','1 · 2 · 3 · 4'],['Commandes avant KEEP','1 · 3 · 5'],['INNER KEEP','conserve les correspondances 1 et 3'],['Résultat','deux tables toujours séparées']],note:'INNER KEEP se rapproche donc d’une intersection sur les valeurs des champs communs. La différence essentielle avec INNER JOIN est le résultat : JOIN fusionne les données dans une même table ; KEEP filtre les lignes mais conserve les tables séparées.',advantages:['Filtre les données tout en conservant des tables séparées'],disadvantages:['LEFT KEEP et RIGHT KEEP ne sont pas de simples intersections : le côté conservé dépend du type de KEEP utilisé']},
+LOAD ID_COMMANDE, ID_CLIENT, CA_HT
+FROM [lib://Donnees/Commandes.qvd] (qvd);
+
+// APRÈS : Clients et Commandes restent deux tables distinctes.</code></pre>`,facts:[['Avant KEEP','Clients existe déjà'],['Pendant KEEP','Commandes est chargée'],['Comparaison','sur les champs communs'],['Résultat','deux tables, pas une fusion']],note:'Pour débuter, retenez surtout : JOIN fusionne ; KEEP filtre les ensembles tout en conservant les tables.',advantages:['Préserve des tables séparées'],disadvantages:['Il faut comprendre précisément quelles lignes sont conservées']},
 {id:'concat',n:'10',title:'CONCATENATE : ajouter des lignes à une table déjà chargée',level:'Débutant',intro:'CONCATENATE sert à empiler des lignes. Nous allons d’abord charger les ventes 2025 dans une table Ventes, puis ajouter à cette même table les lignes provenant du fichier 2026.',detail:'Le premier LOAD crée la table Ventes à partir de Ventes_2025.qvd. Le second LOAD lit Ventes_2026.qvd. Grâce à CONCATENATE (Ventes), ses lignes sont ajoutées à la table Ventes déjà chargée au lieu de créer une seconde table. Le résultat est une seule table contenant les ventes des deux années.',example:`<pre><code>// 1. Ventes est créée avec les lignes 2025.
 Ventes:
 LOAD ID_VENTE, DATE_VENTE, CA_HT
@@ -111,7 +107,7 @@ CONCATENATE (Ventes)
 LOAD ID_VENTE, DATE_VENTE, CA_HT
 FROM [lib://Donnees/Ventes_2026.qvd] (qvd);
 
-// APRÈS : une seule table Ventes contient 2025 + 2026.</code></pre>`,facts:[['Premier LOAD','crée Ventes'],['Second LOAD','lit une autre source'],['CONCATENATE','ajoute ses lignes dans Ventes'],['Résultat','une seule table Ventes chargée dans Qlik']],note:'CONCATENATE empile des lignes verticalement ; JOIN rapproche des lignes et ajoute généralement des colonnes.',advantages:['Idéal pour empiler années, mois ou sources comparables'],disadvantages:['Des structures différentes créent des valeurs nulles dans les champs absents']},
+// APRÈS : une seule table Ventes contient 2025 + 2026.</code></pre>`,facts:[['Premier LOAD','crée Ventes'],['Second LOAD','lit une autre source'],['CONCATENATE','ajoute ses lignes dans Ventes'],['Résultat','une seule table Ventes chargée dans Qlik']],note:'Image mentale : CONCATENATE empile des lignes verticalement ; JOIN rapproche des lignes et ajoute généralement des colonnes.',advantages:['Idéal pour empiler années, mois ou sources comparables'],disadvantages:['Des structures différentes créent des valeurs nulles dans les champs absents']},
 {id:'noconcat',n:'11',title:'NoConcatenate : demander explicitement deux tables séparées',level:'Débutant',intro:'Qlik peut concaténer automatiquement deux tables qui ont exactement les mêmes champs. NoConcatenate sert à dire : « même structure, mais je veux quand même une nouvelle table ».',detail:'Le premier LOAD charge Ventes_2025.qvd dans une table appelée Ventes. Nous chargeons ensuite Ventes_2026.qvd, qui contient exactement les mêmes champs. Dans ce cas, Qlik pourrait ajouter automatiquement les nouvelles lignes à Ventes. NoConcatenate lui demande au contraire de créer une deuxième table, Ventes_2026. Nous pouvons ainsi comprendre NoConcatenate sans utiliser encore Resident, qui sera expliqué à l’étape suivante.',example:`<pre><code>// 1 — On charge les ventes 2025.
 Ventes:
 LOAD ID_VENTE, DATE_VENTE, CA_HT
@@ -245,94 +241,6 @@ FROM [lib://Donnees/Produits.qvd] (qvd);
 
 // Associations : Clients ← ID_CLIENT → Commandes ← ID_PRODUIT → Produits</code></pre>`,facts:[['Clients','table contenant les informations sur les clients'],['Commandes','table contenant les commandes et les identifiants qui les relient aux clients et aux produits'],['Produits','table contenant les informations sur les produits'],['Fin du script','les trois tables et leurs associations forment le modèle de données']],note:'Ouvrez ensuite le Data Model Viewer : il permet de voir les trois tables chargées et les associations que Qlik a créées entre elles.',advantages:['Montre comment plusieurs chargements forment progressivement le modèle de données de l’application'],disadvantages:['Des champs portant le même nom peuvent créer des associations non souhaitées ; ce point sera approfondi dans le tutoriel sur le modèle associatif']},
 {id:'reflexes',n:'20',title:'Les principales instructions de chargement en un coup d’œil',level:'Débutant',intro:'Les instructions vues dans ce parcours n’ont pas toutes le même rôle. Certaines lisent une source externe, d’autres réutilisent ou enrichissent des données déjà chargées, écrivent un fichier ou retirent une table devenue inutile.',detail:'LOAD ... FROM lit une source externe. Resident repart d’une table déjà chargée. JOIN et CONCATENATE ajoutent des données à une table existante, selon des mécanismes différents. STORE écrit une table dans un fichier et DROP retire une table ou un champ de l’application. Cette distinction permet de lire plus facilement un script de chargement.',example:`<div class="master-demo"><b>Les rôles essentiels</b><span>Lire une source → charger les données → les transformer ou les associer → éventuellement les enregistrer → conserver dans l’application uniquement les tables utiles.</span><i>Chaque instruction intervient à une étape précise du chargement.</i></div>`,facts:[['LOAD ... FROM','lit une source externe et charge le résultat dans une table Qlik'],['Resident','relit une table déjà chargée dans Qlik pour créer un nouveau résultat'],['Preceding Load','résultat inférieur → LOAD supérieur, sans table intermédiaire nommée'],['JOIN','charge des données puis les fusionne avec une table déjà chargée dans Qlik'],['CONCATENATE','charge de nouvelles lignes et les ajoute à une table déjà chargée dans Qlik'],['Mapping / ApplyMap','charge une correspondance puis l’utilise'],['STORE','écrit dans un fichier le contenu d’une table déjà chargée dans Qlik'],['DROP','retire une table ou un champ des données chargées dans Qlik']],note:'Resident, Preceding Load, Mapping/ApplyMap et le modèle associatif sont approfondis dans les tutoriels dédiés.',advantages:['Ces rôles permettent d’identifier rapidement ce que fait chaque partie d’un script'],disadvantages:['Les traitements complexes peuvent combiner plusieurs de ces mécanismes']}
-
 ]
-
-// Coloration syntaxique Qlik Sense — réutilise la palette globale SOSQLIK V4.40.
-const qlikKeywords = new Set([
-  'LOAD','FROM','WHERE','DISTINCT','AS','SQL','SELECT','LEFT','RIGHT','INNER','OUTER','JOIN','KEEP',
-  'CONCATENATE','NOCONCATENATE','RESIDENT','GROUP','BY','MAPPING','STORE','INTO','DROP','TABLE','FIELD',
-  'INLINE','ORDER','ASC','DESC','AUTOGENERATE','WHILE','IF','THEN','ELSE','ENDIF','LET','SET','QUALIFY',
-  'UNQUALIFY','BINARY','SECTION','ACCESS','APPLICATION','REPLACE','ADD','MERGE','ONLY','ON','INSERT','UPDATE',
-  'DELETE','IS','NULL','NOT','AND','OR','TRUE','FALSE','QVD','OOXML','TXT','EMBEDDED','LABELS'
-]);
-
-function escapeCode(value) {
-  return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-}
-
-function highlightQlik(code) {
-  let out = '';
-  let i = 0;
-  const len = code.length;
-  while (i < len) {
-    if (code.startsWith('//', i)) {
-      const end = code.indexOf('\n', i);
-      const stop = end === -1 ? len : end;
-      out += `<span class="qs-comment">${escapeCode(code.slice(i, stop))}</span>`;
-      i = stop;
-      continue;
-    }
-    const ch = code[i];
-    if (ch === "'") {
-      let j = i + 1;
-      while (j < len) {
-        if (code[j] === "'" && code[j + 1] === "'") { j += 2; continue; }
-        if (code[j] === "'") { j++; break; }
-        j++;
-      }
-      out += `<span class="qs-string">${escapeCode(code.slice(i, j))}</span>`;
-      i = j;
-      continue;
-    }
-    if (ch === '[') {
-      const end = code.indexOf(']', i + 1);
-      if (end !== -1) {
-        const token = code.slice(i, end + 1);
-        const cls = token.includes('lib://') ? 'qs-string' : 'qs-field';
-        out += `<span class="${cls}">${escapeCode(token)}</span>`;
-        i = end + 1;
-        continue;
-      }
-    }
-    if (/\d/.test(ch)) {
-      const m = code.slice(i).match(/^\d+(?:[.,]\d+)?/);
-      out += `<span class="qs-number">${m[0]}</span>`;
-      i += m[0].length;
-      continue;
-    }
-    if (/[A-Za-zÀ-ÿ_$]/.test(ch)) {
-      const m = code.slice(i).match(/^[A-Za-zÀ-ÿ_$][A-Za-zÀ-ÿ0-9_.$]*/);
-      const word = m[0];
-      const upper = word.toUpperCase();
-      let j = i + word.length;
-      while (j < len && /\s/.test(code[j])) j++;
-      let cls = '';
-      if (qlikKeywords.has(upper)) cls = 'qs-keyword';
-      else if (code[j] === '(') cls = 'qs-function';
-      else if (/^[A-ZÀ-ÖØ-Þ][A-ZÀ-ÖØ-Þ0-9_.$]*$/.test(word) || word.includes('_')) cls = 'qs-field';
-      if (cls) out += `<span class="${cls}">${escapeCode(word)}</span>`;
-      else out += escapeCode(word);
-      i += word.length;
-      continue;
-    }
-    if ('=+-*/<>'.includes(ch)) {
-      out += `<span class="qs-operator">${escapeCode(ch)}</span>`;
-      i++;
-      continue;
-    }
-    out += escapeCode(ch);
-    i++;
-  }
-  return out;
-}
-
-function colorizeExample(html) {
-  return html.replace(/<pre><code>([\s\S]*?)<\/code><\/pre>/g, (_match, code) =>
-    `<pre><code class="qlik-syntax">${highlightQlik(code)}</code></pre>`
-  );
-}
-
-for (const lesson of lessons) lesson.example = colorizeExample(lesson.example);
 ---
 <BaseLayout title="Débuter avec le script de chargement Qlik — SOSQLIK"><TutorialLayout title="Débuter avec le script de chargement Qlik" description="Apprendre pas à pas le chargement des données dans Qlik : LOAD, sources QVD, Excel et SQL, transformations, associations, JOIN, KEEP, CONCATENATE, Resident, Preceding Load, Mapping, STORE et DROP." navTitle="Débuter en script" lessons={lessons}/></BaseLayout>

@@ -133,16 +133,26 @@ const lessons = [
   },
   {
     id:'tri', n:'12', title:'Le tri dans Aggr()', level:'Avancé', icon:'↕',
-    explain:'Certaines fonctions dépendentantes de l’ordre nécessitent un tri explicite de la dimension dans le paramètre structuré d’Aggr(). Qlik permet d’indiquer un type de tri et un ordre.',
-    detail:'La syntaxe peut par exemple imposer un ordre numérique croissant afin que le tableau virtuel soit construit dans l’ordre attendu.',
-    example:`<div class="master-demo"><b>Tri structuré</b><span class="qlik-code">Aggr(Sum(Montant), (MoisNum,(NUMERIC,ASCENDING)))</span><i>ordre explicite du tableau virtuel</i></div>`,
-    facts:[['Types','NUMERIC · TEXT · FREQUENCY · LOAD_ORDER'],['Ordres','ASCENDING · DESCENDING…'],['Pourquoi','Calculs sensibles à l’ordre']],
-    note:'Le tri est particulièrement important lorsque l’agrégation externe ou une fonction inter-record dépend de l’ordre des lignes.',
+    explain:'Certaines fonctions dépendantes de l’ordre nécessitent un tri explicite de la dimension dans le paramètre structuré d’Aggr(). Qlik permet d’indiquer un type de tri et un ordre.',
+    detail:'Supposons les chiffres d’affaires annuels suivants : 2023 = 100, 2024 = 135, 2025 = 120 et 2026 = 180. Une fois les années triées dans l’ordre numérique croissant, les évolutions sont +35, -15 et +60.',
+    example:`<div class="master-demo"><b>Plus forte progression annuelle</b><span class="qlik-code">Max(Aggr(Sum(CA) - Above(Sum(CA)), (Annee,(NUMERIC,ASCENDING))))</span><i>résultat : 60, entre 2025 et 2026</i></div>`,
+    facts:[['Données','100 · 135 · 120 · 180'],['Évolutions','+35 · -15 · +60'],['Résultat','60']],
+    note:'Sans le tri numérique croissant, Above() peut comparer les années dans un ordre différent et produire une progression erronée.',
     advantages:['Résultats déterministes pour les calculs sensibles à l’ordre'],
     disadvantages:['Syntaxe plus technique','Un mauvais champ de tri produit un résultat trompeur']
   },
   {
-    id:'dimension-calculee', n:'13', title:'Aggr() comme dimension calculée', level:'Avancé', icon:'▤',
+    id:'aggr-only', n:'13', title:'Aggr() et Only() dans un tableau sans mesure', level:'Avancé', icon:'◫',
+    explain:'Dans un tableau contenant uniquement des dimensions, une dimension calculée peut utiliser Aggr() et Only() pour ne conserver que les valeurs répondant à un critère.',
+    detail:'Jeu de contrôle : dossier 101 ouvert, dossier 102 fermé et dossier 103 ouvert. L’expression est utilisée comme dimension calculée et l’option d’affichage des valeurs nulles doit être désactivée.',
+    example:`<div class="master-demo"><b>Dimension calculée</b><span class="qlik-code">Aggr(Only({&lt;Statut={'Ouvert'}&gt;} Dossier), Dossier)</span><i>résultat visible : 101 et 103</i></div>`,
+    facts:[['101','Ouvert → affiché'],['102','Fermé → NULL'],['103','Ouvert → affiché']],
+    note:'Only() renvoie le dossier lorsqu’une valeur unique reste possible dans le Set. Pour le dossier fermé, le Set est vide et la dimension renvoie NULL, que le tableau peut masquer.',
+    advantages:['Permet un filtrage dynamique sans ajouter de mesure'],
+    disadvantages:['Plus complexe qu’un champ préparé dans le script','Nécessite de masquer les valeurs nulles']
+  },
+  {
+    id:'dimension-calculee', n:'14', title:'Aggr() comme dimension calculée', level:'Avancé', icon:'▤',
     explain:'Aggr() peut également servir à produire une dimension calculée issue d’une agrégation, par exemple pour regrouper les clients selon leur nombre de commandes.',
     detail:'C’est utile lorsque la catégorie doit rester dynamique et dépendre des sélections. Si elle est statique, préférez plutôt un champ calculé dans le script.',
     example:`<div class="master-demo"><b>Idée</b><span class="qlik-code">Aggr(Count(DISTINCT Commande), Client)</span><i>créer dynamiquement des groupes de clients selon leur activité</i></div>`,
@@ -152,7 +162,7 @@ const lessons = [
     disadvantages:['Coût CPU potentiellement important','Maintenance plus délicate qu’un champ du modèle']
   },
   {
-    id:'performance', n:'14', title:'Performances : utiliser Aggr() à bon escient', level:'Bonnes pratiques', icon:'⚡',
+    id:'performance', n:'15', title:'Performances : utiliser Aggr() à bon escient', level:'Bonnes pratiques', icon:'⚡',
     explain:'Aggr() est puissant mais construit un résultat intermédiaire. Plus le nombre de combinaisons dimensionnelles est élevé et plus l’expression interne est complexe, plus le calcul peut devenir coûteux.',
     detail:'Évitez Aggr() pour une simple Sum(), Count(), un sous-total gérable avec TOTAL ou un calcul statique qui pourrait être préparé dans le script.',
     example:`<div class="master-demo"><b>Réflexe</b><span class="qlik-code">Simple d’abord → Aggr() si nécessaire</span><i>mesurer les performances avec des volumes réalistes</i></div>`,
@@ -162,7 +172,7 @@ const lessons = [
     disadvantages:['Surcoût CPU possible sur des tableaux virtuels volumineux']
   },
   {
-    id:'debug', n:'15', title:'Méthode de débogage', level:'Pratique', icon:'🔎',
+    id:'debug', n:'16', title:'Méthode de débogage', level:'Pratique', icon:'🔎',
     explain:'Quand une expression Aggr() ne donne pas le résultat attendu, ne tentez pas de tout corriger en une seule fois. Matérialisez mentalement — ou réellement dans un tableau temporaire — l’étape interne.',
     detail:'Ajoutez les dimensions de l’Aggr() dans un tableau, affichez la mesure interne, contrôlez les sélections et le Set Analysis, puis seulement ensuite vérifiez l’agrégation externe.',
     example:`<div class="master-demo"><b>Étapes</b><span class="qlik-code">1. dimensions → 2. mesure interne → 3. Set → 4. agrégation externe</span><i>valider chaque niveau séparément</i></div>`,
@@ -172,7 +182,7 @@ const lessons = [
     disadvantages:['Demande parfois de créer un objet temporaire de contrôle']
   },
   {
-    id:'checklist', n:'16', title:'La checklist SOSQLIK', level:'À retenir', icon:'✓',
+    id:'checklist', n:'17', title:'La checklist SOSQLIK', level:'À retenir', icon:'✓',
     explain:'Avant de valider un Aggr(), posez-vous six questions : ai-je vraiment deux niveaux d’agrégation ? Quel est le grain intermédiaire ? Mon agrégation interne est-elle correcte ? Quelle agrégation externe veux-je ? Où le Set doit-il agir ? Puis-je faire plus simple ?',
     detail:'Si ces six réponses sont claires, votre expression a de fortes chances d’être à la fois juste, compréhensible et maintenable.',
     example:`<div class="master-demo"><b>Formule mentale</b><span class="qlik-code">Besoin → Grain → Interne → Externe → Set → Performance</span><i>Aggr() devient alors une méthode, pas une formule magique</i></div>`,
@@ -186,7 +196,8 @@ const lessons = [
 const sources = [
   {label:'Qlik Help — Aggr()', url:'https://help.qlik.com/en-US/sense/May2026/Subsystems/Hub/Content/Sense_Hub/ChartFunctions/aggr.htm'},
   {label:'Qlik Help — Nested aggregations', url:'https://help.qlik.com/en-US/sense/May2026/Subsystems/Hub/Content/Sense_Hub/ChartFunctions/NestedAggregations/nested-aggregations.htm'},
-  {label:'Qlik Help — Set expressions inner/outer', url:'https://help.qlik.com/en-US/sense/May2026/Subsystems/Hub/Content/Sense_Hub/ChartFunctions/SetAnalysis/set-expressions-inner-and-outer.htm'}
+  {label:'Qlik Help — Set expressions inner/outer', url:'https://help.qlik.com/en-US/sense/May2026/Subsystems/Hub/Content/Sense_Hub/ChartFunctions/SetAnalysis/set-expressions-inner-and-outer.htm'},
+  {label:'Henric Cronström — Aggregations and Function Classes', url:'https://community.qlik.com/t5/Design/Aggregations-and-Function-Classes/ba-p/1462653'}
 ];
 import RelatedContent from '../../components/RelatedContent.astro';
 ---
@@ -198,7 +209,7 @@ import RelatedContent from '../../components/RelatedContent.astro';
     navTitle="Aggr()"
     lessons={lessons}
     sourceTitle="Sources et attribution"
-    sourceText="Ce tutoriel s’appuie sur la documentation officielle Qlik et sur les travaux pédagogiques de Henric Cronström (HIC) consacrés à Aggr(). Les explications et exemples SOSQLIK ont été réécrits et adaptés en français."
+    sourceText="La documentation Qlik et l’article de Henric Cronström (HIC) sont indiqués comme références techniques. Les formulations, jeux de données et exemples SOSQLIK ont été rédigés indépendamment et ne constituent pas une traduction de ces sources."
     sourceLinks={sources}
   />
 

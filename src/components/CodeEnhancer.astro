@@ -1,0 +1,44 @@
+<style is:global>
+  .tutorial-example-body pre{position:relative}
+  .tutorial-example-body .sosqlik-code-copy{
+    position:absolute;top:9px;right:10px;z-index:2;border:1px solid var(--line);border-radius:7px;
+    background:var(--surface);color:var(--text);padding:6px 9px;font:700 .72rem/1 system-ui,sans-serif;
+    cursor:pointer;box-shadow:var(--shadow)
+  }
+  .tutorial-example-body .sosqlik-code-copy:hover{border-color:var(--green);color:var(--green)}
+  .tutorial-example-body pre:has(.sosqlik-code-copy){padding-top:42px}
+</style>
+<script is:inline>
+(() => {
+  const esc = s => s.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  const keywords = /\b(LOAD|FROM|RESIDENT|WHERE|AS|DISTINCT|LEFT|RIGHT|INNER|OUTER|JOIN|KEEP|CONCATENATE|NOCONCATENATE|CROSSTABLE|GENERIC|MAPPING|SECTION|ACCESS|APPLICATION|INLINE|STORE|INTO|DROP|TABLE|FIELD|FOR|EACH|IN|TO|STEP|NEXT|DO|WHILE|UNTIL|LOOP|EXIT|SUB|END|CALL|LET|SET|IF|THEN|ELSE|ELSEIF|ENDIF|SQL|SELECT|GROUP|BY|ORDER|AUTOGENERATE)\b/gi;
+  const funcs = /\b(RecNo|RowNo|IterNo|Peek|Previous|Exists|ApplyMap|Upper|Lower|Date|Date#|Num|Num#|Alt|Len|Sum|Count|Min|Max|FieldValueList|FileList|DirList)\s*(?=\()/gi;
+  function highlight(raw){
+    const stash=[];
+    let s=esc(raw);
+    s=s.replace(/\/\/[^\n]*/g,m=>`@@S${stash.push(`<span class="qs-comment">${m}</span>`)-1}@@`);
+    s=s.replace(/'[^'\n]*'/g,m=>`@@S${stash.push(`<span class="qs-string">${m}</span>`)-1}@@`);
+    s=s.replace(/\$\([^)]*\)/g,m=>`@@S${stash.push(`<span class="qs-variable">${m}</span>`)-1}@@`);
+    s=s.replace(funcs,'<span class="qs-function">$1</span>');
+    s=s.replace(keywords,'<span class="qs-keyword">$1</span>');
+    s=s.replace(/\b\d+(?:[.,]\d+)?\b/g,'<span class="qs-number">$&</span>');
+    s=s.replace(/@@S(\d+)@@/g,(_,i)=>stash[+i]);
+    return s;
+  }
+  document.querySelectorAll('.tutorial-example-body pre code').forEach(code => {
+    if(code.dataset.sosqlikEnhanced) return;
+    const raw=code.textContent || '';
+    code.innerHTML=highlight(raw);
+    code.dataset.sosqlikEnhanced='1';
+    const pre=code.closest('pre');
+    if(!pre || pre.querySelector('.sosqlik-code-copy')) return;
+    const b=document.createElement('button');
+    b.type='button';b.className='sosqlik-code-copy';b.textContent='⧉ Copier';
+    b.addEventListener('click',async()=>{
+      try{await navigator.clipboard.writeText(raw);b.textContent='✓ Copié';setTimeout(()=>b.textContent='⧉ Copier',1300)}
+      catch{b.textContent='Copie impossible';setTimeout(()=>b.textContent='⧉ Copier',1600)}
+    });
+    pre.appendChild(b);
+  });
+})();
+</script>

@@ -266,6 +266,30 @@ Sum({1<Annee={2026}>} Montant)`,
     Null()
 )`,
     note: 'Retourner NULL permet souvent de distinguer “non calculable” de 0 %, qui est une vraie valeur métier. Le comportement attendu reste à définir avec le métier.'
+  },
+  {
+    id: 'recno-rowno',
+    n: '13',
+    tag: 'SCRIPT',
+    title: 'RecNo() ou RowNo() ? Entrée et sortie ne racontent pas la même chose',
+    intro: 'Les deux fonctions numérotent des lignes, mais pas au même endroit du chargement : RecNo() regarde les enregistrements lus, RowNo() les lignes produites.',
+    problem: 'Avec un WHERE, certaines lignes de la source sont lues puis rejetées. RecNo() peut alors présenter des trous tandis que RowNo() continue à numéroter les lignes réellement chargées.',
+    teachLabel: 'La différence essentielle',
+    teach: 'RecNo() correspond à la position de l’enregistrement dans la source en cours de lecture. RowNo() correspond à la position de la ligne dans la table de sortie. Si toutes les lignes passent, les deux peuvent sembler identiques ; un filtre suffit à faire apparaître leur différence.',
+    bad: `// Ne pas supposer que les deux numéros seront toujours identiques.
+LOAD
+    ID_COMMANDE,
+    RecNo() AS NumeroSource,
+    RowNo() AS NumeroSortie
+RESIDENT CommandesSource
+WHERE Montant &gt; 0;`,
+    good: `// Choisir selon le besoin :
+// position dans la source lue
+RecNo() AS NumeroSource
+
+// position dans le résultat chargé
+RowNo() AS NumeroSortie`,
+    note: 'RecNo() répond à « quelle ligne suis-je en train de lire ? ». RowNo() répond à « quelle ligne suis-je en train de produire ? ». Avec filtres ou concaténations, cette distinction devient visible.'
   }
 ];
 import RelatedContent from '../../components/RelatedContent.astro';
@@ -373,7 +397,7 @@ import RelatedContent from '../../components/RelatedContent.astro';
       s = s.replace(/(\/\/[^\n]*)/g, m => hold(`<span class="qs-comment">${m}</span>`));
       s = s.replace(/'([^']|'')*'/g, m => hold(`<span class="qs-string">${m}</span>`));
 
-      s = s.replace(/\b(Sum|RangeSum|Exists|ApplyMap|Peek|Previous|AutoNumberHash128|Month|Date|Year|Today|Now|Null|If|FileSize|NoOfRows|FieldName|Alt)\b/g,
+      s = s.replace(/\b(Sum|RangeSum|Exists|ApplyMap|Peek|Previous|AutoNumberHash128|Month|Date|Year|Today|Now|Null|If|FileSize|NoOfRows|FieldName|Alt|RecNo|RowNo)\b/g,
         '<span class="qs-function">$1</span>');
       s = s.replace(/\b(LOAD|RESIDENT|WHERE|FROM|MAPPING|LEFT|JOIN|NoConcatenate|TRACE|SQL|SELECT|GROUP BY|ORDER BY|AS|DISTINCT|STORE|INTO|LET|SET|CONCATENATE)\b/g,
         '<span class="qs-keyword">$1</span>');

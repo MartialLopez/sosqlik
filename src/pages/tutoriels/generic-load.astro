@@ -1,0 +1,27 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import TutorialLayout from '../../components/TutorialLayout.astro';
+import CodeEnhancer from '../../components/CodeEnhancer.astro';
+const lessons=[
+{id:'source',n:'01',title:'Une table attribut / valeur',level:'Avancé',intro:'Certaines sources stockent des propriétés sous forme de lignes : un identifiant, un nom d’attribut et sa valeur.',detail:'Cette structure est souple côté source, mais peu pratique lorsque chaque attribut doit devenir un champ exploitable dans Qlik.',example:`<pre><code>ID_PRODUIT | ATTRIBUT | VALEUR
+P01        | Couleur  | Rouge
+P01        | Taille   | M
+P02        | Couleur  | Bleu</code></pre>`,facts:[['Clé','ID_PRODUIT'],['Attribut','Couleur / Taille'],['Valeur','Rouge / M']],note:'L’objectif est de retrouver des champs Couleur et Taille associés à chaque produit.',advantages:['Source très flexible'],disadvantages:['Analyse directe moins naturelle']},
+{id:'generic',n:'02',title:'Transformer avec Generic LOAD',level:'Avancé',intro:'Le préfixe Generic utilise les valeurs du champ d’attribut pour créer des champs distincts.',detail:'Les champs placés avant ATTRIBUT et VALEUR servent de clés. Qlik génère ensuite des tables correspondant aux attributs rencontrés.',example:`<pre><code>Attributs:
+Generic LOAD
+    ID_PRODUIT,
+    ATTRIBUT,
+    VALEUR
+FROM [lib://Donnees/Attributs.qvd] (qvd);</code></pre>`,facts:[['Clé','ID_PRODUIT'],['Nom du champ','ATTRIBUT'],['Contenu','VALEUR']],note:'Generic LOAD ne produit pas simplement une table large unique : il crée une structure de tables qu’il faut comprendre avant de poursuivre le modèle.',advantages:['Transforme dynamiquement les attributs en champs'],disadvantages:['Produit plusieurs tables']},
+{id:'resultat',n:'03',title:'Comprendre les tables générées',level:'Avancé',intro:'Chaque attribut rencontré peut donner naissance à une table contenant la clé et la valeur correspondante.',detail:'Avec Couleur et Taille, Qlik peut créer des tables distinctes liées par ID_PRODUIT. Cette structure peut être conservée ou retravaillée selon le modèle recherché.',example:`<pre><code>Attributs.Couleur
+ID_PRODUIT | Couleur
+P01        | Rouge
+P02        | Bleu
+
+Attributs.Taille
+ID_PRODUIT | Taille
+P01        | M</code></pre>`,facts:[['Tables','une par attribut'],['Association','ID_PRODUIT']],note:'Vérifiez le Data Model Viewer après le chargement pour voir exactement la structure obtenue.',advantages:['Les attributs deviennent directement exploitables'],disadvantages:['Beaucoup d’attributs peuvent créer beaucoup de tables']},
+{id:'choix',n:'04',title:'Generic ou Crosstable ?',level:'Avancé',intro:'Les deux transformations répondent à des structures presque opposées.',detail:'Crosstable transforme des noms de colonnes en valeurs. Generic transforme des valeurs d’attribut en champs.',example:`<div class="master-demo"><b>Crosstable</b><span>colonnes → valeurs</span><i>Janvier, Février → champ Mois</i><b>Generic</b><span>valeurs → champs</span><i>Couleur, Taille → champs distincts</i></div>`,facts:[['Crosstable','large → verticale'],['Generic','attribut/valeur → champs']],note:'Le choix dépend de la forme de la source, pas du résultat visuel souhaité dans un graphique.',advantages:['Deux outils complémentaires'],disadvantages:['À utiliser seulement quand la structure source le justifie']}
+];
+---
+<BaseLayout title="Generic LOAD — SOSQLIK"><TutorialLayout title="Comprendre Generic LOAD" description="Transformer une structure attribut/valeur lorsque les attributs doivent devenir des champs Qlik." navTitle="Generic LOAD" lessons={lessons}/><CodeEnhancer /></BaseLayout>
