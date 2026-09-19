@@ -1,5 +1,7 @@
-/* SOSQLIK V4.55 — articles DELTA / MERGE */
-.tech-article{padding:42px 0 72px}.tech-article .article-wrap{max-width:980px;margin:auto}.article-head{margin-bottom:30px}
+/* SOSQLIK V4.94 — articles DELTA / MERGE avec bandeau Cap Canaille */
+.tech-hero{position:relative;min-height:220px;padding:34px 0 30px;display:flex;align-items:center;overflow:hidden;color:#fff}
+.tech-hero .container{position:relative;z-index:1}.tech-hero .article-kicker{color:#61e5b0}.tech-hero h1{font-size:clamp(1.85rem,3.1vw,2.65rem);line-height:1.08;max-width:980px;margin:8px 0 12px}.tech-hero h1 span{color:#6bd574}.tech-hero .lead{max-width:920px;margin:0 0 10px;color:#f2f6f5;font-size:1rem;line-height:1.55;opacity:1}.tech-hero .article-meta{margin:0;color:#d4dfdc;opacity:1}
+.tech-article{padding:32px 0 72px}.tech-article .article-wrap{max-width:980px;margin:auto}.article-head{margin-bottom:30px}
 .article-kicker{font-size:.78rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--green);margin:0 0 10px}
 .tech-article h1{font-size:clamp(1.7rem,3vw,2.45rem);line-height:1.06;margin:0 0 16px}.lead{font-size:1.13rem;line-height:1.7;opacity:.86}.article-meta{font-size:.88rem;opacity:.66}
 .toc{border:1px solid var(--line);background:var(--surface);border-radius:16px;padding:18px 22px;margin:28px 0 38px}.toc strong{display:block;margin-bottom:9px}.toc a{color:inherit;text-decoration:none;display:inline-block;margin:4px 16px 4px 0}.toc a:hover{color:var(--green)}
@@ -9,4 +11,4 @@
 .flow{display:flex;align-items:stretch;gap:9px;margin:22px 0;overflow-x:auto}.flow .box{flex:1 0 145px;border:1px solid var(--line);border-radius:12px;padding:14px;text-align:center;background:var(--surface);font-weight:750}.flow .hot{border-color:var(--green);background:color-mix(in srgb,var(--green) 8%,var(--surface))}.flow .arr{align-self:center;color:var(--green);font-size:1.3rem;font-weight:900}
 .tech-article table{width:100%;border-collapse:separate;border-spacing:0;border:1px solid var(--line);border-radius:12px;overflow:hidden;margin:18px 0}.tech-article th,.tech-article td{padding:11px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}.tech-article th{background:var(--soft);font-size:.78rem;text-transform:uppercase}.tech-article tr:last-child td{border-bottom:0}
 .takeaway{border:1px solid var(--green);border-radius:16px;padding:20px;margin-top:38px;background:color-mix(in srgb,var(--green) 6%,var(--surface))}
-@media(max-width:700px){.tech-article{padding-top:28px}.flow{display:grid;grid-template-columns:1fr}.flow .arr{transform:rotate(90deg);text-align:center}.tech-article table{display:block;overflow-x:auto}.tech-article h1{overflow-wrap:anywhere}}
+@media(max-width:700px){.tech-hero{min-height:210px;padding:28px 0 25px;background-position:center center}.tech-hero h1{font-size:1.9rem;overflow-wrap:anywhere}.tech-hero .lead{font-size:.92rem}.tech-article{padding-top:24px}.flow{display:grid;grid-template-columns:1fr}.flow .arr{transform:rotate(90deg);text-align:center}.tech-article table{display:block;overflow-x:auto}.tech-article h1{overflow-wrap:anywhere}}

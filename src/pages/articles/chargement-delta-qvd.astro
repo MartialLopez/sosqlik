@@ -3,8 +3,13 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import '../../styles/article-tech-v455.css';
 ---
 <BaseLayout title="Construire un chargement DELTA fiable dans Qlik — SOSQLIK">
+<section class="article-hero tech-hero"><div class="container">
+<p class="article-kicker">Retour d’expérience · Chargement incrémental</p>
+<h1>Construire un chargement <span>DELTA</span> fiable entre une base de données et un QVD</h1>
+<p class="lead">Quand une table devient volumineuse, reconstruire son QVD intégralement à chaque exécution peut devenir coûteux. Le principe présenté ici consiste à identifier les objets métier ayant réellement évolué, à conserver dans le QVD les objets non impactés et à charger depuis la base uniquement la version courante des objets à remplacer.</p>
+<p class="article-meta">Par Martial LOPEZ · 14 septembre 2026 · Lecture ~14 min</p>
+</div></section>
 <main class="tech-article"><article class="container article-wrap">
-<header class="article-head"><p class="article-kicker">Retour d’expérience · Chargement incrémental</p><h1>Construire un chargement DELTA fiable entre une base de données et un QVD</h1><p class="lead">Quand une table devient volumineuse, reconstruire son QVD intégralement à chaque exécution peut devenir coûteux. Le principe présenté ici consiste à identifier les objets métier ayant réellement évolué, à conserver dans le QVD les objets non impactés et à charger depuis la base uniquement la version courante des objets à remplacer.</p><p class="article-meta">Par Martial LOPEZ · 14 septembre 2026 · Lecture ~14 min</p></header>
 <nav class="toc"><strong>Dans cet article</strong><a href="#idee">1. Objet métier</a><a href="#snapshot">2. Snapshot N-1</a><a href="#detection">3. Détection</a><a href="#sql">4. Liste DELTA</a><a href="#qlik">5. Reconstruction QVD</a><a href="#suppression">6. Suppressions</a><a href="#full">7. DELTA ou FULL</a><a href="#choix">8. Quand l’utiliser</a></nav>
 
 <section id="idee"><h2>1. Le DELTA porte sur un objet métier complet</h2><p>Imaginons une table <code>COMMANDES_DETAIL</code>. Une commande peut être constituée de plusieurs lignes. L’unité de rafraîchissement choisie n’est pas la ligne physique mais l’objet métier <code>ID_COMMANDE</code>. Dès qu’une ligne de la commande évolue, la commande entière est considérée comme impactée.</p>

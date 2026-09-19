@@ -3,8 +3,13 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import '../../styles/article-tech-v455.css';
 ---
 <BaseLayout title="Mettre à jour un QVD ligne par ligne avec MERGE — SOSQLIK">
+<section class="article-hero tech-hero"><div class="container">
+<p class="article-kicker">Retour d’expérience · Qlik Script · MERGE</p>
+<h1>Mettre à jour un QVD ligne par ligne avec un véritable <span>MERGE</span></h1>
+<p class="lead">Le MERGE permet d’appliquer au QVD des mouvements précis de type INSERT, UPDATE et DELETE. Il travaille à la ligne et offre une granularité plus fine qu’un DELTA par objet, mais cette précision s’accompagne d’une mécanique plus exigeante côté base et côté Qlik.</p>
+<p class="article-meta">Par Martial LOPEZ · 14 septembre 2026 · Lecture ~18 min</p>
+</div></section>
 <main class="tech-article"><article class="container article-wrap">
-<header class="article-head"><p class="article-kicker">Retour d’expérience · Qlik Script · MERGE</p><h1>Mettre à jour un QVD ligne par ligne avec un véritable MERGE</h1><p class="lead">Le MERGE permet d’appliquer au QVD des mouvements précis de type INSERT, UPDATE et DELETE. Il travaille à la ligne et offre une granularité plus fine qu’un DELTA par objet, mais cette précision s’accompagne d’une mécanique plus exigeante côté base et côté Qlik.</p><p class="article-meta">Par Martial LOPEZ · 14 septembre 2026 · Lecture ~18 min</p></header>
 <nav class="toc"><strong>Dans cet article</strong><a href="#positionnement">1. Positionnement</a><a href="#snapshot">2. Snapshot N-1</a><a href="#mouvements">3. I / U / D</a><a href="#sequence">4. Séquence</a><a href="#rebuild">5. Nouveau snapshot</a><a href="#partial">6. Partial Reload</a><a href="#mergeonly">7. MERGE ONLY</a><a href="#script">8. Script complet</a><a href="#vigilance">9. Vigilances</a></nav>
 
 <section id="positionnement"><h2>1. Le MERGE n’est pas un DELTA « plus performant »</h2><p>Le DELTA et le MERGE répondent à deux logiques différentes. Un DELTA par objet remplace la version complète d’un objet métier dès qu’une évolution est détectée. Le MERGE descend au niveau de la ligne : il doit savoir précisément quelle ligne a été insérée, modifiée ou supprimée.</p><p>Cette granularité ne signifie pas que le MERGE sera automatiquement plus rapide. Les performances dépendent du contexte. Dans mes propres tests, le DELTA s’est souvent montré plus rapide, mais ce résultat reste subjectif et dépend notamment du volume, du nombre de mouvements et du coût des comparaisons en base.</p><p>En revanche, le MERGE est clairement plus contraignant à mettre en œuvre : il faut construire les mouvements I/U/D côté base, préserver leur ordre avec une séquence et exécuter la partie Qlik dans le cadre d’un <em>Partial Reload</em>.</p>
