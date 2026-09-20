@@ -2644,8 +2644,8 @@
   {
     "name": "NoOfRows",
     "family": "Comparer une ligne à ses voisines",
-    "context": "Script + Graphique",
-    "description": "NoOfRows() sert à connaître le nombre de lignes d’une table interne.",
+    "context": "Graphique",
+    "description": "NoOfRows() renvoie le nombre de lignes du segment de colonne courant dans un graphique.",
     "syntax": "noofrows([TOTAL])",
     "data": "Segment du tableau contenant janvier, février et mars",
     "expression": "NoOfRows()",
@@ -5012,19 +5012,6 @@
     "note": "Vérifier les règles linguistiques de tri.",
     "legend": "",
     "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/Scripting/SystemFunctions/system-functions.htm"
-  },
-  {
-    "name": "GetObjectField",
-    "family": "Comprendre mon environnement Qlik",
-    "context": "Script + Graphique",
-    "description": "GetObjectField() sert à lire une information fournie par l’environnement Qlik.",
-    "syntax": "GetObjectField([index])",
-    "data": "Deuxième champ de dimension de l’objet courant : Zone",
-    "expression": "GetObjectField(1)",
-    "result": "'Zone'",
-    "note": "Lire le champ de la deuxième dimension de l’objet courant.",
-    "legend": "",
-    "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/Scripting/SystemFunctions/GetObjectField.htm"
   },
   {
     "name": "GetSysAttr",
