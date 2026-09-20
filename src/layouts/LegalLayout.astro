@@ -1,0 +1,13 @@
+---
+import BaseLayout from './BaseLayout.astro';
+const { title, description } = Astro.props;
+---
+<BaseLayout title={`${title} — SOSQLIK`} description={description}>
+  <section class="subhero"><div class="container"><h1>{title}</h1><p>{description}</p></div></section>
+  <article class="container legal-content"><slot /></article>
+</BaseLayout>
+<style>
+  .legal-content{max-width:900px;padding-top:32px;padding-bottom:56px;line-height:1.75;overflow-wrap:anywhere}
+  .legal-content :global(h2){font-size:1.4rem;margin:28px 0 10px}
+  .legal-content :global(a){text-decoration:underline;text-underline-offset:3px}
+</style>

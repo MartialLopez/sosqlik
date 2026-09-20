@@ -1,0 +1,7 @@
+{
+  "name": "sosqlik-contact",
+  "main": "worker.mjs",
+  "compatibility_date": "2026-09-19",
+  "vars": {"ALLOWED_ORIGINS": "https://sosqlik.fr,https://www.sosqlik.fr"},
+  "observability": {"enabled": false}
+}

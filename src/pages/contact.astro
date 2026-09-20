@@ -1,22 +1,47 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+const endpoint = import.meta.env.PUBLIC_CONTACT_ENDPOINT || '';
+const sitekey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
+const enabled = endpoint.startsWith('https://') && !!sitekey;
 ---
 <BaseLayout title="Contact — SOSQLIK">
-<section class="subhero"><div class="container"><p class="eyebrow">CONTACT</p><h1>Contact</h1><p>Une question ? Une suggestion ? Parlons-en !</p></div></section>
-<section class="page-section"><div class="container contact-layout">
-<form class="contact-form">
-  <label>Nom *<input type="text"></label>
-  <label>Email *<input type="email"></label>
-  <label>Sujet *<select><option>Choisir un sujet</option></select></label>
-  <label>Message *<textarea placeholder="Votre message..."></textarea></label>
-  <button class="btn primary" type="button">Envoyer le message →</button>
-</form>
-<div class="contact-side">
-  <h3>Autres moyens de contact</h3>
-  <p>✉ Par email<br><a href="mailto:contact@sosqlik.fr">contact@sosqlik.fr</a></p>
-  <p>● Sur GitHub</p>
-  <p>in Sur LinkedIn</p>
-  <p>▶ Sur YouTube</p>
-</div>
-</div></section>
+<section class="subhero"><div class="container"><p class="eyebrow">CONTACT</p><h1>Parlons de vos <span>idées.</span></h1><p>Une question, une suggestion, un retour d’expérience ?</p></div></section>
+<section class="page-section"><div class="container contact-grid">
+<aside><p class="kicker">LE PLAISIR DE PARTAGER</p><h2>Un message.<br />Un nouvel <span>échange.</span></h2><p>Un tutoriel à éclaircir, une astuce à partager ou une idée pour enrichir SOSQLIK ? Je vous lis avec plaisir et vous répondrai dans les meilleurs délais.</p><div class="direct"><p>Vous préférez votre messagerie ?</p><a href="mailto:contact@sosqlik.fr">contact@sosqlik.fr</a></div><p class="signature">À bientôt,<br /><span>Martial</span></p></aside>
+<div class="message-card"><p class="kicker">À VOUS LA PAROLE</p><h2>Votre message</h2><p class="hint">Quelques mots suffisent pour commencer.</p>
+<form id="contact-form" data-endpoint={endpoint} data-sitekey={sitekey}>
+<fieldset disabled={!enabled}>
+<div class="fields-row"><label>Votre prénom <small>(facultatif)</small><input name="name" autocomplete="given-name" maxlength="80" placeholder="Comment vous appeler ?" /></label><label>Votre e-mail *<input name="email" type="email" autocomplete="email" maxlength="254" required placeholder="vous@exemple.fr" /></label></div>
+<label>Le sujet *<select name="subject" required><option value="" disabled selected>Choisissez un sujet</option><option>Question générale</option><option>Aide sur un tutoriel ou une fonction</option><option>Suggestion ou idée</option><option>Erreur ou problème technique</option><option>Partage d’expérience ou d’astuce</option><option>Prise de contact</option><option>Autre demande</option></select></label>
+<label>Votre message *<textarea name="message" required minlength="10" maxlength="5000" rows="7" placeholder="Dites-moi ce que vous avez en tête…"></textarea></label>
+<p class="hint">10 à 5 000 caractères. Ne partagez pas de données confidentielles.</p>
+<div class="trap" aria-hidden="true"><label>Site internet<input name="website" tabindex="-1" autocomplete="off" /></label></div>
+<div id="contact-challenge"></div><button type="submit" disabled>Vérification antispam…</button>
+</fieldset>
+<p id="contact-status" role="status" aria-live="polite">{enabled ? 'Vérification antispam en cours…' : 'Pour le moment, écrivez-moi directement à contact@sosqlik.fr.'}</p>
+<noscript><p>Pour me contacter sans JavaScript, utilisez le lien e-mail.</p></noscript>
+<p class="hint">Vos informations servent uniquement à répondre à votre demande. <a href="/confidentialite">Confidentialité</a></p>
+</form></div></div></section>
 </BaseLayout>
+<script>
+const form = document.querySelector<HTMLFormElement>('#contact-form');
+if(form?.dataset.endpoint && form.dataset.sitekey){
+ const status=document.querySelector<HTMLElement>('#contact-status')!;
+ const button=form.querySelector<HTMLButtonElement>('button')!;
+ let token='', widget:string|undefined, sending=false, finished=false;
+ const api=()=>(window as any).turnstile;
+ const fail=()=>{token='';button.disabled=true;button.textContent='Vérification indisponible';status.textContent='La vérification antispam n’a pas abouti. Rechargez la page ou écrivez à contact@sosqlik.fr.';};
+ const watchdog=window.setTimeout(()=>{if(!token && !finished)fail();},20000);
+ const script=document.createElement('script');script.src='https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';script.async=true;script.onerror=fail;
+ script.onload=()=>api().ready(()=>{widget=api().render('#contact-challenge',{sitekey:form.dataset.sitekey,action:'contact',theme:'auto',callback:(v:string)=>{window.clearTimeout(watchdog);token=v;button.disabled=sending;if(!sending)button.textContent='Envoyer mon message';if(!finished)status.textContent='';},'expired-callback':()=>{token='';button.disabled=true;button.textContent='Vérification antispam…';if(!sending)status.textContent='La vérification a expiré. Une nouvelle vérification est en cours.';},'timeout-callback':fail,'error-callback':fail});});document.head.appendChild(script);
+ form.addEventListener('submit',async(event)=>{event.preventDefault();if(sending||!token||!form.reportValidity())return;
+ sending=true;finished=false;button.disabled=true;button.textContent='Envoi en cours…';status.textContent='';
+ try{const response=await fetch(form.dataset.endpoint!,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({...Object.fromEntries(new FormData(form)),token}),signal:AbortSignal.timeout(25000)});if(!response.ok)throw new Error('send');form.reset();finished=true;status.textContent='Merci ! Votre message a été transmis. Je vous répondrai dans les meilleurs délais.';}
+ catch{finished=true;status.textContent='L’envoi n’a pas pu être confirmé. Votre texte est conservé : réessayez ou écrivez à contact@sosqlik.fr.';}
+ finally{sending=false;token='';button.disabled=true;button.textContent='Envoyer mon message';if(widget!==undefined)api().reset(widget);}
+ });
+}
+</script>
+<style>
+h1 span,aside h2 span{color:#00b37a}.contact-grid{display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.3fr);gap:64px;align-items:start;padding-top:20px;padding-bottom:48px}.kicker{font-size:.75rem;font-weight:750;letter-spacing:.14em;color:#008d64;margin:0 0 18px}aside{padding-top:24px;line-height:1.85}aside h2{font-size:clamp(2rem,4vw,3rem);line-height:1.18;letter-spacing:-.035em;margin:0 0 24px}.direct{border-left:3px solid #00b37a;padding:8px 0 8px 22px;margin-top:32px}.direct p{margin:0 0 6px;font-size:.9rem}.direct a{color:#008d64;font-size:1.2rem;overflow-wrap:anywhere}.signature{margin-top:34px}.signature span{font-size:1.4rem;color:#008d64}.message-card{border:1px solid #d9e7e5;border-top:4px solid #00b37a;border-radius:20px;padding:34px;background:var(--card,#fff);box-shadow:0 16px 48px rgba(8,37,52,.06)}.message-card h2{font-size:1.7rem;margin:0 0 6px}.message-card .kicker{margin-bottom:10px}fieldset{border:0;padding:0;margin:22px 0 0;min-width:0}.fields-row{display:grid;grid-template-columns:1fr 1fr;gap:18px}label{display:block;font-size:.9rem;font-weight:600;margin-bottom:20px}label small{font-weight:400}input,select,textarea{box-sizing:border-box;display:block;width:100%;margin-top:8px;border:1px solid #cbdcde;border-radius:10px;padding:13px 14px;font:inherit;font-weight:400;color:inherit;background:transparent}select option{background:#fff;color:#082534}textarea{resize:vertical;min-height:150px}input:focus,select:focus,textarea:focus{outline:2px solid #00b37a;outline-offset:2px}button{width:100%;border:0;border-radius:10px;background:#008d64;color:white;font:inherit;font-weight:650;padding:15px;margin-top:16px;cursor:pointer}button:hover:not(:disabled){background:#007653}button:disabled{opacity:.55;cursor:not-allowed}.hint{font-size:.83rem;line-height:1.6;opacity:.8}.hint a{text-decoration:underline}#contact-status{font-size:.92rem;line-height:1.6;margin:16px 0}.trap{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden}:global([data-theme="dark"]) .message-card{background:#0c2633;border-color:#294653}@media(max-width:800px){.contact-grid{grid-template-columns:1fr;gap:28px}.message-card{padding:24px}aside{padding-top:0}.signature{margin-top:18px}}@media(max-width:480px){.fields-row{grid-template-columns:1fr;gap:0}.message-card{padding:20px}}
+</style>
