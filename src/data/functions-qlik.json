@@ -6,11 +6,15 @@
     "description": "ApplyMap() sert à remplacer une clé à l’aide d’une table de correspondance.",
     "syntax": "ApplyMap('mapname', expr [ , defaultexpr ] )",
     "data": "CarteRegions : PACA → Provence-Alpes-Côte d’Azur ; code = 'PACA'",
-    "expression": "ApplyMap('CarteRegions', 'PACA', 'Inconnue')",
+    "expression": "ApplyMap('CarteRegions', 'PACA', 'Inconnu')",
     "result": "'Provence-Alpes-Côte d’Azur'",
     "note": "Remplacer le code régional par le libellé défini dans la table de correspondance.",
     "legend": "",
-    "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/Scripting/MappingFunctions/ApplyMap.htm"
+    "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/Scripting/MappingFunctions/ApplyMap.htm",
+    "details": [
+      "Le 3ᵉ paramètre est facultatif : il définit la valeur retournée lorsqu’aucune correspondance n’est trouvée dans la table de mapping.",
+      "Si ce paramètre est omis et qu’aucune correspondance n’existe, ApplyMap() renvoie la valeur recherchée elle-même."
+    ]
   },
   {
     "name": "Attribute",
@@ -36,7 +40,11 @@
     "result": "1, 2, 1",
     "note": "Attribuer le même entier aux deux occurrences de A.",
     "legend": "",
-    "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/Scripting/CounterFunctions/autonumber.htm"
+    "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/Scripting/CounterFunctions/autonumber.htm",
+    "details": [
+      "Le paramètre AutoID est facultatif : il permet de séparer plusieurs séquences de numérotation indépendantes pendant le même rechargement.",
+      "Les entiers produits sont utiles pour réduire la mémoire, mais ils ne constituent pas des identifiants stables à conserver entre deux rechargements."
+    ]
   },
   {
     "name": "AutoNumberHash128",
@@ -202,7 +210,11 @@
     "result": "16/09/2026 08:30:00",
     "note": "Contrôler la date de dernière modification.",
     "legend": "",
-    "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/Scripting/FileFunctions/FileTime.htm"
+    "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/Scripting/FileFunctions/FileTime.htm",
+    "details": [
+      "Sans nom de fichier, FileTime() s’applique au fichier actuellement lu dans un LOAD depuis un fichier.",
+      "Avec un nom de fichier explicite, la fonction renvoie sa date et son heure de dernière modification."
+    ]
   },
   {
     "name": "GetFolderPath",
@@ -371,7 +383,11 @@
     "result": "3",
     "note": "Obtenir la position de la ligne dans la table produite.",
     "legend": "",
-    "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/ChartFunctions/InterRecordFunctions/rowno.htm"
+    "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/ChartFunctions/InterRecordFunctions/rowno.htm",
+    "details": [
+      "TOTAL fait ignorer le découpage du graphique en segments et numérote les lignes sur l’ensemble de la colonne.",
+      "Dans le script, RowNo() dépend de la table produite ; RecNo() se rapporte plutôt à l’ordre des enregistrements lus dans la source."
+    ]
   },
   {
     "name": "TableName",
@@ -467,7 +483,10 @@
     "note": "Extraire le deuxième groupe numérique d’une référence.",
     "legend": "",
     "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/Scripting/StringFunctions/ExtractRegEx.htm",
-    "display_name": "ExtractRegEx"
+    "display_name": "ExtractRegEx",
+    "details": [
+      "field_no est facultatif : il permet de choisir une occurrence lorsqu’un motif apparaît plusieurs fois dans le texte."
+    ]
   },
   {
     "name": "ExtractRegExGroup",
@@ -481,7 +500,10 @@
     "note": "Récupérer uniquement l’année capturée par le premier groupe de la regex.",
     "legend": "",
     "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/Scripting/StringFunctions/ExtractRegExGroup.htm",
-    "display_name": "ExtractRegExGroup"
+    "display_name": "ExtractRegExGroup",
+    "details": [
+      "group indique le groupe capturé à renvoyer ; field_no permet en plus de choisir l’occurrence du motif lorsqu’il apparaît plusieurs fois."
+    ]
   },
   {
     "name": "FindOneOf",
@@ -495,7 +517,10 @@
     "note": "Trouver la position du premier séparateur, quel que soit son type.",
     "legend": "",
     "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/Scripting/StringFunctions/FindOneOf.htm",
-    "display_name": "FindOneOf"
+    "display_name": "FindOneOf",
+    "details": [
+      "Le paramètre count permet de rechercher la 2ᵉ, 3ᵉ… occurrence. Sans ce paramètre, la première occurrence trouvée est utilisée."
+    ]
   },
   {
     "name": "Hash128",
@@ -551,7 +576,10 @@
     "note": "Repérer la position du deuxième tiret dans une référence.",
     "legend": "",
     "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/Scripting/StringFunctions/Index.htm",
-    "display_name": "Index"
+    "display_name": "Index",
+    "details": [
+      "Le paramètre count est facultatif : 1 recherche la première occurrence, 2 la deuxième, etc. Une valeur négative permet de compter depuis la droite."
+    ]
   },
   {
     "name": "IndexRegEx",
@@ -565,7 +593,10 @@
     "note": "Localiser le début du premier groupe de chiffres.",
     "legend": "",
     "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/Scripting/StringFunctions/IndexRegEx.htm",
-    "display_name": "IndexRegEx"
+    "display_name": "IndexRegEx",
+    "details": [
+      "Le paramètre count permet de choisir l’occurrence du motif à localiser lorsqu’il apparaît plusieurs fois."
+    ]
   },
   {
     "name": "IndexRegExGroup",
@@ -579,7 +610,10 @@
     "note": "Localiser le début du deuxième groupe capturé, ici le numéro 0158.",
     "legend": "",
     "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/Scripting/StringFunctions/IndexRegExGroup.htm",
-    "display_name": "IndexRegExGroup"
+    "display_name": "IndexRegExGroup",
+    "details": [
+      "group désigne le groupe capturé dont on veut la position ; count permet de choisir l’occurrence du motif."
+    ]
   },
   {
     "name": "IsJson",
@@ -593,7 +627,10 @@
     "note": "Vérifier qu’une chaîne contient un JSON valide avant de l’exploiter.",
     "legend": "",
     "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/Scripting/StringFunctions/IsJson.htm",
-    "display_name": "IsJson"
+    "display_name": "IsJson",
+    "details": [
+      "Le paramètre type est facultatif et permet de contrôler plus précisément le type JSON attendu au lieu de vérifier seulement la validité générale."
+    ]
   },
   {
     "name": "IsRegEx",
@@ -607,7 +644,10 @@
     "note": "Contrôler qu’un motif d’expression régulière est valide.",
     "legend": "",
     "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/Scripting/StringFunctions/IsRegEx.htm",
-    "display_name": "IsRegEx"
+    "display_name": "IsRegEx",
+    "details": [
+      "Le paramètre debug est facultatif : il est surtout utile pour diagnostiquer un motif invalide pendant la mise au point."
+    ]
   },
   {
     "name": "JsonArray",
@@ -789,7 +829,10 @@
     "note": "Extraire quatre caractères à partir de la cinquième position.",
     "legend": "",
     "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/Scripting/StringFunctions/Mid.htm",
-    "display_name": "Mid"
+    "display_name": "Mid",
+    "details": [
+      "Le paramètre count est facultatif. S’il est omis, Mid() renvoie le texte depuis la position de départ jusqu’à la fin."
+    ]
   },
   {
     "name": "Ord",
@@ -831,7 +874,10 @@
     "note": "Créer un séparateur ou un remplissage de longueur calculée.",
     "legend": "",
     "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/Scripting/StringFunctions/Repeat.htm",
-    "display_name": "Repeat"
+    "display_name": "Repeat",
+    "details": [
+      "repeat_count indique combien de fois le texte doit être répété. Il est facultatif dans la syntaxe de la fonction."
+    ]
   },
   {
     "name": "Replace",
@@ -859,7 +905,10 @@
     "note": "Masquer tous les chiffres d’une référence.",
     "legend": "",
     "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/Scripting/StringFunctions/ReplaceRegEx.htm",
-    "display_name": "ReplaceRegEx"
+    "display_name": "ReplaceRegEx",
+    "details": [
+      "occurrence permet de limiter le remplacement à une occurrence précise ; sans ce paramètre, le comportement porte sur les correspondances prévues par la fonction."
+    ]
   },
   {
     "name": "ReplaceRegExGroup",
@@ -873,7 +922,10 @@
     "note": "Remplacer uniquement le groupe année sans toucher au reste de la référence.",
     "legend": "",
     "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/Scripting/StringFunctions/ReplaceRegExGroup.htm",
-    "display_name": "ReplaceRegExGroup"
+    "display_name": "ReplaceRegExGroup",
+    "details": [
+      "group permet de remplacer uniquement un groupe capturé sans modifier le reste du motif ; occurrence permet de cibler une occurrence précise."
+    ]
   },
   {
     "name": "Right",
@@ -963,7 +1015,10 @@
     "note": "Extraire une valeur encadrée par deux délimiteurs.",
     "legend": "",
     "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/Scripting/StringFunctions/TextBetween.htm",
-    "display_name": "TextBetween"
+    "display_name": "TextBetween",
+    "details": [
+      "Le paramètre n permet de choisir quelle zone comprise entre les deux délimiteurs doit être renvoyée lorsque le texte en contient plusieurs."
+    ]
   },
   {
     "name": "Trim",
@@ -1589,7 +1644,10 @@
     "result": "16/09/2026 14:30:00",
     "note": "Afficher l’horodatage courant.",
     "legend": "",
-    "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/Scripting/DateAndTimeFunctions/now.htm"
+    "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/Scripting/DateAndTimeFunctions/now.htm",
+    "details": [
+      "timer_mode détermine à quel moment l’horodatage est évalué. Le choix du mode peut donc faire varier le résultat entre rechargement et consultation."
+    ]
   },
   {
     "name": "Quarter",
@@ -1706,7 +1764,10 @@
     "result": "16/09/2026",
     "note": "Afficher la date du jour au moment du rechargement.",
     "legend": "",
-    "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/Scripting/DateAndTimeFunctions/today.htm"
+    "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/Scripting/DateAndTimeFunctions/today.htm",
+    "details": [
+      "timer_mode détermine à quel moment la date est évaluée. Ce détail est important dans une application qui reste ouverte pendant plusieurs jours."
+    ]
   },
   {
     "name": "UTC",
@@ -1888,7 +1949,11 @@
     "result": "'Urgent, Export, Fragile'",
     "note": "Réunir les étiquettes distinctes dans un seul texte.",
     "legend": "",
-    "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/ChartFunctions/StringAggregationFunctions/concat.htm"
+    "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/ChartFunctions/StringAggregationFunctions/concat.htm",
+    "details": [
+      "delimiter définit le séparateur entre les valeurs concaténées ; sort_weight permet d’imposer leur ordre.",
+      "DISTINCT évite de répéter plusieurs fois la même valeur dans le texte final."
+    ]
   },
   {
     "name": "Correl",
@@ -1940,7 +2005,11 @@
     "result": "'Bêta'",
     "note": "Afficher le fournisseur proposant le délai le plus court.",
     "legend": "",
-    "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/ChartFunctions/BasicAggregationFunctions/firstsortedvalue.htm"
+    "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/ChartFunctions/BasicAggregationFunctions/firstsortedvalue.htm",
+    "details": [
+      "Le signe du sort_weight détermine le sens du tri : utiliser une valeur négative permet de rechercher la valeur associée au poids le plus élevé.",
+      "Si plusieurs valeurs sont ex æquo au rang demandé, FirstSortedValue() peut renvoyer NULL. DISTINCT peut éliminer certains doublons avant l’évaluation."
+    ]
   },
   {
     "name": "FirstValue",
@@ -2265,7 +2334,11 @@
     "result": "'Sud'",
     "note": "Afficher la région seulement lorsqu’une valeur unique reste possible.",
     "legend": "",
-    "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/ChartFunctions/BasicAggregationFunctions/only.htm"
+    "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/ChartFunctions/BasicAggregationFunctions/only.htm",
+    "details": [
+      "Only() renvoie une valeur uniquement s’il n’existe qu’une seule valeur possible dans le contexte ; sinon le résultat est NULL.",
+      "C’est pratique pour afficher une information seulement lorsque le contexte la rend non ambiguë."
+    ]
   },
   {
     "name": "Skew",
@@ -2356,7 +2429,11 @@
     "result": "130",
     "note": "Lire les ventes de la ligne précédente, février.",
     "legend": "",
-    "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/ChartFunctions/InterRecordFunctions/above.htm"
+    "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/ChartFunctions/InterRecordFunctions/above.htm",
+    "details": [
+      "offset vaut 1 par défaut pour lire la ligne précédente ; count permet de renvoyer plusieurs valeurs sous forme de plage exploitable par les fonctions Range*().",
+      "Le résultat dépend de l’ordre de tri du graphique."
+    ]
   },
   {
     "name": "After",
@@ -2395,7 +2472,11 @@
     "result": "120",
     "note": "Lire les ventes de la ligne suivante, mars.",
     "legend": "",
-    "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/ChartFunctions/InterRecordFunctions/below.htm"
+    "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/ChartFunctions/InterRecordFunctions/below.htm",
+    "details": [
+      "offset vaut 1 par défaut pour lire la ligne suivante ; count permet de renvoyer plusieurs valeurs sous forme de plage.",
+      "Le résultat dépend de l’ordre de tri du graphique."
+    ]
   },
   {
     "name": "Bottom",
@@ -2460,7 +2541,11 @@
     "result": "-1 (vrai)",
     "note": "Éviter de recharger une région déjà présente.",
     "legend": "",
-    "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/Scripting/InterRecordFunctions/Exists.htm"
+    "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/Scripting/InterRecordFunctions/Exists.htm",
+    "details": [
+      "Avec un seul argument, Exists() teste la valeur du champ courant. Le second argument facultatif permet de tester une autre expression.",
+      "Exists() s’appuie sur les valeurs déjà chargées au moment où la ligne est évaluée : l’ordre du script peut donc modifier le résultat."
+    ]
   },
   {
     "name": "FieldIndex",
@@ -2538,7 +2623,10 @@
     "result": "18",
     "note": "Retrouver le prix associé au code B.",
     "legend": "",
-    "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/Scripting/InterRecordFunctions/LookUp.htm"
+    "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/Scripting/InterRecordFunctions/LookUp.htm",
+    "details": [
+      "table_name est facultatif. Le préciser évite toute ambiguïté lorsque plusieurs tables peuvent contenir les champs recherchés."
+    ]
   },
   {
     "name": "NoOfColumns",
@@ -2577,7 +2665,11 @@
     "result": "100",
     "note": "Lire les ventes de la première ligne déjà chargée.",
     "legend": "",
-    "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/Scripting/InterRecordFunctions/Peek.htm"
+    "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/Scripting/InterRecordFunctions/Peek.htm",
+    "details": [
+      "row_no est facultatif : 0 désigne la première ligne et -1 la dernière ligne déjà chargée. table_name permet de viser explicitement une autre table.",
+      "Peek() lit une valeur déjà chargée ; il est donc particulièrement utile après un tri lorsque l’ordre des lignes compte."
+    ]
   },
   {
     "name": "Previous",
@@ -2837,7 +2929,11 @@
     "result": "60",
     "note": "Additionner les trois valeurs.",
     "legend": "",
-    "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/ChartFunctions/RangeFunctions/rangesum.htm"
+    "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/ChartFunctions/RangeFunctions/rangesum.htm",
+    "details": [
+      "RangeSum() accepte plusieurs expressions ou une plage renvoyée par Above()/Below(). Les valeurs non numériques sont traitées différemment d’une simple addition avec l’opérateur +.",
+      "C’est une fonction classique pour construire un cumul glissant, par exemple RangeSum(Above(Sum(Montant),0,3))."
+    ]
   },
   {
     "name": "RangeTextCount",
@@ -2963,7 +3059,11 @@
     "result": "'0494000000'",
     "note": "Prendre la première valeur utilisable.",
     "legend": "",
-    "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/Scripting/ConditionalFunctions/alt.htm"
+    "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/Scripting/ConditionalFunctions/alt.htm",
+    "details": [
+      "Alt() teste les expressions de gauche à droite et renvoie la première possédant une représentation numérique valide ; le dernier argument joue le rôle de valeur de secours.",
+      "Pour rechercher simplement la première valeur non NULL, Coalesce() est généralement plus explicite."
+    ]
   },
   {
     "name": "Class",
@@ -2976,7 +3076,10 @@
     "result": "'30 <= x < 40'",
     "note": "Ranger l’âge dans une tranche de dix ans.",
     "legend": "",
-    "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/Scripting/ConditionalFunctions/class.htm"
+    "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/Scripting/ConditionalFunctions/class.htm",
+    "details": [
+      "interval définit la largeur des classes ; label permet de personnaliser le séparateur du libellé et offset de décaler le point de départ des intervalles."
+    ]
   },
   {
     "name": "Coalesce",
@@ -2989,7 +3092,10 @@
     "result": "'Toulon'",
     "note": "Prendre la première valeur qui n’est pas NULL.",
     "legend": "",
-    "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/Scripting/ConditionalFunctions/coalesce.htm"
+    "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/Scripting/ConditionalFunctions/coalesce.htm",
+    "details": [
+      "Coalesce() renvoie la première expression non NULL de la liste. Contrairement à Alt(), il ne recherche pas spécialement une valeur interprétable numériquement."
+    ]
   },
   {
     "name": "Date#",
@@ -3002,7 +3108,10 @@
     "result": "Date numérique du 16/09/2026",
     "note": "Interpréter une date écrite avec des tirets.",
     "legend": "",
-    "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/Scripting/InterpretationFunctions/date_hash.htm"
+    "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/Scripting/InterpretationFunctions/date_hash.htm",
+    "details": [
+      "Date#() interprète un texte selon un format pour produire une valeur de date Qlik. Pour choisir ensuite son affichage, utiliser Date()."
+    ]
   },
   {
     "name": "EmptyIsNull",
@@ -3093,7 +3202,10 @@
     "result": "2",
     "note": "Le statut correspond au deuxième candidat.",
     "legend": "",
-    "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/Scripting/ConditionalFunctions/match.htm"
+    "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/Scripting/ConditionalFunctions/match.htm",
+    "details": [
+      "Match() est sensible à la casse et compare des valeurs exactes. Le résultat est la position du premier candidat correspondant, ou 0 si aucun ne correspond."
+    ]
   },
   {
     "name": "MixMatch",
@@ -3106,7 +3218,10 @@
     "result": "2",
     "note": "Comparer les textes sans tenir compte de la casse.",
     "legend": "",
-    "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/Scripting/ConditionalFunctions/mixmatch.htm"
+    "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/Scripting/ConditionalFunctions/mixmatch.htm",
+    "details": [
+      "MixMatch() fonctionne comme Match(), mais sans tenir compte de la casse. Le résultat est la position du premier candidat correspondant, ou 0."
+    ]
   },
   {
     "name": "Money#",
@@ -3119,7 +3234,10 @@
     "result": "1234,5",
     "note": "Interpréter un montant au format français.",
     "legend": "",
-    "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/Scripting/InterpretationFunctions/money_hash.htm"
+    "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/Scripting/InterpretationFunctions/money_hash.htm",
+    "details": [
+      "Money#() sert à interpréter un texte monétaire. Money() sert ensuite, si nécessaire, à choisir la présentation de la valeur numérique obtenue."
+    ]
   },
   {
     "name": "Null",
@@ -3145,7 +3263,10 @@
     "result": "1234,5",
     "note": "Interpréter un nombre au format français.",
     "legend": "",
-    "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/Scripting/InterpretationFunctions/num_hash.htm"
+    "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/Scripting/InterpretationFunctions/num_hash.htm",
+    "details": [
+      "Num#() interprète un texte comme un nombre selon son format et ses séparateurs. Num() fait l’opération inverse : il formate une valeur numérique pour l’affichage."
+    ]
   },
   {
     "name": "Pick",
@@ -3158,7 +3279,10 @@
     "result": "'Moyen'",
     "note": "Choisir le deuxième libellé de la liste.",
     "legend": "",
-    "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/Scripting/ConditionalFunctions/pick.htm"
+    "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/Scripting/ConditionalFunctions/pick.htm",
+    "details": [
+      "Pick() renvoie l’expression placée à la position n. Il est souvent associé à Match() : Pick(Match(...), ...) permet de convertir directement un choix en libellé ou en expression."
+    ]
   },
   {
     "name": "Text",
@@ -3184,7 +3308,10 @@
     "result": "18:45:00",
     "note": "Interpréter une heure écrite avec la lettre h.",
     "legend": "",
-    "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/Scripting/InterpretationFunctions/time_hash.htm"
+    "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/Scripting/InterpretationFunctions/time_hash.htm",
+    "details": [
+      "Time#() interprète un texte comme une heure ; Time() sert à formater l’affichage d’une valeur temporelle déjà numérique."
+    ]
   },
   {
     "name": "Timestamp#",
@@ -3197,7 +3324,10 @@
     "result": "16/09/2026 18:45:00",
     "note": "Interpréter un horodatage français.",
     "legend": "",
-    "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/Scripting/InterpretationFunctions/timestamp_hash.htm"
+    "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/Scripting/InterpretationFunctions/timestamp_hash.htm",
+    "details": [
+      "Timestamp#() interprète un texte en horodatage ; Timestamp() sert à formater l’affichage d’une valeur temporelle déjà numérique."
+    ]
   },
   {
     "name": "WildMatch",
@@ -3210,7 +3340,11 @@
     "result": "2",
     "note": "Reconnaître le modèle correspondant à une facture.",
     "legend": "",
-    "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/Scripting/ConditionalFunctions/wildmatch.htm"
+    "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/Scripting/ConditionalFunctions/wildmatch.htm",
+    "details": [
+      "WildMatch() accepte des jokers dans les motifs : * représente une suite de caractères et ? un caractère unique.",
+      "Comme Match() et MixMatch(), la fonction renvoie le numéro du motif correspondant, ou 0 si aucun ne correspond."
+    ]
   },
   {
     "name": "ApplyCodePage",
@@ -3744,7 +3878,10 @@
     "result": "13",
     "note": "Arrondir le poids à l’unité supérieure.",
     "legend": "",
-    "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/ChartFunctions/GeneralNumericFunctions/ceil.htm"
+    "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/ChartFunctions/GeneralNumericFunctions/ceil.htm",
+    "details": [
+      "step permet d’arrondir au multiple supérieur voulu plutôt qu’à l’entier ; offset décale la grille d’arrondi."
+    ]
   },
   {
     "name": "ChiDensity",
@@ -3965,7 +4102,10 @@
     "result": "45",
     "note": "Ramener la durée au quart d’heure inférieur.",
     "legend": "",
-    "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/ChartFunctions/GeneralNumericFunctions/floor.htm"
+    "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/ChartFunctions/GeneralNumericFunctions/floor.htm",
+    "details": [
+      "step permet d’arrondir au multiple inférieur voulu plutôt qu’à l’entier ; offset décale la grille d’arrondi."
+    ]
   },
   {
     "name": "Fmod",
@@ -4368,7 +4508,10 @@
     "result": "'Region = Sud | Annee = 2026'",
     "note": "Afficher un résumé français des sélections courantes.",
     "legend": "",
-    "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/ChartFunctions/FieldFunctions/getcurrentselections.htm"
+    "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/ChartFunctions/FieldFunctions/getcurrentselections.htm",
+    "details": [
+      "Les paramètres permettent de personnaliser les séparateurs entre champs, balises et valeurs, ainsi que le nombre maximal de valeurs détaillées."
+    ]
   },
   {
     "name": "GetExcludedCount",
@@ -4394,7 +4537,10 @@
     "result": "'Sud, Ouest'",
     "note": "Afficher les régions sélectionnées.",
     "legend": "",
-    "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/ChartFunctions/FieldFunctions/getfieldselections.htm"
+    "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/ChartFunctions/FieldFunctions/getfieldselections.htm",
+    "details": [
+      "value_sep choisit le séparateur utilisé dans le texte retourné ; max_values limite le nombre de valeurs affichées avant que Qlik ne résume la sélection."
+    ]
   },
   {
     "name": "GetObjectDimension",
@@ -4459,7 +4605,10 @@
     "result": "2",
     "note": "Compter les deux régions choisies.",
     "legend": "",
-    "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/ChartFunctions/FieldFunctions/getselectedcount.htm"
+    "source": "https://help.qlik.com/fr-FR/sense/May2026/Subsystems/Hub/Content/Sense_Hub/ChartFunctions/FieldFunctions/getselectedcount.htm",
+    "details": [
+      "include_excluded permet, lorsqu’il est activé, d’inclure aussi les valeurs sélectionnées devenues exclues par les autres sélections."
+    ]
   },
   {
     "name": "GetStateCounts",
