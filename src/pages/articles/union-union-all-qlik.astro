@@ -1,0 +1,170 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import '../../styles/article-tech-v455.css';
+import '../../styles/article-union-v501.css';
+import RelatedContent from '../../components/RelatedContent.astro';
+---
+<BaseLayout title="UNION et UNION ALL dans Qlik Sense : Concatenate ou Set Analysis ? — SOSQLIK">
+<section class="article-hero tech-hero"><div class="container">
+  <p class="article-kicker">Qlik Sense · SQL · Script</p>
+  <h1><span>UNION</span> et <span>UNION ALL</span> dans Qlik Sense</h1>
+  <p class="lead">Concatenate, SQL SELECT ou Set Analysis ? Trois mécanismes qui parlent d’union… mais qui n’agissent pas au même endroit.</p>
+  <p class="article-meta">Par Martial LOPEZ · 21 septembre 2026 · Lecture ~11 min</p>
+</div></section>
+
+<main class="tech-article"><article class="container article-wrap un-main">
+<nav class="toc"><strong>Dans cet article</strong><a href="#sql">1. UNION vs UNION ALL</a><a href="#concatenate">2. Concatenate</a><a href="#deduplication">3. Supprimer les doublons</a><a href="#oracle">4. Oracle</a><a href="#set">5. Set Analysis</a><a href="#operateurs">6. Opérateurs</a><a href="#memo">7. À retenir</a></nav>
+
+<section id="intro">
+  <em>INTRODUCTION</em><h2>Où sont passés UNION et UNION ALL ?</h2>
+  <p>Quand on vient du SQL, <code>UNION</code> et <code>UNION ALL</code> sont des réflexes naturels pour réunir plusieurs jeux de données. Dans Qlik Sense, il n’existe pas une traduction unique : tout dépend de ce que l’on veut réunir et du moment où l’opération doit avoir lieu.</p>
+  <div class="un-three">
+    <div><small>BASE DE DONNÉES</small><b>SQL SELECT</b><p>Oracle peut exécuter directement <code>UNION</code> ou <code>UNION ALL</code>.</p></div>
+    <div><small>SCRIPT QLIK</small><b>Concatenate</b><p>Qlik empile les lignes pendant le chargement.</p></div>
+    <div><small>EXPRESSION</small><b>Set Analysis +</b><p>Qlik réalise l’union de deux ensembles pendant l’analyse.</p></div>
+  </div>
+</section>
+
+<section id="sql"><em>01 — LE POINT DE DÉPART</em><h2>UNION ou UNION ALL en SQL ?</h2>
+<p>Prenons deux petits jeux de ventes fictifs SOSQLIK.</p>
+<div class="un-tables"><div><b>VENTES_NORD</b><pre>Commande  Client  Montant
+C001      Alice      120
+C002      Bruno      180</pre></div><div><b>VENTES_SUD</b><pre>Commande  Client  Montant
+C002      Bruno      180
+C003      Chloé      250</pre></div></div>
+<p>Avec <code>UNION</code>, les lignes identiques du résultat sont éliminées. Avec <code>UNION ALL</code>, elles sont conservées.</p>
+<div class="un-compare"><div><small>UNION</small><pre><code>SELECT * FROM VENTES_NORD
+UNION
+SELECT * FROM VENTES_SUD;</code></pre><p>3 lignes : C002 n’apparaît qu’une fois.</p></div><div><small>UNION ALL</small><pre><code>SELECT * FROM VENTES_NORD
+UNION ALL
+SELECT * FROM VENTES_SUD;</code></pre><p>4 lignes : les deux C002 sont conservées.</p></div></div>
+</section>
+
+<section id="concatenate"><em>02 — SCRIPT QLIK</em><h2>Concatenate : empiler les lignes</h2>
+<p>Dans le script Qlik, <code>Concatenate</code> ajoute les enregistrements d’un chargement à une table existante. Les lignes identiques ne sont pas supprimées automatiquement.</p>
+<div class="un-code"><header><span>EXEMPLE SOSQLIK</span><b>Qlik Script</b></header><pre><code>VENTES:
+LOAD * INLINE [
+Commande, Client, Montant
+C001, Alice, 120
+C002, Bruno, 180
+];
+
+Concatenate (VENTES)
+LOAD * INLINE [
+Commande, Client, Montant
+C002, Bruno, 180
+C003, Chloé, 250
+];</code></pre></div>
+<div class="un-result"><small>RÉSULTAT</small><code>C001 · C002 · C002 · C003</code><p>Le doublon est toujours présent.</p></div>
+<div class="un-callout"><b>Le rapprochement utile</b><p>Pour un développeur SQL, <code>Concatenate</code> se rapproche donc naturellement de <code>UNION ALL</code> : on empile les lignes et on conserve les doublons.</p></div>
+</section>
+
+<section id="deduplication"><em>03 — DÉDUPLICATION</em><h2>Comment supprimer les doublons dans le script Qlik ?</h2>
+<p>Après les deux chargements précédents, <code>VENTES_TMP</code> contient quatre lignes : <code>C001</code>, deux fois <code>C002</code>, puis <code>C003</code>. Pour retrouver un comportement proche d’un <code>UNION</code> SQL, il faut donc créer une nouvelle table en demandant explicitement à Qlik de ne conserver qu’une seule occurrence des lignes strictement identiques.</p>
+
+<div class="un-code"><header><span>CONCATÉNATION + DÉDUPLICATION</span><b>Qlik Script</b></header><pre><code>VENTES_TMP:
+LOAD * INLINE [
+Commande, Client, Montant
+C001, Alice, 120
+C002, Bruno, 180
+];
+
+Concatenate (VENTES_TMP)
+LOAD * INLINE [
+Commande, Client, Montant
+C002, Bruno, 180
+C003, Chloé, 250
+];
+
+VENTES:
+NoConcatenate
+LOAD DISTINCT *
+Resident VENTES_TMP;
+
+DROP TABLE VENTES_TMP;</code></pre></div>
+
+<h3>Étape 1 — construire une table temporaire</h3>
+<p>Les deux premiers <code>LOAD</code> alimentent <code>VENTES_TMP</code>. Le <code>Concatenate</code> empile simplement les lignes : à ce stade, le doublon <code>C002 / Bruno / 180</code> est volontairement encore présent.</p>
+<div class="un-result"><small>VENTES_TMP APRÈS CONCATENATE</small><code>C001 · C002 · C002 · C003</code><p>4 lignes en mémoire, dont deux lignes strictement identiques pour C002.</p></div>
+
+<h3>Étape 2 — relire la table avec <code>DISTINCT</code></h3>
+<p><code>Resident VENTES_TMP</code> demande à Qlik de relire une table déjà chargée en mémoire. Le mot-clé <code>DISTINCT</code> s’applique au résultat de ce nouveau <code>LOAD</code> et élimine les lignes identiques sur l’ensemble des champs chargés.</p>
+<div class="un-explain"><code>LOAD DISTINCT *</code><span>→</span><p>le <code>*</code> charge tous les champs et <code>DISTINCT</code> ne conserve qu’une occurrence de chaque combinaison identique.</p></div>
+<p>Dans notre exemple, les deux lignes <code>C002, Bruno, 180</code> sont identiques sur les trois champs. Une seule est donc conservée.</p>
+
+<h3>Étape 3 — pourquoi <code>NoConcatenate</code> ?</h3>
+<p>La nouvelle table <code>VENTES</code> possède exactement les mêmes champs que <code>VENTES_TMP</code>. Qlik pourrait donc les concaténer automatiquement. <code>NoConcatenate</code> lui demande au contraire de créer une table distincte afin que nous disposions réellement du résultat dédupliqué dans <code>VENTES</code>.</p>
+
+<h3>Étape 4 — supprimer la table temporaire</h3>
+<p>Une fois <code>VENTES</code> construite, <code>VENTES_TMP</code> n’a plus d’utilité. <code>DROP TABLE VENTES_TMP;</code> la retire du modèle et évite de conserver deux tables contenant les mêmes données.</p>
+<div class="un-result"><small>RÉSULTAT FINAL : VENTES</small><code>C001 · C002 · C003</code><p>3 lignes : le doublon a disparu.</p></div>
+<div class="un-warn"><b>Attention à ce que signifie « doublon »</b><p><code>DISTINCT</code> élimine des lignes identiques sur tous les champs du <code>LOAD</code>. Si deux lignes ont la même commande mais un montant, un client ou un autre champ différent, elles ne sont pas des doublons pour Qlik et seront toutes les deux conservées.</p></div>
+</section>
+
+<section id="oracle"><em>04 — SQL ORACLE DEPUIS QLIK</em><h2>On peut aussi laisser Oracle faire l’UNION</h2>
+<p>Lorsque Qlik charge les données depuis Oracle, <code>UNION</code> et <code>UNION ALL</code> peuvent rester dans le <code>SQL SELECT</code>. Dans ce cas, Oracle réalise l’opération et Qlik charge le résultat renvoyé.</p>
+<div class="un-code"><header><span>UNION EXÉCUTÉ PAR ORACLE</span><b>Qlik + Oracle</b></header><pre><code>LIB CONNECT TO 'ORACLE_PROD';
+
+VENTES:
+LOAD
+    COMMANDE,
+    CLIENT,
+    MONTANT;
+
+SQL SELECT
+    COMMANDE,
+    CLIENT,
+    MONTANT
+FROM VENTES_MAGASIN
+
+UNION
+
+SELECT
+    COMMANDE,
+    CLIENT,
+    MONTANT
+FROM VENTES_WEB;</code></pre></div>
+<div class="un-flow"><span>Oracle exécute les SELECT</span><i>→</i><span>réalise UNION</span><i>→</i><span>renvoie le résultat</span><i>→</i><span>Qlik exécute le LOAD</span></div>
+<p>Pour conserver toutes les lignes, il suffit ici de remplacer <code>UNION</code> par <code>UNION ALL</code>.</p>
+<div class="un-warn"><b>Le petit piège</b><p>Si vous ajoutez <code>'MAGASIN' AS SOURCE</code> dans le premier SELECT et <code>'WEB' AS SOURCE</code> dans le second, deux ventes autrement identiques ne le sont plus : leur champ SOURCE diffère. Même avec <code>UNION</code>, Oracle conservera donc les deux lignes.</p></div>
+</section>
+
+<section id="set"><em>05 — SET ANALYSIS</em><h2>Dans les ensembles, UNION devient simplement <code>+</code></h2>
+<p>Nous changeons maintenant complètement de niveau. Il ne s’agit plus d’empiler des lignes ou de construire le modèle : le Set Analysis combine des ensembles utilisés par une expression.</p>
+<div class="un-set"><div><small>ENSEMBLE A</small><b>France</b></div><strong>+</strong><div><small>ENSEMBLE B</small><b>Espagne</b></div><strong>=</strong><div class="ok"><small>UNION</small><b>France OU Espagne</b></div></div>
+<div class="un-code"><header><span>UNION DE DEUX ENSEMBLES</span><b>Set Analysis</b></header><pre><code>Sum(&#123;
+    1&lt;Pays=&#123;'France'&#125;&gt;
+    +
+    1&lt;Pays=&#123;'Espagne'&#125;&gt;
+&#125; Montant)</code></pre></div>
+<p>L’opérateur <code>+</code> réalise l’union des deux ensembles. Un enregistrement appartenant aux deux ensembles n’est pas « ajouté une seconde fois » : nous manipulons ici des ensembles, pas une pile de lignes.</p>
+<div class="un-callout"><b>La distinction essentielle</b><p><code>Concatenate</code> agit sur le modèle pendant le chargement. <code>+</code> agit sur les ensembles au moment du calcul d’une expression. Les deux mécanismes ne sont donc pas deux syntaxes différentes pour faire la même chose.</p></div>
+</section>
+
+<section id="operateurs"><em>06 — ALLER PLUS LOIN</em><h2>Les quatre opérateurs d’ensembles</h2>
+<p>Une fois l’union comprise, les autres opérateurs du Set Analysis deviennent beaucoup plus faciles à mémoriser. Prenons A = clients ayant acheté une formation Qlik et B = clients ayant acheté une formation SQL.</p>
+<div class="un-ops">
+  <div><b>A + B</b><span>Union</span><p>Qlik OU SQL, y compris ceux qui ont acheté les deux.</p></div>
+  <div><b>A * B</b><span>Intersection</span><p>Qlik ET SQL : uniquement ceux présents dans les deux ensembles.</p></div>
+  <div><b>A - B</b><span>Différence</span><p>Qlik mais PAS SQL. Ici, l’ordre compte.</p></div>
+  <div><b>A / B</b><span>Différence symétrique</span><p>Qlik ou SQL, mais pas les deux.</p></div>
+</div>
+<p class="un-more">Ces opérateurs sont détaillés avec des exemples complémentaires dans le <a href="/tutoriels/set-analysis">tutoriel Set Analysis SOSQLIK →</a></p>
+</section>
+
+<section id="memo"><em>07 — FICHE RÉFLEXE</em><h2>Quel mécanisme choisir ?</h2>
+<div class="un-memo">
+  <div><small>ORACLE</small><b>SQL UNION</b><p>Réunit les résultats et élimine les lignes identiques.</p></div>
+  <div><small>ORACLE</small><b>SQL UNION ALL</b><p>Réunit les résultats et conserve toutes les lignes.</p></div>
+  <div><small>QLIK SCRIPT</small><b>Concatenate</b><p>Empile les lignes dans le modèle. Doublons conservés.</p></div>
+  <div><small>SET ANALYSIS</small><b>A + B</b><p>Réalise l’union de deux ensembles dans une expression.</p></div>
+</div>
+<div class="un-final"><small>LE BON RÉFLEXE</small><p>Ne cherchez pas à traduire <code>UNION</code> mot à mot. Demandez-vous d’abord : <b>est-ce que je construis mon modèle de données, est-ce que je délègue le travail à la base, ou est-ce que je combine des ensembles dans un calcul ?</b></p></div>
+</section>
+</article></main>
+
+<RelatedContent links={[
+  { href: '/tutoriels/set-analysis', kind: 'Tutoriel', title: 'Comprendre le Set Analysis', description: 'Approfondir les opérateurs +, *, - et / avec des exemples dédiés.' },
+  { href: '/tutoriels/resident-vs-preceding-load', kind: 'Tutoriel', title: 'Resident LOAD et Preceding LOAD', description: 'Mieux comprendre les transformations réalisées dans le script Qlik.' }
+]} />
+</BaseLayout>

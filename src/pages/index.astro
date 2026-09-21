@@ -37,7 +37,20 @@ const topics = [
   <section class="features">
     <div class="container feature-grid">
       <article class="feature-card">
-        <div class="feature-icon blue">▭</div>
+        <div class="feature-icon blue" aria-hidden="true">
+          <svg viewBox="0 0 32 32" width="30" height="30">
+            <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <path d="M12 8h13" />
+              <path d="M12 16h13" />
+              <path d="M12 24h13" />
+            </g>
+            <g fill="currentColor" font-size="7" font-weight="700" font-family="Arial, sans-serif">
+              <text x="3" y="10">1</text>
+              <text x="3" y="18">2</text>
+              <text x="3" y="26">3</text>
+            </g>
+          </svg>
+        </div>
         <div>
           <h3>Tutoriels pratiques</h3>
           <p>Des pas-à-pas clairs et illustrés pour progresser rapidement.</p>
@@ -99,6 +112,8 @@ const topics = [
       </div>
 
       <div class="article-grid">
+<a class="article-card" href="/articles/union-union-all-qlik"><div class="article-card-body"><small>QLIK SENSE · SQL · SCRIPT</small><h3>UNION et UNION ALL dans Qlik Sense : Concatenate ou Set Analysis ?</h3><p>▣ &nbsp; 21 septembre 2026 <span>→</span></p></div></a>
+
 <a class="article-card" href="/articles/qmc-custom-task"><div class="article-card-body"><small>QLIK SENSE · QMC</small><h3>Planifier finement une tâche Qlik avec un trigger Custom dans la QMC</h3><p>▣ &nbsp; 15 septembre 2026 <span>→</span></p></div></a>
 
         <a class="article-card" href="/articles/chargement-delta-qvd">
@@ -109,13 +124,6 @@ const topics = [
           </div>
         </a>
 
-        <a class="article-card" href="/articles/merge-qvd-ligne-a-ligne">
-          <div class="article-card-body">
-            <small>CHARGEMENT INCRÉMENTAL · MERGE</small>
-            <h3>Mettre à jour un QVD ligne par ligne avec un véritable MERGE</h3>
-            <p>Par Martial LOPEZ · 14 septembre 2026 <span>→</span></p>
-          </div>
-        </a>
       </div>
     </div>
   </section>
