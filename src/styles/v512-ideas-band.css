@@ -1,0 +1,6 @@
+.ideas{padding:0 0 14px}
+.ideas-banner-v512{display:block;width:min(calc(100% - 28px),var(--max));margin:0 auto}
+.ideas-banner-v512 img{display:block;width:100%;height:auto;max-width:100%;border-radius:10px}
+.ideas-banner-v512 .ideas-dark{display:none}
+html[data-theme="dark"] .ideas-banner-v512 .ideas-light{display:none}
+html[data-theme="dark"] .ideas-banner-v512 .ideas-dark{display:block}
