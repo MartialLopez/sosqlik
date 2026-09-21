@@ -9,3 +9,26 @@
 .un-explain span{font-weight:900;color:var(--green);font-size:1.2rem}
 .un-explain p{margin:0}
 @media(max-width:650px){.un-explain{align-items:flex-start;flex-direction:column}.un-explain span{transform:rotate(90deg);margin-left:18px}}
+
+/* Correctif thème sombre article UNION */
+html[data-theme="dark"] .un-three > div,
+html[data-theme="dark"] .un-memo > div,
+html[data-theme="dark"] .un-ops > div,
+html[data-theme="dark"] .un-tables > div,
+html[data-theme="dark"] .un-compare > div {
+  background:#0d2b35;
+  border-color:#234956;
+  color:#eaf3f4;
+}
+
+html[data-theme="dark"] .un-flow span,
+html[data-theme="dark"] .un-more {
+  background:#0d2b35;
+  border-color:#234956;
+  color:#eaf3f4;
+}
+
+html[data-theme="dark"] .un-tables pre,
+html[data-theme="dark"] .un-compare pre {
+  color:#eaf3f4;
+}
