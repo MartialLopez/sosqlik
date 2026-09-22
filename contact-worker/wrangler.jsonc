@@ -2,6 +2,6 @@
   "name": "sosqlik-contact",
   "main": "worker.mjs",
   "compatibility_date": "2026-09-19",
-  "vars": {"ALLOWED_ORIGINS": "https://sosqlik.fr,https://www.sosqlik.fr"},
+  "vars": {"ALLOWED_ORIGINS": "https://sosqlik.fr,https://www.sosqlik.fr,https://sosbi.fr,https://www.sosbi.fr"},
   "observability": {"enabled": false}
 }
