@@ -42,7 +42,7 @@ const highlightQlik = code => {
   }).join('');
 };
 ---
-<BaseLayout title="Référence complète des fonctions Qlik Sense · SOSQLIK">
+<BaseLayout title="Référence complète des fonctions Qlik Sense · SOSBI">
   <section class="tutorial-hero"><div class="container subhero-content"><p class="eyebrow">RÉFÉRENCE · QLIK SENSE</p><h1>Fonctions Qlik Sense</h1><p>{total} fonctions de script et de graphique, classées selon l’objectif recherché avec syntaxe, exemple concret et résultat.</p></div></section>
   <section class="fn-shell container">
     <aside class="fn-side"><strong>Objectifs</strong><div class="fn-family-list"><button class="fn-filter active" data-cat="">Toutes <span>{total}</span></button>{objectives.map(objective => <button class="fn-filter" data-cat={objective.name}>{objective.name} <span>{objective.count}</span></button>)}</div></aside>

@@ -276,7 +276,7 @@ const lessons = [
     id:'checklist', n:'26', title:'Quelle fonction choisir ?', level:'À retenir', icon:'✓',
     explain:'Le bon réflexe est de partir du besoin : ligne précédente → Above(); cumul → RangeSum(Above()); choix par index → Pick(); correspondance → Match/WildMatch(); valeur de secours → Coalesce/Alt; tranche → Class(); ordre métier → Dual().',
     detail:'Puis vérifiez trois choses : la fonction dépend-elle du tri ? du type de graphique ? du contexte de sélection ? Ces trois questions expliquent une grande partie des résultats surprenants dans Qlik.',
-    example:`<div class="master-demo"><b>Réflexe SOSQLIK</b><span>Besoin → fonction → contexte → tri → test</span><i>comprendre avant de complexifier</i></div>`,
+    example:`<div class="master-demo"><b>Réflexe SOSBI</b><span>Besoin → fonction → contexte → tri → test</span><i>comprendre avant de complexifier</i></div>`,
     facts:[['Comparer lignes','Above / Below'],['Choisir','Pick / Match'],['Cumuler','Range*'],['Sécuriser','Alt / Coalesce']],
     note:'Ce tutoriel est une boîte à outils : revenez-y selon le problème rencontré plutôt que d’essayer de mémoriser toutes les fonctions.',
     advantages:['Choix plus rapide de la bonne fonction','Expressions plus simples et maintenables'],
@@ -294,14 +294,14 @@ const sources = [
 import RelatedContent from '../../components/RelatedContent.astro';
 ---
 
-<BaseLayout title="Les fonctions utiles de Qlik — SOSQLIK">
+<BaseLayout title="Les fonctions utiles de Qlik — SOSBI">
   <TutorialLayout
     title="Les fonctions utiles de Qlik"
     description="Above, Below, RangeSum, Pick, Match, WildMatch, Rank, Dual et bien d’autres : les fonctions à connaître pour construire des expressions efficaces."
     navTitle="Fonctions utiles"
     lessons={lessons}
     sourceTitle="Références Qlik"
-    sourceText="Ce tutoriel croise la documentation officielle Qlik avec plusieurs articles pédagogiques de Henric Cronström (HIC), notamment « Aggregations and Function Classes », « The Above Function », « Accumulations », « Count or Count distinct? » et « Average – Which average? ». Les explications et exemples SOSQLIK sont réécrits en français et simplifiés pour débuter ; ils ne constituent pas une traduction des articles originaux."
+    sourceText="Ce tutoriel croise la documentation officielle Qlik avec plusieurs articles pédagogiques de Henric Cronström (HIC), notamment « Aggregations and Function Classes », « The Above Function », « Accumulations », « Count or Count distinct? » et « Average – Which average? ». Les explications et exemples SOSBI sont réécrits en français et simplifiés pour débuter ; ils ne constituent pas une traduction des articles originaux."
     sourceLinks={sources}
   />
 

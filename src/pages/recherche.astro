@@ -1,12 +1,12 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 ---
-<BaseLayout title="Recherche · SOSQLIK" description="Rechercher dans l'ensemble des contenus SOSQLIK.">
+<BaseLayout title="Recherche · SOSBI" description="Rechercher dans l'ensemble des contenus SOSBI.">
 <section class="search-page"><div class="container">
-<div class="search-page-head"><span class="search-kicker">RECHERCHE SOSQLIK</span><h1>Que cherchez-vous ?</h1>
-<p>Recherchez dans l’ensemble des pages, tutoriels, astuces et articles SOSQLIK.</p>
+<div class="search-page-head"><span class="search-kicker">RECHERCHE SOSBI</span><h1>Que cherchez-vous ?</h1>
+<p>Recherchez dans l’ensemble des pages, tutoriels, astuces et articles SOSBI.</p>
 <form class="search-page-form" action="/recherche" method="get" role="search">
-<span aria-hidden="true">⌕</span><input id="global-search-input" name="q" type="search" placeholder="Ex. ApplyMap, Set Analysis, MERGE, Custom filter…" autocomplete="off" aria-label="Rechercher dans SOSQLIK"><button type="submit">Rechercher</button>
+<span aria-hidden="true">⌕</span><input id="global-search-input" name="q" type="search" placeholder="Ex. ApplyMap, Set Analysis, MERGE, Custom filter…" autocomplete="off" aria-label="Rechercher dans SOSBI"><button type="submit">Rechercher</button>
 </form></div>
 <div id="search-summary" class="search-summary" aria-live="polite"></div><div id="search-results" class="search-results"></div>
 <div id="search-empty" class="search-empty" hidden><h2>Aucun résultat</h2><p>Essayez avec un autre mot-clé ou une expression plus précise.</p></div>
@@ -14,7 +14,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
 <script is:inline>
 (()=>{
-// SOSQLIK V4.77b — pertinence + extrait contextualisé
+// SOSBI V4.77b — pertinence + extrait contextualisé
 const input=document.getElementById('global-search-input'),
       results=document.getElementById('search-results'),
       summary=document.getElementById('search-summary'),
@@ -125,7 +125,7 @@ init();
 </script>
 
 <style>
-/* SOSQLIK V4.77b — occurrence trouvée */
+/* SOSBI V4.77b — occurrence trouvée */
 .search-hit{background:rgba(84,189,104,.22);color:inherit;border-radius:.18em;padding:0 .08em;font-weight:700}
 </style>
 </BaseLayout>

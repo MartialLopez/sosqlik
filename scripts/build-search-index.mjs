@@ -39,7 +39,7 @@ function stripHtml(html) {
 function titleOf(html,fallback) {
   const h1=html.match(/<h1\b[^>]*>([\s\S]*?)<\/h1>/i);
   const title=html.match(/<title\b[^>]*>([\s\S]*?)<\/title>/i);
-  return stripHtml(h1?.[1]||title?.[1]||fallback).replace(/\s*[·|–-]\s*SOSQLIK\s*$/i,'').trim();
+  return stripHtml(h1?.[1]||title?.[1]||fallback).replace(/\s*[·|–-]\s*SOSBI\s*$/i,'').trim();
 }
 function urlOf(file) {
   let rel=path.relative(dist,file).replaceAll('\\','/');
@@ -63,7 +63,7 @@ for (const file of walk(dist).filter(f=>f.endsWith('.html'))) {
   const html=fs.readFileSync(file,'utf8');
   const url=urlOf(file);
   if(url==='/recherche') continue;
-  const item={url,type:typeOf(url),title:titleOf(html,path.basename(path.dirname(file))||'SOSQLIK'),text:stripHtml(html).slice(0,100000)};
+  const item={url,type:typeOf(url),title:titleOf(html,path.basename(path.dirname(file))||'SOSBI'),text:stripHtml(html).slice(0,100000)};
   if(item.title && item.text) {
     const old=byUrl.get(url);
     if(!old || item.text.length > old.text.length) byUrl.set(url,item);
@@ -78,6 +78,6 @@ fs.mkdirSync(publicDir,{recursive:true});
 fs.writeFileSync(publicOutput,json,'utf8');
 fs.writeFileSync(distOutput,json,'utf8');
 
-console.log(`✓ Index SOSQLIK : ${pages.length} routes publiques indexées`);
+console.log(`✓ Index SOSBI : ${pages.length} routes publiques indexées`);
 console.log(`✓ DEV  : ${publicOutput}`);
 console.log(`✓ PROD : ${distOutput}`);

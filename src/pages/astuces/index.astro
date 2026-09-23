@@ -295,11 +295,11 @@ RowNo() AS NumeroSortie`,
 import RelatedContent from '../../components/RelatedContent.astro';
 ---
 
-<BaseLayout title="Astuces — SOSQLIK">
+<BaseLayout title="Astuces — SOSBI">
   <section class="tips-hero">
     <div class="container">
       <p class="eyebrow">APPRENDRE · COMPRENDRE · GAGNER DU TEMPS</p>
-      <h1>Les astuces SOSQLIK</h1>
+      <h1>Les astuces SOSBI</h1>
       <p class="tips-lead">Des conseils concrets, des bonnes pratiques et des petits détails qui font la différence.</p>
       <div class="tips-stats">
         <span><strong>{tips.length}</strong> astuces</span>
@@ -389,7 +389,7 @@ import RelatedContent from '../../components/RelatedContent.astro';
       let s = escapeHtml(raw);
       const stash = [];
       const hold = (html) => {
-        const key = `___SOSQLIK_${stash.length}___`;
+        const key = `___SOSBI_${stash.length}___`;
         stash.push(html);
         return key;
       };
@@ -405,7 +405,7 @@ import RelatedContent from '../../components/RelatedContent.astro';
       s = s.replace(/\b(\d+(?:[.,]\d+)?)\b/g, '<span class="qs-number">$1</span>');
       s = s.replace(/(\{1(?:&lt;.*?&gt;)?\})/g, '<span class="qs-set">$1</span>');
 
-      s = s.replace(/___SOSQLIK_(\d+)___/g, (_, i) => stash[Number(i)]);
+      s = s.replace(/___SOSBI_(\d+)___/g, (_, i) => stash[Number(i)]);
       return s;
     }
 

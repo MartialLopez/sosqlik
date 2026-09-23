@@ -8,7 +8,7 @@ const lessons = [
  explain:'Une variable Qlik est un conteneur nommé qui peut stocker une valeur statique ou une définition de calcul. Elle permet de centraliser une information et de la réutiliser dans le script ou dans les expressions.',
  detail:`<div class="noob-box"><b>👶 L’idée simple</b><p>Au lieu d’écrire la même valeur ou la même expression partout, on lui donne un nom. Si elle change, on la modifie à un seul endroit.</p></div>`,
  exampleTitle:'Premier exemple',
- example:`<div class="master-demo"><b>Variable</b><span class="qlik-code">SET vSociete = 'SOSQLIK';</span><i>Utilisation : $(vSociete)</i></div>`,
+ example:`<div class="master-demo"><b>Variable</b><span class="qlik-code">SET vSociete = 'SOSBI';</span><i>Utilisation : $(vSociete)</i></div>`,
  facts:[['Contenu','Valeur ou calcul'],['Création','Script ou interface Variables'],['Réutilisation','Script · expressions · titres · Set Analysis']],
  note:'Une variable est utile quand une valeur ou une logique doit être centralisée, paramétrée ou réutilisée.',
  advantages:['Évite les répétitions','Facilite la maintenance','Permet des expressions dynamiques'],
@@ -184,7 +184,7 @@ $(vRatio(Marge,Montant))</pre>`,
 {
  id:'debug', n:'12', title:'Déboguer une variable', level:'Très utile', icon:'🔎',
  explain:'La méthode la plus fiable consiste à observer ce que l’expansion produit réellement. Décompose l’expression complexe en étapes simples.',
- detail:`<div class="noob-box"><b>👶 Méthode SOSQLIK</b><p>1. Affiche la variable seule. 2. Vérifie son contenu. 3. Remplace mentalement <code>$(v...)</code>. 4. Teste l’expression finale sans variable. 5. Réintroduis la variable.</p></div>`,
+ detail:`<div class="noob-box"><b>👶 Méthode SOSBI</b><p>1. Affiche la variable seule. 2. Vérifie son contenu. 3. Remplace mentalement <code>$(v...)</code>. 4. Teste l’expression finale sans variable. 5. Réintroduis la variable.</p></div>`,
  example:`<pre class="qlik-code">// Tester d'abord :
 =$(vAnnee)
 
@@ -209,7 +209,7 @@ Sum({&lt;Annee={$(vAnnee)}&gt;} Montant)</pre>`,
  id:'bonnes-pratiques', n:'14', title:'Ma méthode recommandée', level:'À retenir', icon:'✓',
  explain:'Utilise les variables pour les paramètres, valeurs globales et expressions techniques réellement réutilisées. Donne-leur un nom explicite et documente celles qui structurent l’application.',
  detail:'Avant d’introduire une variable, demande-toi si une Master Measure, un champ calculé dans le script ou une simple expression locale serait plus lisible.',
- example:`<div class="master-demo"><b>Règle SOSQLIK</b><span>Centraliser ce qui doit l’être</span><i>→ sans cacher inutilement la logique</i></div>`,
+ example:`<div class="master-demo"><b>Règle SOSBI</b><span>Centraliser ce qui doit l’être</span><i>→ sans cacher inutilement la logique</i></div>`,
  facts:[['1','Nom explicite'],['2','Usage clairement identifié'],['3','Expansion testée'],['4','Complexité maîtrisée']],
  note:'Une bonne variable rend le code plus clair. Si elle le rend plus mystérieux, revois sa nécessité.',
  advantages:['Applications plus maintenables','Paramétrage cohérent'],
@@ -226,14 +226,14 @@ const sources = [
 ];
 import RelatedContent from '../../components/RelatedContent.astro';
 ---
-<BaseLayout title="Variables Qlik — SOSQLIK">
+<BaseLayout title="Variables Qlik — SOSBI">
 <TutorialLayout
  title="Maîtriser les variables dans Qlik"
  description="SET, LET, dollar-sign expansion, expressions, paramètres et Set Analysis : comprendre enfin ce que Qlik évalue réellement."
  navTitle="Variables"
  lessons={lessons}
  sourceTitle="Références Qlik"
- sourceText="Ce tutoriel s’appuie sur la documentation officielle Qlik. Les exemples et explications SOSQLIK sont reformulés dans une progression pratique, du premier SET aux expansions paramétrées."
+ sourceText="Ce tutoriel s’appuie sur la documentation officielle Qlik. Les exemples et explications SOSBI sont reformulés dans une progression pratique, du premier SET aux expansions paramétrées."
  sourceLinks={sources}
 />
 

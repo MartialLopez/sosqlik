@@ -63,7 +63,7 @@ const exos = [
     expr:`Sum({<Region={'Sud'}>} Montant)`,
     html:`<span class="fn">Sum</span><span class="op">(</span><span class="set">{&lt;</span><span class="field">Region</span><span class="op">=</span><span class="set">{</span><span class="string">'Sud'</span><span class="set">}&gt;}</span> <span class="field">Montant</span><span class="op">)</span>`,
     explain:'Sud est ici une valeur textuelle précise : un littéral. La bonne habitude consiste à l’entourer de simples quotes. Même lorsqu’un texte ne contient ni espace, ni accent, ni caractère spécial, les simples quotes rendent immédiatement visible qu’il s’agit d’une valeur texte exacte.',
-    result:'Règle SOSQLIK : pour un littéral texte, écrivez les simples quotes systématiquement. Cette convention évite les ambiguïtés, améliore la lecture des expressions et suit la distinction pédagogique mise en avant par HIC entre littéraux et recherches.'
+    result:'Règle SOSBI : pour un littéral texte, écrivez les simples quotes systématiquement. Cette convention évite les ambiguïtés, améliore la lecture des expressions et suit la distinction pédagogique mise en avant par HIC entre littéraux et recherches.'
   },
   {
     id:'nombre-ou-texte', n:'9', title:'2026 et \'2026\' : même affichage, pas forcément même valeur', level:'Fondamental',
@@ -111,7 +111,7 @@ const exos = [
     expr:`Sum({$<Client={"=Sum(Montant)>100000"}>} Montant)`,
     html:`<span class="fn">Sum</span><span class="op">(</span><span class="set">{$&lt;</span><span class="field">Client</span><span class="op">=</span><span class="set">{</span><span class="search">&quot;=</span><span class="fn">Sum</span><span class="op">(</span><span class="field">Montant</span><span class="op">)&gt;</span><span class="value">100000</span><span class="search">&quot;</span><span class="set">}&gt;}</span> <span class="field">Montant</span><span class="op">)</span>`,
     explain:'Une recherche peut commencer par = et contenir une expression Qlik. La condition est alors évaluée pour les valeurs du champ recherché. Ici, on ne choisit pas les clients par leur nom : on recherche les clients pour lesquels Sum(Montant) dépasse 100 000.',
-    result:'C’est extrêmement puissant, mais à utiliser avec discernement : le résultat dépend du contexte dans lequel l’expression de recherche est évaluée. Pour SOSQLIK, la bonne pratique est de réserver cette syntaxe aux besoins réellement dynamiques et de documenter clairement la condition métier.'
+    result:'C’est extrêmement puissant, mais à utiliser avec discernement : le résultat dépend du contexte dans lequel l’expression de recherche est évaluée. Pour SOSBI, la bonne pratique est de réserver cette syntaxe aux besoins réellement dynamiques et de documenter clairement la condition métier.'
   },
   {
     id:'historique-selections', n:'15', title:'$1 et $_1 : exploiter l’historique des sélections', level:'Avancé',
@@ -209,7 +209,7 @@ const exos = [
     expr:`Sum({$-<Client={'X'}>} Montant)`,
     html:`<span class="fn">Sum</span><span class="op">(</span><span class="set">{</span><span class="dollar">$</span><span class="op">-</span><span class="set">&lt;</span><span class="field">Client</span><span class="op">=</span><span class="set">{</span><span class="string">'X'</span><span class="set">}&gt;}</span> <span class="field">Montant</span><span class="op">)</span>`,
     explain:'HIC distingue les ensembles naturels, que l’on peut reproduire par une sélection, des ensembles non naturels, construits au niveau des enregistrements avec des opérateurs d’ensemble. Cette distinction devient importante dès que NULL ou des combinaisons d’ensembles entrent en jeu.',
-    result:'Dans cet exemple adapté pour SOSQLIK, on retire de l’ensemble courant les enregistrements associés au client X. Selon le modèle, des enregistrements dont Client est NULL peuvent rester dans le résultat, alors qu’un NULL ne peut pas être sélectionné directement dans une liste.'
+    result:'Dans cet exemple adapté pour SOSBI, on retire de l’ensemble courant les enregistrements associés au client X. Selon le modèle, des enregistrements dont Client est NULL peuvent rester dans le résultat, alors qu’un NULL ne peut pas être sélectionné directement dans une liste.'
   },
   {
     id:'naturel-limites', n:'29', title:'Les limites des ensembles non naturels', level:'Expert',
@@ -303,7 +303,7 @@ const concreteExamples = {
 import RelatedContent from '../../components/RelatedContent.astro';
 ---
 
-<BaseLayout title="Set Analysis — SOSQLIK">
+<BaseLayout title="Set Analysis — SOSBI">
 <section class="subhero tutorial-hero">
   <div class="container subhero-content">
     <p class="eyebrow">TUTORIEL · QLIK SENSE</p>
@@ -319,7 +319,7 @@ import RelatedContent from '../../components/RelatedContent.astro';
     <p>
       Certains concepts avancés de ce tutoriel s’appuient sur les travaux pédagogiques de
       Henric Cronström (HIC), notamment sur ses articles consacrés au Set Analysis.
-      Les explications, formulations et exemples présentés sur SOSQLIK ont été réécrits
+      Les explications, formulations et exemples présentés sur SOSBI ont été réécrits
       et adaptés en français ; ils ne constituent pas une traduction des articles originaux.
     </p>
     <div class="hic-source-links" aria-label="Articles de référence de Henric Cronström">

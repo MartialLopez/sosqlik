@@ -182,7 +182,7 @@ const lessons = [
     disadvantages:['Demande parfois de créer un objet temporaire de contrôle']
   },
   {
-    id:'checklist', n:'17', title:'La checklist SOSQLIK', level:'À retenir', icon:'✓',
+    id:'checklist', n:'17', title:'La checklist SOSBI', level:'À retenir', icon:'✓',
     explain:'Avant de valider un Aggr(), posez-vous six questions : ai-je vraiment deux niveaux d’agrégation ? Quel est le grain intermédiaire ? Mon agrégation interne est-elle correcte ? Quelle agrégation externe veux-je ? Où le Set doit-il agir ? Puis-je faire plus simple ?',
     detail:'Si ces six réponses sont claires, votre expression a de fortes chances d’être à la fois juste, compréhensible et maintenable.',
     example:`<div class="master-demo"><b>Formule mentale</b><span class="qlik-code">Besoin → Grain → Interne → Externe → Set → Performance</span><i>Aggr() devient alors une méthode, pas une formule magique</i></div>`,
@@ -202,14 +202,14 @@ const sources = [
 import RelatedContent from '../../components/RelatedContent.astro';
 ---
 
-<BaseLayout title="Comprendre Aggr() — SOSQLIK">
+<BaseLayout title="Comprendre Aggr() — SOSBI">
   <TutorialLayout
     title="Comprendre Aggr()"
     description="Agrégations imbriquées, table virtuelle, granularité, Set Analysis, pièges et performances : Aggr() expliqué étape par étape."
     navTitle="Aggr()"
     lessons={lessons}
     sourceTitle="Sources et attribution"
-    sourceText="La documentation Qlik et l’article de Henric Cronström (HIC) sont indiqués comme références techniques. Les formulations, jeux de données et exemples SOSQLIK ont été rédigés indépendamment et ne constituent pas une traduction de ces sources."
+    sourceText="La documentation Qlik et l’article de Henric Cronström (HIC) sont indiqués comme références techniques. Les formulations, jeux de données et exemples SOSBI ont été rédigés indépendamment et ne constituent pas une traduction de ces sources."
     sourceLinks={sources}
   />
 

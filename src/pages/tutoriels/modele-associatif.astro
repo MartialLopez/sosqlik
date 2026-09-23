@@ -216,7 +216,7 @@ LOAD * FROM [Ventes_2026.qvd] (qvd);</pre>`,
  id:'bonnes-pratiques', n:'15', title:'Ma méthode recommandée', level:'À retenir', icon:'✓',
  explain:'Commence par le grain, garde des clés explicites, contrôle les noms de champs, privilégie les associations naturelles et inspecte le Data Model Viewer après chaque changement structurel.',
  detail:'N’utilise JOIN, Link Table ou clés composites que lorsqu’elles répondent à un besoin identifié. La sophistication n’est pas un objectif : la lisibilité du modèle l’est.',
- example:`<div class="master-demo"><b>Règle SOSQLIK</b><span>Grain → Clés → Associations → Contrôle</span><i>puis seulement optimisation</i></div>`,
+ example:`<div class="master-demo"><b>Règle SOSBI</b><span>Grain → Clés → Associations → Contrôle</span><i>puis seulement optimisation</i></div>`,
  facts:[['1','Définir le grain'],['2','Choisir les clés'],['3','Éviter les associations parasites'],['4','Contrôler dans le viewer']],
  note:'Le meilleur modèle est celui dont on peut expliquer simplement chaque table et chaque lien.',
  advantages:['Modèle fiable et maintenable','Calculs plus simples','Diagnostic plus rapide'],
@@ -233,14 +233,14 @@ const sources = [
 ];
 import RelatedContent from '../../components/RelatedContent.astro';
 ---
-<BaseLayout title="Modèle associatif — SOSQLIK">
+<BaseLayout title="Modèle associatif — SOSBI">
 <TutorialLayout
  title="Comprendre le modèle associatif"
  description="Associations, clés, grain, clés synthétiques, boucles, JOIN, KEEP et Link Tables : construire un modèle Qlik fiable et lisible."
  navTitle="Modèle associatif"
  lessons={lessons}
  sourceTitle="Références Qlik"
- sourceText="Ce tutoriel s’appuie sur la documentation officielle Qlik. Les explications et exemples SOSQLIK sont organisés autour d’un objectif : comprendre la logique du modèle avant de chercher à le complexifier."
+ sourceText="Ce tutoriel s’appuie sur la documentation officielle Qlik. Les explications et exemples SOSBI sont organisés autour d’un objectif : comprendre la logique du modèle avant de chercher à le complexifier."
  sourceLinks={sources}
 />
 

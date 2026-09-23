@@ -4,7 +4,7 @@ import '../../styles/article-tech-v455.css';
 import '../../styles/article-union-v501.css';
 import RelatedContent from '../../components/RelatedContent.astro';
 ---
-<BaseLayout title="UNION et UNION ALL dans Qlik Sense : Concatenate ou Set Analysis ? — SOSQLIK">
+<BaseLayout title="UNION et UNION ALL dans Qlik Sense : Concatenate ou Set Analysis ? — SOSBI">
 <section class="article-hero tech-hero"><div class="container">
   <p class="article-kicker">Qlik Sense · SQL · Script</p>
   <h1><span>UNION</span> et <span>UNION ALL</span> dans Qlik Sense</h1>
@@ -26,7 +26,7 @@ import RelatedContent from '../../components/RelatedContent.astro';
 </section>
 
 <section id="sql"><em>01 — LE POINT DE DÉPART</em><h2>UNION ou UNION ALL en SQL ?</h2>
-<p>Prenons deux petits jeux de ventes fictifs SOSQLIK.</p>
+<p>Prenons deux petits jeux de ventes fictifs SOSBI.</p>
 <div class="un-tables"><div><b>VENTES_NORD</b><pre>Commande  Client  Montant
 C001      Alice      120
 C002      Bruno      180</pre></div><div><b>VENTES_SUD</b><pre>Commande  Client  Montant
@@ -42,7 +42,7 @@ SELECT * FROM VENTES_SUD;</code></pre><p>4 lignes : les deux C002 sont conservé
 
 <section id="concatenate"><em>02 — SCRIPT QLIK</em><h2>Concatenate : empiler les lignes</h2>
 <p>Dans le script Qlik, <code>Concatenate</code> ajoute les enregistrements d’un chargement à une table existante. Les lignes identiques ne sont pas supprimées automatiquement.</p>
-<div class="un-code"><header><span>EXEMPLE SOSQLIK</span><b>Qlik Script</b></header><pre><code>VENTES:
+<div class="un-code"><header><span>EXEMPLE SOSBI</span><b>Qlik Script</b></header><pre><code>VENTES:
 LOAD * INLINE [
 Commande, Client, Montant
 C001, Alice, 120
@@ -149,7 +149,7 @@ FROM VENTES_WEB;</code></pre></div>
   <div><b>A - B</b><span>Différence</span><p>Qlik mais PAS SQL. Ici, l’ordre compte.</p></div>
   <div><b>A / B</b><span>Différence symétrique</span><p>Qlik ou SQL, mais pas les deux.</p></div>
 </div>
-<p class="un-more">Ces opérateurs sont détaillés avec des exemples complémentaires dans le <a href="/tutoriels/set-analysis">tutoriel Set Analysis SOSQLIK →</a></p>
+<p class="un-more">Ces opérateurs sont détaillés avec des exemples complémentaires dans le <a href="/tutoriels/set-analysis">tutoriel Set Analysis SOSBI →</a></p>
 </section>
 
 <section id="memo"><em>07 — FICHE RÉFLEXE</em><h2>Quel mécanisme choisir ?</h2>
