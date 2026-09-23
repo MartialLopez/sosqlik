@@ -2,7 +2,7 @@ const subjects = ["Question générale", "Aide sur un tutoriel ou une fonction",
 export default {
  async fetch(request, env) {
   const origin=request.headers.get('Origin');
-  const allowed=(env.ALLOWED_ORIGINS||'https://sosqlik.fr,https://www.sosqlik.fr').split(',').map(s=>s.trim());
+  const allowed=(env.ALLOWED_ORIGINS||'https://sosqlik.fr,https://www.sosqlik.fr,https://sosbi.fr,https://www.sosbi.fr').split(',').map(s=>s.trim());
   if(!allowed.includes(origin))return new Response('Forbidden',{status:403});
   const headers={'Access-Control-Allow-Origin':origin,'Access-Control-Allow-Methods':'POST, OPTIONS','Access-Control-Allow-Headers':'Content-Type','Vary':'Origin','Cache-Control':'no-store','Content-Type':'application/json'};
   const reply=(status,message)=>new Response(JSON.stringify({message}),{status,headers});
@@ -25,7 +25,7 @@ export default {
    if(!verification.ok)return reply(503,'Vérification indisponible');
    const check=await verification.json();
    if(!check.success||check.action!=='contact'||check.hostname!==new URL(origin).hostname)return reply(403,'Vérification refusée');
-   const sent=await fetch('https://api.resend.com/emails',{method:'POST',headers:{Authorization:`Bearer ${env.RESEND_API_KEY}`,'Content-Type':'application/json'},body:JSON.stringify({from:env.MAIL_FROM,to:['contact@sosqlik.fr'],bcc:[env.CONTACT_BCC],reply_to:email,subject:`[SOSQLIK] ${subject}`,text:`Prénom : ${name.trim()||'Non renseigné'}\nE-mail : ${email}\nSujet : ${subject}\n\n${message.trim()}`}),signal:AbortSignal.timeout(12000)});
+   const sent=await fetch('https://api.resend.com/emails',{method:'POST',headers:{Authorization:`Bearer ${env.RESEND_API_KEY}`,'Content-Type':'application/json'},body:JSON.stringify({from:env.MAIL_FROM,to:['contact@sosbi.fr'],bcc:[env.CONTACT_BCC],reply_to:email,subject:`[SOSBI] ${subject}`,text:`Prénom : ${name.trim()||'Non renseigné'}\nE-mail : ${email}\nSujet : ${subject}\n\n${message.trim()}`}),signal:AbortSignal.timeout(12000)});
    if(!sent.ok)return reply(502,'Envoi non confirmé');
    const result=await sent.json();if(!result.id)return reply(502,'Envoi non confirmé');
    return reply(200,'Message transmis');
