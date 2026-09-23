@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://sosbi.fr/sitemap-index.xml
