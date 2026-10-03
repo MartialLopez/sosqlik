@@ -1,0 +1,390 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import '../../styles/article-tech-v455.css';
+import '../../styles/article-na-v515.css';
+---
+
+<BaseLayout
+  title="Suivre l’exécution d’une Nuit Applicative dans Qlik Sense — SOSBI"
+  description="Mettre en place un suivi simple de Nuit Applicative dans Qlik Sense : KO provisoire, SuiviNaDebut, SuiviNaFin, durée, contrôle des volumes QVD et restitution des écarts."
+>
+  <section class="article-hero tech-hero">
+    <div class="container">
+      <p class="article-kicker">Qlik Sense · Supervision · QVD</p>
+      <h1>Suivre l’exécution d’une <span>Nuit Applicative</span></h1>
+      <p class="lead">
+        Un KO posé dès le départ, un OK seulement lorsque le traitement atteint sa fin,
+        et un contrôle de volumétrie indépendant pour repérer les données à vérifier.
+      </p>
+      <p class="article-meta">Par Martial LOPEZ · 3 octobre 2026 · Lecture ~9 min</p>
+    </div>
+  </section>
+
+  <main class="tech-article">
+    <article class="container article-wrap na-main">
+      <nav class="toc" aria-label="Sommaire de l’article">
+        <strong>Dans cet article</strong>
+        <a href="#principe">1. Le principe</a>
+        <a href="#debut">2. Poser le KO au démarrage</a>
+        <a href="#fin">3. Clôturer avec SuiviNaFin</a>
+        <a href="#volumetrie">4. Contrôler la volumétrie</a>
+        <a href="#schemas">5. Plusieurs schémas sources</a>
+        <a href="#restitution">6. Restituer la Nuit Applicative</a>
+        <a href="#retenir">7. À retenir</a>
+      </nav>
+
+      <section id="principe">
+        <em>INTRODUCTION</em>
+        <h2>Suivre autre chose que le simple résultat d’une tâche</h2>
+
+        <p>
+          Dans cet article, nous appelons <strong>Nuit Applicative (NA)</strong> une chaîne de traitements
+          Qlik exécutés automatiquement, généralement en dehors des heures d’utilisation, afin d’extraire,
+          transformer et préparer les données nécessaires aux applications.
+        </p>
+
+        <p>
+          La QMC indique l’état d’une tâche, mais on peut souhaiter disposer, dans les données elles-mêmes,
+          d’un suivi complémentaire : le traitement a-t-il réellement démarré ? Est-il arrivé jusqu’à son
+          terme ? Combien de temps a-t-il duré ? Quels volumes a-t-il produits ?
+        </p>
+
+        <div class="na-questions">
+          <div><small>DÉMARRAGE</small><b>Le traitement est-il parti ?</b></div>
+          <div><small>EXÉCUTION</small><b>A-t-il atteint sa fin ?</b></div>
+          <div><small>DONNÉES</small><b>Les volumes sont-ils cohérents ?</b></div>
+        </div>
+
+        <p>Le principe retenu est volontairement simple :</p>
+
+        <div class="na-code">
+          <header><span>PRINCIPE</span><b>Qlik Script</b></header>
+          <pre><code>CALL SuiviNaDebut(...);
+
+// Traitement normal de l'application
+
+CALL SuiviNaFin(...);</code></pre>
+        </div>
+
+        <div class="na-note na-note-idea">
+          <strong>Le déclic</strong>
+          <p>
+            Petit clin d’œil à <strong>Serge DESTRAZ</strong> pour l’idée simple et efficace qui est au cœur
+            du mécanisme : <strong>poser le KO dès le départ</strong>. Tant que la fin du traitement n’a pas
+            été constatée, on ne considère pas l’exécution comme terminée.
+          </p>
+        </div>
+      </section>
+
+      <section id="debut">
+        <em>01 — DÉMARRAGE</em>
+        <h2>SuiviNaDebut : poser le KO avant de commencer</h2>
+
+        <p>
+          Dès le début du script, <code>SuiviNaDebut</code> enregistre une trace contenant notamment
+          l’application, la date et l’heure de démarrage, avec un statut provisoire <code>KO</code>.
+        </p>
+
+        <div class="na-flow na-flow-start" aria-label="Démarrage du suivi">
+          <span>Démarrage</span><i>→</i><span>SuiviNaDebut</span><i>→</i><strong>KO</strong><i>→</i><span>Traitement Qlik</span>
+        </div>
+
+        <p>
+          Ce <code>KO</code> ne signifie pas qu’une erreur vient déjà de se produire. À cet instant, nous
+          savons seulement que le traitement a commencé : rien ne garantit encore qu’il atteindra sa fin.
+        </p>
+
+        <div class="na-note">
+          <strong>Pourquoi ne pas utiliser EN_COURS ?</strong>
+          <p>
+            Le KO joue ici le rôle d’une sécurité par défaut. Si une véritable erreur provoque une sortie
+            du script avant <code>SuiviNaFin</code>, aucune action supplémentaire n’est nécessaire :
+            <strong>le KO reste présent</strong> et signale une exécution commencée mais non clôturée.
+          </p>
+        </div>
+      </section>
+
+      <section id="fin">
+        <em>02 — FIN D’EXÉCUTION</em>
+        <h2>SuiviNaFin : l’OK se mérite à la fin</h2>
+
+        <p>
+          Lorsque les traitements sont terminés et que les QVD ont été produits, l’application atteint
+          <code>SuiviNaFin</code>. La routine peut alors enregistrer l’heure de fin, calculer la durée et
+          clôturer l’exécution.
+        </p>
+
+        <div class="na-code">
+          <header><span>FIN DU TRAITEMENT</span><b>Qlik Script</b></header>
+          <pre><code>CALL SuiviNaFin(...);</code></pre>
+        </div>
+
+        <p>
+          Mécaniquement, l’enregistrement provisoire <code>KO</code> correspondant à l’exécution en cours
+          est retiré du suivi, puis l’exécution définitive est enregistrée en <code>OK</code> avec ses
+          informations de fin.
+        </p>
+
+        <div class="na-branch">
+          <div class="na-branch-card is-ko">
+            <small>LE SCRIPT S’INTERROMPT</small>
+            <b>KO conservé</b>
+            <p><code>SuiviNaFin</code> n’a jamais été atteinte.</p>
+          </div>
+          <div class="na-branch-card is-ok">
+            <small>LE SCRIPT ATTEINT SA FIN</small>
+            <b>OK</b>
+            <p><code>SuiviNaFin</code> clôture normalement l’exécution.</p>
+          </div>
+        </div>
+
+        <div class="na-result">
+          <table>
+            <thead>
+              <tr><th>Application</th><th>Début</th><th>Fin</th><th>Durée</th><th>Statut</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>CHARGEMENT_VENTES</td><td>01:15</td><td>01:27</td><td>00:12</td><td><span class="na-tag ok">OK</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="volumetrie">
+        <em>03 — CONTRÔLE DES DONNÉES</em>
+        <h2>Un traitement terminé peut quand même mériter notre attention</h2>
+
+        <p>
+          Arriver jusqu’à la fin du script confirme que le traitement s’est exécuté. Cela ne garantit pas,
+          à lui seul, que la volumétrie produite est celle attendue. On peut donc profiter de
+          <code>SuiviNaFin</code> pour ajouter un contrôle complémentaire.
+        </p>
+
+        <p>
+          Qlik fournit la fonction <code>QvdNoOfRecords()</code>, qui retourne le nombre d’enregistrements
+          présents dans un QVD.
+        </p>
+
+        <div class="na-code">
+          <header><span>EXEMPLE SOSBI</span><b>Qlik Script</b></header>
+          <pre><code>// Nombre de lignes du QVD produit
+LET vNbLignesQvd =
+    QvdNoOfRecords('lib://QVD/COMMANDES.qvd');</code></pre>
+        </div>
+
+        <p>Côté SGBD source, le même principe peut être obtenu par un comptage sur la table homonyme :</p>
+
+        <div class="na-code">
+          <header><span>EXEMPLE SOSBI</span><b>SQL</b></header>
+          <pre><code>SELECT COUNT(*)
+FROM ERP.COMMANDES;</code></pre>
+        </div>
+
+        <div class="na-result">
+          <table>
+            <thead>
+              <tr><th>Contrôle</th><th>Volume</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>COMMANDES.qvd</td><td>1 249 850</td></tr>
+              <tr><td>ERP.COMMANDES</td><td>1 250 000</td></tr>
+              <tr class="has-alert"><td>Écart</td><td><strong>-150</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="na-note na-note-key">
+          <strong>Deux contrôles, deux significations</strong>
+          <p>
+            <strong>Le statut OK/KO décrit l’exécution du traitement.</strong> L’écart de volumétrie décrit
+            la cohérence des données produites. Un traitement peut donc être <strong>OK</strong> tout en
+            présentant un écart qui devra être signalé dans la restitution de la NA.
+          </p>
+        </div>
+
+        <div class="na-compare">
+          <div>
+            <small>ERREUR D’EXÉCUTION</small>
+            <b>KO</b>
+            <p>Le script n’a pas atteint <code>SuiviNaFin</code>.</p>
+          </div>
+          <div>
+            <small>ÉCART DE VOLUMÉTRIE</small>
+            <b>OK + alerte</b>
+            <p>Le traitement est terminé, mais les données sont à contrôler.</p>
+          </div>
+        </div>
+
+        <div class="na-note na-note-warning">
+          <strong>Attention au périmètre comparé</strong>
+          <p>
+            Une égalité stricte entre un QVD et une table source n’est pertinente que si les deux représentent
+            le même périmètre. Un chargement filtré, agrégé, transformé ou incrémental peut légitimement
+            produire une volumétrie différente. Le contrôle doit donc être adapté à la logique du traitement.
+          </p>
+        </div>
+      </section>
+
+      <section id="schemas">
+        <em>04 — PLUSIEURS SOURCES</em>
+        <h2>Le nom du QVD fournit déjà le nom de la table</h2>
+
+        <p>
+          Une application peut produire plusieurs QVD provenant de différents schémas du SGBD. Si l’on adopte
+          la convention <strong>un QVD = une table source homonyme</strong>, inutile de déclarer chaque table
+          individuellement : le nom du QVD fournit déjà le nom de la table.
+        </p>
+
+        <p>Il reste simplement à indiquer les schémas sources à contrôler :</p>
+
+        <div class="na-code">
+          <header><span>CONFIGURATION</span><b>Qlik Script</b></header>
+          <pre><code>SET vTablesSuiviFinNa =
+    'ERP|REFERENTIEL|CRM';</code></pre>
+        </div>
+
+        <p>
+          Le caractère <code>|</code> n’a ici aucune signification particulière dans Qlik : c’est simplement
+          le séparateur choisi pour stocker plusieurs schémas dans une même variable.
+        </p>
+
+        <div class="na-result">
+          <table>
+            <thead>
+              <tr><th>QVD produit</th><th>Schéma</th><th>Table source déduite</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>COMMANDES.qvd</td><td>ERP</td><td>ERP.COMMANDES</td></tr>
+              <tr><td>CLIENTS.qvd</td><td>ERP</td><td>ERP.CLIENTS</td></tr>
+              <tr><td>ARTICLES.qvd</td><td>REFERENTIEL</td><td>REFERENTIEL.ARTICLES</td></tr>
+              <tr><td>CONTACTS.qvd</td><td>CRM</td><td>CRM.CONTACTS</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="na-note na-note-key">
+          <strong>La règle à retenir</strong>
+          <p><strong>Le schéma vient de la configuration ; le nom de la table vient du QVD.</strong></p>
+        </div>
+
+        <p>Quelques lignes suffisent à illustrer le parcours de cette liste :</p>
+
+        <div class="na-code">
+          <header><span>EXEMPLE SOSBI</span><b>Qlik Script</b></header>
+          <pre><code>IF Len(Trim('$(vTablesSuiviFinNa)')) &gt; 0 THEN
+
+    FOR vIndex = 1 TO
+        SubStringCount('$(vTablesSuiviFinNa)', '|') + 1
+
+        LET vSchema =
+            Trim(
+                SubField(
+                    '$(vTablesSuiviFinNa)',
+                    '|',
+                    $(vIndex)
+                )
+            );
+
+        IF Len('$(vSchema)') &gt; 0 THEN
+            // Contrôle des QVD associés au schéma...
+        END IF
+
+    NEXT vIndex
+
+END IF</code></pre>
+        </div>
+
+        <p>
+          Le premier test évite de lancer la boucle si aucune liste n’a été définie. Le second ignore un
+          élément vide, par exemple après un séparateur final ou en présence d’espaces parasites.
+        </p>
+      </section>
+
+      <section id="restitution">
+        <em>05 — RESTITUTION</em>
+        <h2>Faire ressortir immédiatement ce qui mérite l’attention</h2>
+
+        <p>
+          Le QVD de suivi peut alimenter une application de restitution de la Nuit Applicative. L’objectif
+          n’est pas de mélanger les contrôles, mais au contraire de rendre leur lecture immédiate.
+        </p>
+
+        <div class="na-result na-result-final">
+          <table>
+            <thead>
+              <tr><th>Application</th><th>Durée</th><th>Volume QVD</th><th>Volume source</th><th>Écart</th><th>Statut</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>CHARGEMENT_VENTES</td><td>00:12</td><td>1 250 000</td><td>1 250 000</td><td>0</td>
+                <td><span class="na-tag ok">OK</span></td>
+              </tr>
+              <tr class="volume-alert">
+                <td>CHARGEMENT_CLIENTS</td><td>00:08</td><td>499 850</td><td>500 000</td>
+                <td><span class="na-tag alert">-150</span></td>
+                <td><span class="na-tag ok">OK</span></td>
+              </tr>
+              <tr class="execution-alert">
+                <td>CHARGEMENT_STOCKS</td><td>—</td><td>—</td><td>—</td><td>—</td>
+                <td><span class="na-tag ko">KO</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>
+          Ici, <strong>CHARGEMENT_CLIENTS</strong> a bien atteint sa fin : son statut reste donc
+          <code>OK</code>. L’écart de <code>-150</code> est néanmoins mis en évidence par un indicateur
+          rouge dans le rapport.
+        </p>
+
+        <p>
+          À l’inverse, <strong>CHARGEMENT_STOCKS</strong> est resté en <code>KO</code> : son traitement
+          n’a jamais atteint <code>SuiviNaFin</code>. Le même suivi peut naturellement servir de base à
+          d’autres mécanismes d’alerte.
+        </p>
+
+        <div class="na-big-flow" aria-label="Fonctionnement complet du suivi de Nuit Applicative">
+          <div><small>1</small><b>SuiviNaDebut</b><span>KO provisoire</span></div>
+          <i>→</i>
+          <div><small>2</small><b>Traitement Qlik</b><span>Chargements et STORE</span></div>
+          <i>→</i>
+          <div><small>3</small><b>SuiviNaFin</b><span>Fin + durée</span></div>
+          <i>→</i>
+          <div><small>4</small><b>Volumétrie</b><span>QVD ↔ source</span></div>
+          <i>→</i>
+          <div><small>5</small><b>Restitution</b><span>OK / KO / alerte</span></div>
+        </div>
+      </section>
+
+      <section id="retenir">
+        <em>06 — SYNTHÈSE</em>
+        <h2>À retenir</h2>
+
+        <div class="na-memo">
+          <div><b>KO au départ</b><p>Une exécution n’est considérée comme terminée que lorsque sa fin a réellement été atteinte.</p></div>
+          <div><b>OK à la fin</b><p><code>SuiviNaFin</code> clôture l’exécution lorsqu’elle arrive normalement au terme du script.</p></div>
+          <div><b>Volumétrie séparée</b><p>Un écart de lignes n’est pas un KO d’exécution : il devient une alerte de contrôle.</p></div>
+          <div><b>Configuration légère</b><p>Les schémas sont séparés par <code>|</code> et le nom du QVD permet de retrouver la table homonyme.</p></div>
+        </div>
+
+        <p>
+          Cette approche ne cherche pas à remplacer la supervision proposée par Qlik Sense. Elle la complète
+          avec une logique directement liée au déroulement des traitements et aux données qu’ils produisent.
+        </p>
+
+        <p>
+          L’idée reste volontairement simple : <strong>poser une trace au démarrage, constater la fin,
+          mesurer la durée et signaler séparément les écarts de volumétrie.</strong> À chacun ensuite
+          d’adapter l’implémentation à son architecture et à ses propres règles de contrôle.
+        </p>
+
+        <p class="na-source">
+          Référence technique :
+          <a href="https://help.qlik.com/en-US/sense/May2026/Subsystems/Hub/Content/Sense_Hub/Scripting/FileFunctions/QvdNoOfRecords.htm"
+             target="_blank" rel="noopener noreferrer">documentation Qlik — QvdNoOfRecords()</a>.
+        </p>
+      </section>
+    </article>
+  </main>
+</BaseLayout>
