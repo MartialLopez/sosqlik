@@ -6,7 +6,7 @@ import '../../styles/article-na-v515.css';
 
 <BaseLayout
   title="Suivre l’exécution d’une Nuit Applicative dans Qlik Sense — SOSBI"
-  description="Mettre en place un suivi simple de Nuit Applicative dans Qlik Sense : KO provisoire, SuiviNaDebut, SuiviNaFin, durée, contrôle des volumes QVD et restitution des écarts."
+  description="Suivre une Nuit Applicative dans Qlik Sense : KO provisoire, SuiviNaDebut, SuiviNaFin, contrôle des volumes QVD et restitution des écarts."
 >
   <section class="article-hero tech-hero">
     <div class="container">
@@ -16,7 +16,7 @@ import '../../styles/article-na-v515.css';
         Un KO posé dès le départ, un OK seulement lorsque le traitement atteint sa fin,
         et un contrôle de volumétrie indépendant pour repérer les données à vérifier.
       </p>
-      <p class="article-meta">Par Martial LOPEZ · 3 octobre 2026 · Lecture ~9 min</p>
+      <p class="article-meta">Par Martial LOPEZ · 3 octobre 2026 · Lecture ~6 min</p>
     </div>
   </section>
 
@@ -24,13 +24,13 @@ import '../../styles/article-na-v515.css';
     <article class="container article-wrap na-main">
       <nav class="toc" aria-label="Sommaire de l’article">
         <strong>Dans cet article</strong>
-        <a href="#principe">1. Le principe</a>
-        <a href="#debut">2. Poser le KO au démarrage</a>
-        <a href="#fin">3. Clôturer avec SuiviNaFin</a>
-        <a href="#volumetrie">4. Contrôler la volumétrie</a>
-        <a href="#schemas">5. Plusieurs schémas sources</a>
-        <a href="#restitution">6. Restituer la Nuit Applicative</a>
-        <a href="#retenir">7. À retenir</a>
+        <a href="#principe">Introduction · Le principe</a>
+        <a href="#debut">01. Poser le KO au démarrage</a>
+        <a href="#fin">02. Clôturer avec SuiviNaFin</a>
+        <a href="#volumetrie">03. Contrôler la volumétrie</a>
+        <a href="#schemas">04. Plusieurs schémas sources</a>
+        <a href="#restitution">05. Restituer la Nuit Applicative</a>
+        <a href="#retenir">06. À retenir</a>
       </nav>
 
       <section id="principe">
@@ -46,7 +46,7 @@ import '../../styles/article-na-v515.css';
         <p>
           La QMC indique l’état d’une tâche, mais on peut souhaiter disposer, dans les données elles-mêmes,
           d’un suivi complémentaire : le traitement a-t-il réellement démarré ? Est-il arrivé jusqu’à son
-          terme ? Combien de temps a-t-il duré ? Quels volumes a-t-il produits ?
+          terme ? Combien de temps a-t-il duré ? Quels volumes a-t-il produits&nbsp;?
         </p>
 
         <div class="na-questions">
@@ -97,9 +97,11 @@ CALL SuiviNaFin(...);</code></pre>
         <div class="na-note">
           <strong>Pourquoi ne pas utiliser EN_COURS ?</strong>
           <p>
-            Le KO joue ici le rôle d’une sécurité par défaut. Si une véritable erreur provoque une sortie
-            du script avant <code>SuiviNaFin</code>, aucune action supplémentaire n’est nécessaire :
-            <strong>le KO reste présent</strong> et signale une exécution commencée mais non clôturée.
+            Avec un statut <code>EN_COURS</code>, un traitement interrompu resterait indéfiniment « en cours »
+            et il faudrait définir un délai à partir duquel le considérer comme perdu. Le <code>KO</code> évite
+            cette règle supplémentaire : si une véritable erreur provoque une sortie du script avant
+            <code>SuiviNaFin</code>, <strong>le KO reste présent</strong> et signale une exécution commencée
+            mais non clôturée.
           </p>
         </div>
       </section>
@@ -120,9 +122,9 @@ CALL SuiviNaFin(...);</code></pre>
         </div>
 
         <p>
-          Mécaniquement, l’enregistrement provisoire <code>KO</code> correspondant à l’exécution en cours
-          est retiré du suivi, puis l’exécution définitive est enregistrée en <code>OK</code> avec ses
-          informations de fin.
+          Lorsque <code>SuiviNaFin</code> est atteinte, le suivi de cette exécution est clôturé en
+          <code>OK</code> avec ses informations de fin. Si la routine n’est jamais atteinte, le
+          <code>KO</code> posé au démarrage reste présent.
         </p>
 
         <div class="na-branch">
