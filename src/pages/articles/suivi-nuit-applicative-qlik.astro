@@ -99,7 +99,7 @@ CALL SuiviNaFin(...);</code></pre>
           <p>
             Avec un statut <code>EN_COURS</code>, un traitement interrompu resterait indéfiniment « en cours »
             et il faudrait définir un délai à partir duquel le considérer comme perdu. Le <code>KO</code> évite
-            cette règle supplémentaire : si une véritable erreur provoque une sortie du script avant
+            cette règle supplémentaire : si une véritable erreur provoque une sortie du script avant{" "}
             <code>SuiviNaFin</code>, <strong>le KO reste présent</strong> et signale une exécution commencée
             mais non clôturée.
           </p>
@@ -111,7 +111,7 @@ CALL SuiviNaFin(...);</code></pre>
         <h2>SuiviNaFin : l’OK se mérite à la fin</h2>
 
         <p>
-          Lorsque les traitements sont terminés et que les QVD ont été produits, l’application atteint
+          Lorsque les traitements sont terminés et que les QVD ont été produits, l’application atteint{" "}
           <code>SuiviNaFin</code>. La routine peut alors enregistrer l’heure de fin, calculer la durée et
           clôturer l’exécution.
         </p>
@@ -122,8 +122,8 @@ CALL SuiviNaFin(...);</code></pre>
         </div>
 
         <p>
-          Lorsque <code>SuiviNaFin</code> est atteinte, le suivi de cette exécution est clôturé en
-          <code>OK</code> avec ses informations de fin. Si la routine n’est jamais atteinte, le
+          Lorsque <code>SuiviNaFin</code> est atteinte, le suivi de cette exécution est clôturé en{" "}
+          <code>OK</code> avec ses informations de fin. Si la routine n’est jamais atteinte, le{" "}
           <code>KO</code> posé au démarrage reste présent.
         </p>
 
@@ -158,7 +158,7 @@ CALL SuiviNaFin(...);</code></pre>
 
         <p>
           Arriver jusqu’à la fin du script confirme que le traitement s’est exécuté. Cela ne garantit pas,
-          à lui seul, que la volumétrie produite est celle attendue. On peut donc profiter de
+          à lui seul, que la volumétrie produite est celle attendue. On peut donc profiter de{" "}
           <code>SuiviNaFin</code> pour ajouter un contrôle complémentaire.
         </p>
 
@@ -335,7 +335,7 @@ END IF</code></pre>
         </div>
 
         <p>
-          Ici, <strong>CHARGEMENT_CLIENTS</strong> a bien atteint sa fin : son statut reste donc
+          Ici, <strong>CHARGEMENT_CLIENTS</strong> a bien atteint sa fin : son statut reste donc{" "}
           <code>OK</code>. L’écart de <code>-150</code> est néanmoins mis en évidence par un indicateur
           rouge dans le rapport.
         </p>
