@@ -1,0 +1,500 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import TutorialLayout from '../../components/TutorialLayout.astro';
+
+const lessons = [
+{
+  id:'principe',
+  n:'01',
+  title:'Comprendre KEEP dans Qlik',
+  level:'Intermédiaire',
+  intro:'KEEP compare deux tables à partir de leurs champs communs et réduit les données selon les correspondances, sans fusionner les tables.',
+  detail:'C’est la différence fondamentale avec JOIN. JOIN produit une seule table. KEEP conserve deux tables distinctes dans le modèle associatif Qlik.',
+  example:`<div class="kp-hero">
+    <div class="kp-box">
+      <span>▦</span><b>CLIENTS</b><small>ID_CLIENT · NOM_CLIENT</small>
+    </div>
+    <div class="kp-op">KEEP</div>
+    <div class="kp-box">
+      <span>▦</span><b>COMMANDES</b><small>ID_CLIENT · ID_COMMANDE</small>
+    </div>
+    <div class="kp-down">↓</div>
+    <div class="kp-result">
+      <div><b>CLIENTS</b><small>reste une table</small></div>
+      <div><b>COMMANDES</b><small>reste une table</small></div>
+    </div>
+  </div>
+  <div class="kp-key">
+    <strong>💡 L’image mentale</strong>
+    <span><b>JOIN fusionne.</b> <b>KEEP sélectionne les lignes à conserver mais garde les tables séparées.</b></span>
+  </div>`,
+  facts:[
+    ['JOIN','fusionne les tables'],
+    ['KEEP','conserve deux tables distinctes'],
+    ['Comparaison','sur tous les champs communs'],
+    ['Variantes','INNER · LEFT · RIGHT']
+  ],
+  note:'✓ KEEP doit être précédé de INNER, LEFT ou RIGHT.',
+  advantages:['Réduit les ensembles sans imposer une fusion'],
+  disadvantages:['Il faut bien comprendre quel côté est conservé ou réduit']
+},
+{
+  id:'donnees',
+  n:'02',
+  title:'Nos deux tables de départ',
+  level:'Intermédiaire',
+  intro:'Nous allons conserver les mêmes données pendant tout le tutoriel afin de voir précisément l’effet de chaque KEEP.',
+  detail:'CLIENTS contient C001, C002 et C003. COMMANDES contient deux commandes pour C001, une pour C002 et une pour C004. C003 n’a donc aucune commande et C004 n’existe pas dans CLIENTS.',
+  example:`<div class="kp-two">
+    <div class="kp-table-card">
+      <strong>▦ CLIENTS.qvd</strong>
+      <table class="kp-table">
+        <thead><tr><th>ID_CLIENT</th><th>NOM_CLIENT</th></tr></thead>
+        <tbody>
+          <tr><td>C001</td><td>Martin</td></tr>
+          <tr><td>C002</td><td>Durand</td></tr>
+          <tr class="kp-alone"><td>C003</td><td>Bernard</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="kp-table-card">
+      <strong>▦ COMMANDES.qvd</strong>
+      <table class="kp-table">
+        <thead><tr><th>ID_COMMANDE</th><th>ID_CLIENT</th></tr></thead>
+        <tbody>
+          <tr><td>CMD01</td><td>C001</td></tr>
+          <tr><td>CMD02</td><td>C001</td></tr>
+          <tr><td>CMD03</td><td>C002</td></tr>
+          <tr class="kp-alone"><td>CMD04</td><td>C004</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="kp-legend">
+    <span>🟠 C003 : client sans commande</span>
+    <span>🟠 C004 : commande sans client correspondant</span>
+  </div>`,
+  facts:[
+    ['Champ commun','ID_CLIENT'],
+    ['Clés communes','C001 et C002'],
+    ['C003','CLIENTS seulement'],
+    ['C004','COMMANDES seulement']
+  ],
+  note:'Ces deux valeurs sans correspondance vont rendre les différences entre INNER, LEFT et RIGHT KEEP très visibles.',
+  advantages:['Même exemple pour les trois variantes'],
+  disadvantages:[]
+},
+{
+  id:'inner',
+  n:'03',
+  title:'INNER KEEP : réduire les deux côtés',
+  level:'Intermédiaire',
+  intro:'INNER KEEP correspond à l’idée la plus proche d’une intersection : les deux tables sont réduites aux valeurs de clé présentes des deux côtés.',
+  detail:'C001 et C002 existent dans CLIENTS et COMMANDES : ils restent. C003 disparaît de CLIENTS et la commande de C004 disparaît de COMMANDES.',
+  example:`<pre><code>CLIENTS:
+LOAD
+    ID_CLIENT,
+    NOM_CLIENT
+FROM [lib://Donnees/CLIENTS.qvd] (qvd);
+
+COMMANDES:
+INNER KEEP (CLIENTS)
+LOAD
+    ID_COMMANDE,
+    ID_CLIENT
+FROM [lib://Donnees/COMMANDES.qvd] (qvd);</code></pre>
+
+  <div class="kp-after">
+    <div class="kp-table-card">
+      <strong>▦ CLIENTS après INNER KEEP</strong>
+      <table class="kp-table">
+        <thead><tr><th>ID_CLIENT</th><th>NOM_CLIENT</th></tr></thead>
+        <tbody>
+          <tr><td>C001</td><td>Martin</td></tr>
+          <tr><td>C002</td><td>Durand</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="kp-table-card">
+      <strong>▦ COMMANDES après INNER KEEP</strong>
+      <table class="kp-table">
+        <thead><tr><th>ID_COMMANDE</th><th>ID_CLIENT</th></tr></thead>
+        <tbody>
+          <tr><td>CMD01</td><td>C001</td></tr>
+          <tr><td>CMD02</td><td>C001</td></tr>
+          <tr><td>CMD03</td><td>C002</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="kp-rule"><b>INNER KEEP</b><span>réduit CLIENTS <b>et</b> COMMANDES aux clés communes.</span></div>`,
+  facts:[
+    ['CLIENTS','C001 · C002'],
+    ['COMMANDES','commandes de C001 · C002'],
+    ['C003','retiré'],
+    ['C004','retiré']
+  ],
+  note:'✓ INNER KEEP = intersection des correspondances, mais toujours deux tables.',
+  advantages:['Réduit les deux ensembles aux correspondances utiles'],
+  disadvantages:['Supprime les lignes sans correspondance des deux côtés']
+},
+{
+  id:'left',
+  n:'04',
+  title:'LEFT KEEP : conserver la première table',
+  level:'Intermédiaire',
+  intro:'LEFT KEEP conserve la première table et réduit la seconde aux valeurs qui trouvent une correspondance dans la première.',
+  detail:'CLIENTS est notre première table : elle reste intacte, y compris C003. COMMANDES est réduite : la commande de C004 disparaît puisqu’aucun client C004 n’existe dans CLIENTS.',
+  example:`<pre><code>CLIENTS:
+LOAD
+    ID_CLIENT,
+    NOM_CLIENT
+FROM [lib://Donnees/CLIENTS.qvd] (qvd);
+
+COMMANDES:
+LEFT KEEP (CLIENTS)
+LOAD
+    ID_COMMANDE,
+    ID_CLIENT
+FROM [lib://Donnees/COMMANDES.qvd] (qvd);</code></pre>
+
+  <div class="kp-after">
+    <div class="kp-table-card kp-kept">
+      <strong>▦ CLIENTS — conservée</strong>
+      <table class="kp-table">
+        <thead><tr><th>ID_CLIENT</th><th>NOM_CLIENT</th></tr></thead>
+        <tbody>
+          <tr><td>C001</td><td>Martin</td></tr>
+          <tr><td>C002</td><td>Durand</td></tr>
+          <tr><td>C003</td><td>Bernard</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="kp-table-card">
+      <strong>▦ COMMANDES — réduite</strong>
+      <table class="kp-table">
+        <thead><tr><th>ID_COMMANDE</th><th>ID_CLIENT</th></tr></thead>
+        <tbody>
+          <tr><td>CMD01</td><td>C001</td></tr>
+          <tr><td>CMD02</td><td>C001</td></tr>
+          <tr><td>CMD03</td><td>C002</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="kp-rule"><b>LEFT KEEP</b><span>garde la table de gauche et réduit l’autre.</span></div>`,
+  facts:[
+    ['CLIENTS','reste intacte'],
+    ['C003','reste présent'],
+    ['COMMANDES','est réduite'],
+    ['CMD04 / C004','est retirée']
+  ],
+  note:'✓ Pensez LEFT : la première table constitue le côté que l’on préserve.',
+  advantages:['Conserver une table principale tout en réduisant l’autre'],
+  disadvantages:['Le mot LEFT est facile à confondre avec LEFT JOIN si l’on oublie que les tables restent séparées']
+},
+{
+  id:'right',
+  n:'05',
+  title:'RIGHT KEEP : conserver la seconde table',
+  level:'Intermédiaire',
+  intro:'RIGHT KEEP applique la logique inverse : la table chargée avec KEEP est conservée et la première table est réduite à ses correspondances.',
+  detail:'Toutes les COMMANDES restent donc présentes, y compris CMD04 pour C004. CLIENTS est réduit à C001 et C002, car C003 n’a aucune commande.',
+  example:`<pre><code>CLIENTS:
+LOAD
+    ID_CLIENT,
+    NOM_CLIENT
+FROM [lib://Donnees/CLIENTS.qvd] (qvd);
+
+COMMANDES:
+RIGHT KEEP (CLIENTS)
+LOAD
+    ID_COMMANDE,
+    ID_CLIENT
+FROM [lib://Donnees/COMMANDES.qvd] (qvd);</code></pre>
+
+  <div class="kp-after">
+    <div class="kp-table-card">
+      <strong>▦ CLIENTS — réduite</strong>
+      <table class="kp-table">
+        <thead><tr><th>ID_CLIENT</th><th>NOM_CLIENT</th></tr></thead>
+        <tbody>
+          <tr><td>C001</td><td>Martin</td></tr>
+          <tr><td>C002</td><td>Durand</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="kp-table-card kp-kept">
+      <strong>▦ COMMANDES — conservée</strong>
+      <table class="kp-table">
+        <thead><tr><th>ID_COMMANDE</th><th>ID_CLIENT</th></tr></thead>
+        <tbody>
+          <tr><td>CMD01</td><td>C001</td></tr>
+          <tr><td>CMD02</td><td>C001</td></tr>
+          <tr><td>CMD03</td><td>C002</td></tr>
+          <tr><td>CMD04</td><td>C004</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="kp-rule"><b>RIGHT KEEP</b><span>garde la table entrante et réduit la première.</span></div>`,
+  facts:[
+    ['COMMANDES','reste intacte'],
+    ['CMD04 / C004','reste présente'],
+    ['CLIENTS','est réduite'],
+    ['C003','est retiré']
+  ],
+  note:'✓ RIGHT KEEP devient beaucoup plus simple à comprendre lorsque l’on regarde quelle table reste intacte.',
+  advantages:['Préserver le chargement entrant tout en réduisant la table existante'],
+  disadvantages:['Moins intuitif à lire au premier abord']
+},
+{
+  id:'comparatif',
+  n:'06',
+  title:'INNER, LEFT et RIGHT en un coup d’œil',
+  level:'Intermédiaire',
+  intro:'Avec les mêmes données, la différence entre les trois variantes tient simplement au côté que KEEP doit préserver.',
+  detail:'INNER réduit les deux côtés. LEFT préserve la première table. RIGHT préserve la seconde. Aucun de ces traitements ne fusionne CLIENTS et COMMANDES.',
+  example:`<div class="kp-compare">
+    <div>
+      <span class="kp-pill">INNER KEEP</span>
+      <strong>Les deux sont réduites</strong>
+      <p>CLIENTS : C001 · C002</p>
+      <p>COMMANDES : C001 · C001 · C002</p>
+    </div>
+    <div>
+      <span class="kp-pill">LEFT KEEP</span>
+      <strong>CLIENTS est préservée</strong>
+      <p>CLIENTS : C001 · C002 · C003</p>
+      <p>COMMANDES : C001 · C001 · C002</p>
+    </div>
+    <div>
+      <span class="kp-pill">RIGHT KEEP</span>
+      <strong>COMMANDES est préservée</strong>
+      <p>CLIENTS : C001 · C002</p>
+      <p>COMMANDES : C001 · C001 · C002 · C004</p>
+    </div>
+  </div>
+
+  <div class="kp-memory">
+    <b>🧠 Le moyen mnémotechnique</b>
+    <span><strong>INNER</strong> → les deux sont réduites</span>
+    <span><strong>LEFT</strong> → la première reste entière</span>
+    <span><strong>RIGHT</strong> → la seconde reste entière</span>
+  </div>`,
+  facts:[
+    ['INNER','réduit les deux tables'],
+    ['LEFT','préserve la première'],
+    ['RIGHT','préserve la seconde'],
+    ['Dans les 3 cas','deux tables distinctes']
+  ],
+  note:'C’est ce tableau mental qu’il faut retenir avant tout le reste.',
+  advantages:['Choix rapide de la variante adaptée'],
+  disadvantages:['Toujours vérifier le sens du chargement avant de raisonner en gauche/droite']
+},
+{
+  id:'join',
+  n:'07',
+  title:'KEEP ou JOIN ?',
+  level:'Intermédiaire',
+  intro:'KEEP et JOIN utilisent une logique de correspondance comparable, mais leur résultat dans le modèle Qlik est fondamentalement différent.',
+  detail:'JOIN rapproche les lignes puis fusionne les champs dans une table résultante. KEEP utilise les correspondances pour réduire les ensembles, puis laisse les deux tables séparées et associées par leurs champs communs.',
+  example:`<div class="kp-vs">
+    <div>
+      <span>🧩</span>
+      <strong>INNER JOIN</strong>
+      <div class="kp-mini">CLIENTS + COMMANDES</div>
+      <div class="kp-down-small">↓</div>
+      <div class="kp-one"><b>1 table</b><small>ID_CLIENT · NOM_CLIENT · ID_COMMANDE</small></div>
+    </div>
+    <div>
+      <span>✂️</span>
+      <strong>INNER KEEP</strong>
+      <div class="kp-mini">CLIENTS ∩ COMMANDES</div>
+      <div class="kp-down-small">↓</div>
+      <div class="kp-two-result"><b>2 tables</b><small>réduites mais séparées</small></div>
+    </div>
+  </div>`,
+  facts:[
+    ['JOIN','fusion'],
+    ['KEEP','réduction'],
+    ['JOIN','une table résultante'],
+    ['KEEP','deux tables associées']
+  ],
+  note:'✓ Si votre objectif est uniquement de limiter les données selon leurs correspondances, demandez-vous si une fusion par JOIN est réellement nécessaire.',
+  advantages:['KEEP préserve le modèle à plusieurs tables'],
+  disadvantages:['KEEP ne remplace pas JOIN lorsqu’une vraie fusion est nécessaire']
+},
+{
+  id:'choisir',
+  n:'08',
+  title:'Quand utiliser KEEP ?',
+  level:'Bonnes pratiques',
+  intro:'KEEP est pertinent lorsque vous souhaitez limiter les lignes chargées selon les correspondances entre deux ensembles tout en conservant les tables séparées.',
+  detail:'Il ne faut pas utiliser KEEP simplement parce qu’il existe. Une association Qlik naturelle suffit souvent lorsque vous n’avez pas besoin de réduire les données. KEEP devient intéressant lorsque cette réduction fait réellement partie du besoin.',
+  example:`<div class="kp-final-grid">
+    <div>
+      <span>✓</span>
+      <strong>Association simple</strong>
+      <p>Je veux conserver les deux tables complètes et les relier.</p>
+      <b>→ Association Qlik</b>
+    </div>
+    <div>
+      <span>✂️</span>
+      <strong>Réduire sans fusionner</strong>
+      <p>Je veux limiter une ou deux tables selon leurs correspondances.</p>
+      <b>→ KEEP</b>
+    </div>
+    <div>
+      <span>🧩</span>
+      <strong>Fusion réelle</strong>
+      <p>Je veux obtenir une seule table contenant les champs des deux sources.</p>
+      <b>→ JOIN</b>
+    </div>
+  </div>
+
+  <div class="kp-final">
+    <strong>Avant d’écrire KEEP</strong>
+    <ol>
+      <li>Quels sont exactement les champs communs ?</li>
+      <li>Dois-je réduire une seule table ou les deux ?</li>
+      <li>Quelle table doit rester intacte ?</li>
+      <li>Ai-je besoin de deux tables séparées à la fin ?</li>
+    </ol>
+  </div>`,
+  facts:[
+    ['Tables complètes','association'],
+    ['Réduction sans fusion','KEEP'],
+    ['Fusion','JOIN'],
+    ['Réflexe','identifier le besoin avant la syntaxe']
+  ],
+  note:'✓ Le bon choix n’est pas le plus sophistiqué : c’est celui qui traduit le plus clairement le modèle dont vous avez besoin.',
+  advantages:['Choix raisonné entre association, KEEP et JOIN'],
+  disadvantages:['Un KEEP inutile ajoute de la complexité au script']
+}
+];
+---
+
+<BaseLayout
+  title="KEEP dans Qlik Sense : INNER, LEFT et RIGHT KEEP — SOSBI"
+  description="Comprendre INNER KEEP, LEFT KEEP et RIGHT KEEP dans Qlik Sense avec des exemples avant/après et la différence essentielle entre KEEP, JOIN et association."
+>
+  <TutorialLayout
+    title="KEEP dans Qlik Sense"
+    description="INNER, LEFT ou RIGHT : voyez quelles lignes sont conservées dans chaque table et comprenez enfin la différence entre KEEP et JOIN."
+    navTitle="KEEP dans Qlik"
+    lessons={lessons}
+  />
+</BaseLayout>
+
+<style is:global>
+.tutorial-generic .kp-hero{
+  display:flex;flex-wrap:wrap;align-items:center;justify-content:center;
+  gap:.8rem;margin:.8rem 0
+}
+.tutorial-generic .kp-box{
+  display:flex;flex-direction:column;min-width:220px;padding:.9rem 1rem;
+  border:1px solid rgba(0,174,122,.28);border-radius:12px;
+  background:rgba(0,174,122,.025)
+}
+.tutorial-generic .kp-box>span{color:#00a878;font-size:1.1rem}
+.tutorial-generic .kp-box small{margin-top:.2rem;opacity:.72}
+.tutorial-generic .kp-op{
+  padding:.35rem .6rem;border-radius:999px;background:rgba(0,174,122,.1);
+  color:#008f69;font-weight:850;font-size:.72rem
+}
+.tutorial-generic .kp-down{width:100%;text-align:center;color:#00a878;font-size:1.3rem}
+.tutorial-generic .kp-result{display:flex;gap:.7rem;flex-wrap:wrap;justify-content:center}
+.tutorial-generic .kp-result>div{
+  display:flex;flex-direction:column;min-width:180px;padding:.65rem .8rem;
+  border:1px solid rgba(0,174,122,.35);border-radius:10px;background:rgba(0,174,122,.06)
+}
+.tutorial-generic .kp-key,.tutorial-generic .kp-memory,.tutorial-generic .kp-final{
+  display:flex;flex-direction:column;gap:.25rem;margin-top:.9rem;padding:.8rem 1rem;
+  border-radius:11px;background:rgba(0,174,122,.075);font-size:.76rem
+}
+.tutorial-generic .kp-two,.tutorial-generic .kp-after{
+  display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:.8rem 0
+}
+.tutorial-generic .kp-table-card{
+  padding:.8rem;border:1px solid rgba(0,174,122,.28);
+  border-radius:12px;background:rgba(0,174,122,.018);min-width:0
+}
+.tutorial-generic .kp-table-card>strong{
+  display:block;margin-bottom:.55rem;font-size:.76rem
+}
+.tutorial-generic .kp-table{width:100%;border-collapse:collapse;font-size:.71rem}
+.tutorial-generic .kp-table th,.tutorial-generic .kp-table td{
+  padding:.42rem .5rem;border:1px solid var(--border);text-align:left
+}
+.tutorial-generic .kp-table th{background:rgba(127,127,127,.08);font-size:.64rem}
+.tutorial-generic .kp-alone{background:rgba(239,142,38,.11)}
+.tutorial-generic .kp-legend{display:flex;gap:.8rem;flex-wrap:wrap;font-size:.7rem}
+.tutorial-generic .kp-kept{
+  border-color:rgba(0,174,122,.5);
+  background:rgba(0,174,122,.055)
+}
+.tutorial-generic .kp-rule{
+  display:flex;align-items:center;gap:.6rem;margin:.8rem 0 0;padding:.65rem .8rem;
+  border-left:4px solid #00a878;background:rgba(0,174,122,.06);
+  border-radius:8px;font-size:.75rem
+}
+.tutorial-generic .kp-compare,.tutorial-generic .kp-final-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;margin:.8rem 0
+}
+.tutorial-generic .kp-compare>div,.tutorial-generic .kp-final-grid>div{
+  padding:.85rem;border:1px solid rgba(0,174,122,.25);
+  border-radius:12px;background:rgba(0,174,122,.018)
+}
+.tutorial-generic .kp-compare strong,.tutorial-generic .kp-final-grid strong{
+  display:block;margin:.45rem 0
+}
+.tutorial-generic .kp-compare p,.tutorial-generic .kp-final-grid p{
+  margin:.25rem 0;font-size:.71rem;line-height:1.45
+}
+.tutorial-generic .kp-pill{
+  display:inline-block;padding:.2rem .45rem;border-radius:999px;
+  background:rgba(0,174,122,.11);color:#008f69;font-size:.61rem;font-weight:850
+}
+.tutorial-generic .kp-vs{
+  display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:.8rem 0
+}
+.tutorial-generic .kp-vs>div{
+  text-align:center;padding:1rem;border:1px solid rgba(0,174,122,.26);
+  border-radius:12px;background:rgba(0,174,122,.018)
+}
+.tutorial-generic .kp-vs>div>span{font-size:1.35rem}
+.tutorial-generic .kp-vs strong{display:block;margin:.3rem 0 .7rem}
+.tutorial-generic .kp-mini{font-size:.72rem}
+.tutorial-generic .kp-down-small{margin:.35rem 0;color:#00a878}
+.tutorial-generic .kp-one,.tutorial-generic .kp-two-result{
+  display:flex;flex-direction:column;padding:.6rem;border-radius:9px;
+  background:rgba(0,174,122,.08);font-size:.73rem
+}
+.tutorial-generic .kp-one small,.tutorial-generic .kp-two-result small{margin-top:.2rem}
+.tutorial-generic .kp-final ol{margin:.35rem 0 0;padding-left:1.2rem}
+.tutorial-generic .kp-final li{margin:.2rem 0}
+
+/* Priorité aux illustrations de ce tutoriel */
+.tutorial-generic .exercise .learning-row{grid-template-columns:1fr}
+.tutorial-generic .exercise .concrete-card-v3{display:none}
+.tutorial-generic .exercise .what-card{width:100%;min-width:0}
+.tutorial-generic .exercise .what-copy{min-width:0}
+
+html[data-theme="dark"] .tutorial-generic .kp-table-card,
+html[data-theme="dark"] .tutorial-generic .kp-compare>div,
+html[data-theme="dark"] .tutorial-generic .kp-final-grid>div,
+html[data-theme="dark"] .tutorial-generic .kp-vs>div,
+html[data-theme="dark"] .tutorial-generic .kp-box{
+  background:rgba(0,174,122,.035);
+  border-color:rgba(73,211,169,.25)
+}
+
+@media(max-width:760px){
+  .tutorial-generic .kp-two,
+  .tutorial-generic .kp-after,
+  .tutorial-generic .kp-compare,
+  .tutorial-generic .kp-final-grid,
+  .tutorial-generic .kp-vs{grid-template-columns:1fr}
+}
+</style>

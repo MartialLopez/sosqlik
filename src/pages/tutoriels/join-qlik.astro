@@ -1,0 +1,697 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import TutorialLayout from '../../components/TutorialLayout.astro';
+
+const lessons = [
+{
+  id:'principe',
+  n:'01',
+  title:'Comprendre le JOIN dans Qlik',
+  level:'Intermédiaire',
+  intro:'JOIN permet de fusionner les données de deux chargements dans une seule table Qlik.',
+  detail:'Contrairement à SQL, on n’écrit pas de clause ON dans un JOIN Qlik. Qlik rapproche automatiquement les données à partir de tous les champs portant exactement le même nom dans les deux chargements.',
+  example:`<div class="jn-flow">
+    <div class="jn-source"><b>VENTES</b><span>ID_CLIENT · ID_VENTE · MONTANT</span></div>
+    <div class="jn-plus">+</div>
+    <div class="jn-source"><b>CLIENTS</b><span>ID_CLIENT · NOM_CLIENT</span></div>
+    <div class="jn-arrow">↓ JOIN sur <strong>ID_CLIENT</strong></div>
+    <div class="jn-result"><b>VENTES enrichie</b><span>ID_CLIENT · ID_VENTE · MONTANT · NOM_CLIENT</span></div>
+  </div>
+  <div class="jn-key">
+    <strong>🔑 Le point essentiel</strong>
+    <span>Dans cet exemple, <code>ID_CLIENT</code> porte le même nom dans les deux tables : Qlik l’utilise comme champ commun pour effectuer la jointure.</span>
+  </div>`,
+  facts:[
+    ['JOIN','fusionne les données dans une seule table'],
+    ['Clé','champ portant le même nom dans les deux chargements'],
+    ['Clause ON','il n’y en a pas dans le JOIN du script Qlik'],
+    ['Plusieurs champs communs','ils participent tous à la jointure']
+  ],
+  note:'✓ Avant un JOIN, identifiez toujours précisément les champs communs entre les deux chargements.',
+  advantages:['Enrichir une table avec des informations provenant d’une autre source'],
+  disadvantages:['Un JOIN mal maîtrisé peut modifier fortement le nombre de lignes']
+},
+{
+  id:'donnees',
+  n:'02',
+  title:'Nos deux tables de départ',
+  level:'Intermédiaire',
+  intro:'Nous allons utiliser les mêmes données dans tout le tutoriel afin de voir exactement ce que chaque type de JOIN conserve.',
+  detail:'VENTES contient quatre ventes. CLIENTS contient trois clients. Le client C004 existe dans VENTES mais pas dans CLIENTS. À l’inverse, C003 existe dans CLIENTS mais n’a aucune vente.',
+  example:`<div class="jn-two-tables">
+    <div class="jn-table-wrap">
+      <strong>VENTES.qvd</strong>
+      <table class="jn-table">
+        <thead><tr><th>ID_VENTE</th><th>ID_CLIENT</th><th>MONTANT</th></tr></thead>
+        <tbody>
+          <tr><td>V001</td><td>C001</td><td>50</td></tr>
+          <tr><td>V002</td><td>C002</td><td>120</td></tr>
+          <tr><td>V003</td><td>C001</td><td>75</td></tr>
+          <tr class="jn-unmatched"><td>V004</td><td>C004</td><td>90</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="jn-table-wrap">
+      <strong>CLIENTS.qvd</strong>
+      <table class="jn-table">
+        <thead><tr><th>ID_CLIENT</th><th>NOM_CLIENT</th></tr></thead>
+        <tbody>
+          <tr><td>C001</td><td>Martin</td></tr>
+          <tr><td>C002</td><td>Durand</td></tr>
+          <tr class="jn-unmatched"><td>C003</td><td>Bernard</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="jn-legend">
+    <span>🟠 C004 : une vente sans client correspondant</span>
+    <span>🟠 C003 : un client sans vente correspondante</span>
+  </div>`,
+  facts:[
+    ['Champ commun','ID_CLIENT'],
+    ['C001','2 ventes'],
+    ['C004','présent uniquement dans VENTES'],
+    ['C003','présent uniquement dans CLIENTS']
+  ],
+  note:'Ces deux lignes sans correspondance vont nous permettre de voir immédiatement la différence entre LEFT, INNER, RIGHT et OUTER JOIN.',
+  advantages:['Un même exemple pour comparer les quatre jointures'],
+  disadvantages:[]
+},
+{
+  id:'left',
+  n:'03',
+  title:'LEFT JOIN : conserver toutes les ventes',
+  level:'Intermédiaire',
+  intro:'LEFT JOIN conserve toutes les lignes de la table cible et ajoute les informations de la seconde table lorsqu’une correspondance existe.',
+  detail:'Nous chargeons d’abord VENTES. Elle devient donc notre table cible. CLIENTS est ensuite joint à VENTES grâce au champ commun ID_CLIENT.',
+  example:`<pre><code>VENTES:
+LOAD
+    ID_VENTE,
+    ID_CLIENT,
+    MONTANT
+FROM [lib://Donnees/VENTES.qvd] (qvd);
+
+LEFT JOIN (VENTES)
+LOAD
+    ID_CLIENT,
+    NOM_CLIENT
+FROM [lib://Donnees/CLIENTS.qvd] (qvd);</code></pre>
+
+  <div class="jn-after">
+    <strong>APRÈS LE LEFT JOIN</strong>
+    <table class="jn-table">
+      <thead><tr><th>ID_VENTE</th><th>ID_CLIENT</th><th>MONTANT</th><th>NOM_CLIENT</th></tr></thead>
+      <tbody>
+        <tr><td>V001</td><td>C001</td><td>50</td><td>Martin</td></tr>
+        <tr><td>V002</td><td>C002</td><td>120</td><td>Durand</td></tr>
+        <tr><td>V003</td><td>C001</td><td>75</td><td>Martin</td></tr>
+        <tr class="jn-unmatched"><td>V004</td><td>C004</td><td>90</td><td>NULL</td></tr>
+      </tbody>
+    </table>
+  </div>`,
+  facts:[
+    ['VENTES','toutes les lignes sont conservées'],
+    ['CLIENTS','apporte NOM_CLIENT lorsqu’il existe'],
+    ['C004','reste présent'],
+    ['NOM_CLIENT de C004','NULL']
+  ],
+  note:'✓ C’est un cas classique : enrichir une table de faits avec une information de référence sans perdre les lignes de la table principale.',
+  advantages:['Conserve toutes les lignes de la table cible'],
+  disadvantages:['Attention aux doublons de clé dans la table jointe']
+},
+{
+  id:'inner',
+  n:'04',
+  title:'INNER JOIN : ne garder que les correspondances',
+  level:'Intermédiaire',
+  intro:'INNER JOIN ne conserve que les données pour lesquelles Qlik trouve une correspondance entre les deux chargements.',
+  detail:'C004 disparaît puisqu’il n’existe pas dans CLIENTS. C003 n’apparaît pas non plus puisqu’il n’existe aucune vente pour ce client.',
+  example:`<pre><code>VENTES:
+LOAD
+    ID_VENTE,
+    ID_CLIENT,
+    MONTANT
+FROM [lib://Donnees/VENTES.qvd] (qvd);
+
+INNER JOIN (VENTES)
+LOAD
+    ID_CLIENT,
+    NOM_CLIENT
+FROM [lib://Donnees/CLIENTS.qvd] (qvd);</code></pre>
+
+  <div class="jn-after">
+    <strong>APRÈS LE INNER JOIN</strong>
+    <table class="jn-table">
+      <thead><tr><th>ID_VENTE</th><th>ID_CLIENT</th><th>MONTANT</th><th>NOM_CLIENT</th></tr></thead>
+      <tbody>
+        <tr><td>V001</td><td>C001</td><td>50</td><td>Martin</td></tr>
+        <tr><td>V002</td><td>C002</td><td>120</td><td>Durand</td></tr>
+        <tr><td>V003</td><td>C001</td><td>75</td><td>Martin</td></tr>
+      </tbody>
+    </table>
+  </div>`,
+  facts:[
+    ['C001','conservé'],
+    ['C002','conservé'],
+    ['C004','supprimé : aucune correspondance'],
+    ['C003','absent : aucune vente']
+  ],
+  note:'INNER JOIN est utile lorsque seules les lignes possédant réellement une correspondance nous intéressent.',
+  advantages:['Élimine directement les lignes sans correspondance'],
+  disadvantages:['Peut supprimer des données de la table initiale']
+},
+{
+  id:'right-outer',
+  n:'05',
+  title:'RIGHT et OUTER JOIN',
+  level:'Intermédiaire',
+  intro:'RIGHT JOIN change le côté que l’on souhaite conserver. OUTER JOIN conserve les données provenant des deux côtés.',
+  detail:'Avec RIGHT JOIN, tous les clients du chargement entrant sont conservés : C003 apparaît donc même sans vente. Avec OUTER JOIN, on conserve à la fois C003 et la vente de C004.',
+  example:`<div class="jn-join-pair">
+    <div>
+      <h4>RIGHT JOIN</h4>
+      <pre><code>RIGHT JOIN (VENTES)
+LOAD
+    ID_CLIENT,
+    NOM_CLIENT
+FROM [lib://Donnees/CLIENTS.qvd] (qvd);</code></pre>
+      <table class="jn-table">
+        <thead><tr><th>VENTE</th><th>CLIENT</th><th>NOM</th></tr></thead>
+        <tbody>
+          <tr><td>V001</td><td>C001</td><td>Martin</td></tr>
+          <tr><td>V003</td><td>C001</td><td>Martin</td></tr>
+          <tr><td>V002</td><td>C002</td><td>Durand</td></tr>
+          <tr class="jn-unmatched"><td>NULL</td><td>C003</td><td>Bernard</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div>
+      <h4>OUTER JOIN</h4>
+      <pre><code>OUTER JOIN (VENTES)
+LOAD
+    ID_CLIENT,
+    NOM_CLIENT
+FROM [lib://Donnees/CLIENTS.qvd] (qvd);</code></pre>
+      <table class="jn-table">
+        <thead><tr><th>VENTE</th><th>CLIENT</th><th>NOM</th></tr></thead>
+        <tbody>
+          <tr><td>V001</td><td>C001</td><td>Martin</td></tr>
+          <tr><td>V003</td><td>C001</td><td>Martin</td></tr>
+          <tr><td>V002</td><td>C002</td><td>Durand</td></tr>
+          <tr class="jn-unmatched"><td>V004</td><td>C004</td><td>NULL</td></tr>
+          <tr class="jn-unmatched"><td>NULL</td><td>C003</td><td>Bernard</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="jn-default">
+    <strong>💡 JOIN tout court ?</strong>
+    <span>Dans le script Qlik, si vous écrivez simplement <code>JOIN</code> sans LEFT, INNER ou RIGHT, le comportement par défaut est celui d’un <strong>OUTER JOIN</strong>.</span>
+  </div>`,
+  facts:[
+    ['RIGHT JOIN','conserve toutes les lignes du chargement entrant'],
+    ['OUTER JOIN','conserve les lignes des deux côtés'],
+    ['JOIN sans qualificatif','OUTER JOIN'],
+    ['Valeur sans correspondance','champs opposés à NULL']
+  ],
+  note:'Dans la pratique, LEFT JOIN est souvent plus intuitif pour enrichir une table principale. RIGHT JOIN répond à des cas plus spécifiques.',
+  advantages:['Permet de choisir précisément quelles lignes doivent survivre'],
+  disadvantages:['Le sens du RIGHT JOIN peut être moins naturel à lire']
+},
+{
+  id:'cartesien',
+  n:'06',
+  title:'⚠️ Le piège : le produit cartésien',
+  level:'Critique',
+  intro:'Voici probablement le contrôle le plus important à faire avant un JOIN Qlik : vérifier qu’il existe bien le ou les champs communs attendus.',
+  detail:'Qlik n’utilise pas de clause ON pour le JOIN du script. Il recherche les champs portant le même nom. Si aucun champ n’est commun aux deux chargements, aucune clé ne permet de rapprocher les lignes : Qlik combine alors chaque ligne de la première table avec chaque ligne de la seconde.',
+  example:`<div class="jn-danger">
+    <div class="jn-danger-title">🚨 AUCUN CHAMP COMMUN = PRODUIT CARTÉSIEN</div>
+
+    <div class="jn-cartesian">
+      <div><strong>Table A</strong><span>100 000 lignes</span></div>
+      <div class="jn-times">×</div>
+      <div><strong>Table B</strong><span>50 000 lignes</span></div>
+      <div class="jn-equals">=</div>
+      <div class="jn-boom"><strong>5 000 000 000</strong><span>combinaisons potentielles</span></div>
+    </div>
+
+    <p>
+      Un simple champ mal nommé peut donc transformer un chargement parfaitement banal
+      en une quantité gigantesque de données à traiter.
+    </p>
+  </div>
+
+  <pre><code>// ATTENTION : les champs ne portent pas le même nom !
+
+VENTES:
+LOAD
+    ID_VENTE,
+    ID_CLIENT,
+    MONTANT
+FROM [lib://Donnees/VENTES.qvd] (qvd);
+
+LEFT JOIN (VENTES)
+LOAD
+    CODE_CLIENT,       // ← pas de champ ID_CLIENT !
+    NOM_CLIENT
+FROM [lib://Donnees/CLIENTS.qvd] (qvd);
+
+// VENTES et CLIENTS n'ont ici aucun champ commun.
+// Le JOIN devient un produit cartésien.</code></pre>
+
+  <div class="jn-check">
+    <strong>🛑 Le réflexe SOSBI avant de lancer le script</strong>
+    <ol>
+      <li>Identifier la clé attendue.</li>
+      <li>Vérifier qu’elle porte exactement le même nom dans les deux LOAD.</li>
+      <li>Vérifier les autres champs homonymes : ils participeront eux aussi à la jointure.</li>
+      <li>Contrôler la cardinalité de la clé avant de travailler sur de gros volumes.</li>
+    </ol>
+  </div>`,
+  facts:[
+    ['0 champ commun','produit cartésien'],
+    ['100 000 × 50 000','5 milliards de combinaisons potentielles'],
+    ['Nom des champs','doit être contrôlé avant le JOIN'],
+    ['Gros volumes','tester et contrôler avant production']
+  ],
+  note:'⚠️ Ce n’est pas seulement un problème de résultat fonctionnel : sur de gros volumes, une jointure cartésienne accidentelle peut saturer les ressources disponibles et faire échouer le rechargement.',
+  advantages:['Le risque est facile à éviter avec un contrôle préalable'],
+  disadvantages:['L’erreur peut devenir extrêmement coûteuse sur de gros volumes']
+},
+{
+  id:'multiplication',
+  n:'07',
+  title:'Avoir une clé ne suffit pas',
+  level:'Important',
+  intro:'Un champ commun évite le produit cartésien total, mais cela ne garantit pas que le nombre de lignes restera stable.',
+  detail:'Avant d’enrichir une table, il faut aussi connaître la cardinalité de la clé. Si une même clé apparaît plusieurs fois des deux côtés, les correspondances se multiplient.',
+  example:`<div class="jn-cardinality">
+    <div class="jn-card">
+      <span class="jn-badge good">1 → 1</span>
+      <strong>Cas simple</strong>
+      <p>Une vente trouve une seule ligne de référence.</p>
+      <div>1 × 1 → <b>1 ligne</b></div>
+    </div>
+
+    <div class="jn-card">
+      <span class="jn-badge warn">1 → N</span>
+      <strong>À comprendre</strong>
+      <p>Une ligne trouve plusieurs correspondances.</p>
+      <div>1 × 3 → <b>3 lignes</b></div>
+    </div>
+
+    <div class="jn-card danger-card">
+      <span class="jn-badge danger">N ↔ N</span>
+      <strong>Danger de multiplication</strong>
+      <p>Plusieurs lignes correspondent à plusieurs lignes.</p>
+      <div>4 × 5 → <b>20 lignes</b> pour cette clé</div>
+    </div>
+  </div>
+
+  <div class="jn-warning">
+    <strong>⚠️ Exemple classique</strong>
+    <p>
+      Vous pensez joindre une table de référence contenant une ligne par client.
+      Mais <code>ID_CLIENT = C001</code> apparaît trois fois dans cette table.
+      Chaque ligne de VENTES portant C001 peut alors être reproduite trois fois.
+    </p>
+  </div>`,
+  facts:[
+    ['1 → 1','pas de multiplication pour la clé'],
+    ['1 → N','une ligne peut devenir plusieurs lignes'],
+    ['N ↔ N','multiplication des correspondances'],
+    ['Contrôle','vérifier l’unicité lorsque le modèle l’exige']
+  ],
+  note:'✓ Après un JOIN important, comparer le nombre de lignes avant et après est un excellent contrôle de cohérence.',
+  advantages:['La cardinalité permet d’anticiper le résultat'],
+  disadvantages:['Une clé présente n’empêche pas une explosion du nombre de lignes']
+},
+{
+  id:'choisir',
+  n:'08',
+  title:'JOIN, association ou KEEP : que choisir ?',
+  level:'Intermédiaire',
+  intro:'Dans Qlik, JOIN n’est pas le réflexe obligatoire. Le modèle associatif permet souvent de conserver les tables séparées.',
+  detail:'Utilisez JOIN lorsqu’une vraie fusion apporte quelque chose au modèle. Si les tables ont vocation à rester distinctes, l’association naturelle de Qlik est souvent plus simple. KEEP permet quant à lui de réduire les ensembles tout en conservant des tables séparées.',
+  example:`<div class="jn-choice">
+    <div>
+      <span>🔗</span>
+      <strong>Association</strong>
+      <p>Les tables restent séparées et sont reliées par leurs champs communs.</p>
+      <b>À privilégier lorsque le modèle associatif répond naturellement au besoin.</b>
+    </div>
+    <div>
+      <span>🧩</span>
+      <strong>JOIN</strong>
+      <p>Les données sont réellement fusionnées dans une même table.</p>
+      <b>À utiliser lorsqu’une fusion est réellement souhaitée.</b>
+    </div>
+    <div>
+      <span>✂️</span>
+      <strong>KEEP</strong>
+      <p>Les ensembles sont réduits selon leurs correspondances mais restent séparés.</p>
+      <b>Utile lorsque l’on veut filtrer sans fusionner.</b>
+    </div>
+  </div>
+
+  <div class="jn-final">
+    <strong>Le réflexe à retenir</strong>
+    <span>Avant d’écrire JOIN, posez-vous trois questions :</span>
+    <ol>
+      <li>Ai-je réellement besoin de fusionner ces deux tables ?</li>
+      <li>Quels sont exactement les champs communs ?</li>
+      <li>Quelle est la cardinalité de ma clé ?</li>
+    </ol>
+  </div>`,
+  facts:[
+    ['Association','tables séparées'],
+    ['JOIN','une seule table résultante'],
+    ['KEEP','réduit les ensembles sans les fusionner'],
+    ['Avant JOIN','champs communs + cardinalité']
+  ],
+  note:'✓ Un JOIN doit répondre à un besoin identifié. Dans Qlik, fusionner systématiquement les tables n’est pas une obligation.',
+  advantages:['Choisir la technique en fonction du modèle'],
+  disadvantages:['Reproduire des réflexes SQL sans tenir compte du modèle associatif Qlik']
+}
+];
+---
+
+<BaseLayout
+  title="JOIN dans Qlik Sense : LEFT, INNER, RIGHT et OUTER JOIN — SOSBI"
+  description="Comprendre les JOIN dans Qlik Sense : LEFT, INNER, RIGHT et OUTER JOIN, résultats avant/après, cardinalité et danger du produit cartésien."
+>
+  <TutorialLayout
+    title="JOIN dans Qlik Sense"
+    description="LEFT, INNER, RIGHT ou OUTER : visualisez ce que chaque jointure conserve et apprenez à éviter le produit cartésien et la multiplication des lignes."
+    navTitle="JOIN dans Qlik"
+    lessons={lessons}
+  />
+</BaseLayout>
+
+<style is:global>
+.tutorial-generic .jn-flow{
+  display:flex;flex-wrap:wrap;align-items:center;justify-content:center;
+  gap:.7rem;margin:.9rem 0 1rem
+}
+.tutorial-generic .jn-source,.tutorial-generic .jn-result{
+  display:flex;flex-direction:column;gap:.25rem;padding:.8rem 1rem;
+  border:1px solid var(--border);border-radius:12px;background:var(--surface)
+}
+.tutorial-generic .jn-result{border-color:rgba(22,154,118,.35)}
+.tutorial-generic .jn-source span,.tutorial-generic .jn-result span{font-size:.72rem;opacity:.8}
+.tutorial-generic .jn-plus{font-size:1.3rem;font-weight:800}
+.tutorial-generic .jn-arrow{width:100%;text-align:center;font-size:.78rem}
+.tutorial-generic .jn-key,.tutorial-generic .jn-default{
+  display:flex;flex-direction:column;gap:.3rem;padding:.75rem .9rem;
+  border-radius:11px;background:rgba(22,154,118,.08);font-size:.78rem
+}
+.tutorial-generic .jn-two-tables,.tutorial-generic .jn-join-pair{
+  display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:.8rem 0
+}
+.tutorial-generic .jn-table-wrap{min-width:0}
+.tutorial-generic .jn-table-wrap>strong,.tutorial-generic .jn-after>strong{
+  display:block;margin-bottom:.45rem;font-size:.75rem;letter-spacing:.04em
+}
+.tutorial-generic .jn-table{
+  width:100%;border-collapse:collapse;font-size:.72rem
+}
+.tutorial-generic .jn-table th,.tutorial-generic .jn-table td{
+  padding:.42rem .5rem;border:1px solid var(--border);text-align:left
+}
+.tutorial-generic .jn-table th{font-size:.65rem;background:rgba(127,127,127,.08)}
+.tutorial-generic .jn-unmatched{background:rgba(239,142,38,.10)}
+.tutorial-generic .jn-legend{
+  display:flex;flex-wrap:wrap;gap:.7rem;font-size:.7rem;margin:.5rem 0
+}
+.tutorial-generic .jn-after{margin-top:1rem}
+.tutorial-generic .jn-join-pair>div{
+  min-width:0;padding:.7rem;border:1px solid var(--border);border-radius:12px
+}
+.tutorial-generic .jn-join-pair h4{margin:.1rem 0 .6rem}
+.tutorial-generic .jn-danger{
+  padding:1rem;border:2px solid rgba(210,58,58,.48);
+  border-radius:14px;background:rgba(210,58,58,.07);margin:.8rem 0 1rem
+}
+.tutorial-generic .jn-danger-title{
+  font-weight:900;font-size:.82rem;letter-spacing:.04em;margin-bottom:.8rem
+}
+.tutorial-generic .jn-cartesian{
+  display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:.7rem
+}
+.tutorial-generic .jn-cartesian>div:not(.jn-times):not(.jn-equals){
+  display:flex;flex-direction:column;align-items:center;padding:.65rem .8rem;
+  background:var(--surface);border:1px solid var(--border);border-radius:10px
+}
+.tutorial-generic .jn-cartesian span{font-size:.7rem}
+.tutorial-generic .jn-times,.tutorial-generic .jn-equals{font-size:1.4rem;font-weight:900}
+.tutorial-generic .jn-boom strong{font-size:1.15rem}
+.tutorial-generic .jn-danger p{margin:.8rem 0 0;font-size:.78rem;line-height:1.55}
+.tutorial-generic .jn-check{
+  padding:.85rem 1rem;border-radius:12px;background:rgba(210,58,58,.07);
+  border-left:4px solid rgba(210,58,58,.65);font-size:.78rem
+}
+.tutorial-generic .jn-check ol,.tutorial-generic .jn-final ol{margin:.5rem 0 0;padding-left:1.25rem}
+.tutorial-generic .jn-check li,.tutorial-generic .jn-final li{margin:.25rem 0}
+.tutorial-generic .jn-cardinality,.tutorial-generic .jn-choice{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;margin:.8rem 0
+}
+.tutorial-generic .jn-card,.tutorial-generic .jn-choice>div{
+  padding:.85rem;border:1px solid var(--border);border-radius:12px;background:var(--surface)
+}
+.tutorial-generic .jn-card strong,.tutorial-generic .jn-choice strong{display:block;margin:.4rem 0}
+.tutorial-generic .jn-card p,.tutorial-generic .jn-choice p{font-size:.73rem;line-height:1.45}
+.tutorial-generic .jn-badge{
+  display:inline-block;padding:.2rem .45rem;border-radius:999px;font-size:.62rem;font-weight:850
+}
+.tutorial-generic .jn-badge.good{background:rgba(22,154,118,.13)}
+.tutorial-generic .jn-badge.warn{background:rgba(239,142,38,.15)}
+.tutorial-generic .jn-badge.danger{background:rgba(210,58,58,.14)}
+.tutorial-generic .danger-card{border-color:rgba(210,58,58,.3)}
+.tutorial-generic .jn-warning{
+  padding:.8rem 1rem;border-radius:12px;background:rgba(239,142,38,.09);
+  border-left:4px solid rgba(239,142,38,.65)
+}
+.tutorial-generic .jn-warning p{margin:.35rem 0 0;font-size:.77rem}
+.tutorial-generic .jn-choice>div>span{font-size:1.3rem}
+.tutorial-generic .jn-final{
+  margin-top:1rem;padding:.9rem 1rem;border-radius:12px;
+  background:rgba(22,154,118,.08);font-size:.78rem
+}
+.tutorial-generic .jn-final>strong,.tutorial-generic .jn-final>span{display:block}
+.tutorial-generic .jn-final>strong{margin-bottom:.25rem}
+
+/* Ce tutoriel privilégie les illustrations centrales. */
+.tutorial-generic .exercise .learning-row{grid-template-columns:1fr}
+.tutorial-generic .exercise .concrete-card-v3{display:none}
+.tutorial-generic .exercise .what-card{width:100%;min-width:0}
+.tutorial-generic .exercise .what-copy{min-width:0}
+
+html[data-theme="dark"] .tutorial-generic .jn-danger{
+  background:rgba(180,50,50,.12);border-color:rgba(240,90,90,.38)
+}
+html[data-theme="dark"] .tutorial-generic .jn-unmatched{background:rgba(239,142,38,.13)}
+html[data-theme="dark"] .tutorial-generic .jn-warning{background:rgba(239,142,38,.10)}
+
+@media(max-width:760px){
+  .tutorial-generic .jn-two-tables,
+  .tutorial-generic .jn-join-pair,
+  .tutorial-generic .jn-cardinality,
+  .tutorial-generic .jn-choice{grid-template-columns:1fr}
+  .tutorial-generic .jn-table{font-size:.67rem}
+}
+</style>
+
+<style is:global>
+/* JOIN — matérialisation visuelle des tables */
+.tutorial-generic .jn-flow .jn-source,
+.tutorial-generic .jn-flow .jn-result {
+  position: relative;
+  min-width: 245px;
+  padding: 1rem 1.15rem 1rem 3.1rem;
+  border: 1px solid rgba(0, 174, 122, .28);
+  border-radius: 14px;
+  background: linear-gradient(
+    135deg,
+    rgba(0, 174, 122, .07),
+    rgba(255, 255, 255, .75)
+  );
+  box-shadow: 0 6px 18px rgba(20, 45, 60, .06);
+}
+
+/* Petit pictogramme de table */
+.tutorial-generic .jn-flow .jn-source::before,
+.tutorial-generic .jn-flow .jn-result::before {
+  content: "▦";
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+  width: 1.55rem;
+  height: 1.55rem;
+  border-radius: 7px;
+  background: rgba(0, 174, 122, .12);
+  color: #00a878;
+  font-size: 1.05rem;
+  font-weight: 800;
+}
+
+.tutorial-generic .jn-flow .jn-source b,
+.tutorial-generic .jn-flow .jn-result b {
+  font-size: .88rem;
+  letter-spacing: .02em;
+}
+
+.tutorial-generic .jn-flow .jn-source span,
+.tutorial-generic .jn-flow .jn-result span {
+  margin-top: .18rem;
+  font-size: .68rem;
+  opacity: .76;
+}
+
+/* La table résultante ressort légèrement */
+.tutorial-generic .jn-flow .jn-result {
+  border-color: rgba(0, 174, 122, .48);
+  background: linear-gradient(
+    135deg,
+    rgba(0, 174, 122, .13),
+    rgba(0, 174, 122, .035)
+  );
+}
+
+/* + et flèche de jointure */
+.tutorial-generic .jn-flow .jn-plus {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: rgba(0, 174, 122, .09);
+  color: #008f69;
+}
+
+.tutorial-generic .jn-flow .jn-arrow {
+  margin: .15rem 0;
+  padding: .35rem .7rem;
+  color: #486071;
+}
+
+/* Thème sombre */
+html[data-theme="dark"] .tutorial-generic .jn-flow .jn-source,
+html[data-theme="dark"] .tutorial-generic .jn-flow .jn-result {
+  background: rgba(18, 42, 50, .72);
+  border-color: rgba(73, 211, 169, .28);
+  box-shadow: none;
+}
+
+html[data-theme="dark"] .tutorial-generic .jn-flow .jn-result {
+  background: rgba(0, 174, 122, .10);
+  border-color: rgba(73, 211, 169, .42);
+}
+</style>
+
+<style is:global>
+/* JOIN — séparation visuelle des tables de données */
+.tutorial-generic .jn-two-tables .jn-table-wrap {
+  padding: .8rem;
+  border: 1px solid rgba(0, 174, 122, .28);
+  border-radius: 12px;
+  background: rgba(0, 174, 122, .018);
+}
+
+.tutorial-generic .jn-two-tables .jn-table-wrap > strong {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  margin: 0 0 .6rem;
+  font-size: .78rem;
+}
+
+.tutorial-generic .jn-two-tables .jn-table-wrap > strong::before {
+  content: "▦";
+  color: #00a878;
+  font-size: .95rem;
+}
+
+/* Les tableaux eux-mêmes restent sobres */
+.tutorial-generic .jn-two-tables .jn-table {
+  border: 1px solid rgba(0, 174, 122, .16);
+}
+
+/* Version sombre */
+html[data-theme="dark"]
+.tutorial-generic .jn-two-tables .jn-table-wrap {
+  border-color: rgba(73, 211, 169, .25);
+  background: rgba(0, 174, 122, .035);
+}
+</style>
+
+<style is:global>
+/* JOIN — cartes visuelles pour les résultats */
+
+/* LEFT et INNER : bloc résultat */
+.tutorial-generic .jn-after {
+  margin-top: 1rem;
+  padding: .85rem;
+  border: 1px solid rgba(0, 174, 122, .28);
+  border-radius: 12px;
+  background: rgba(0, 174, 122, .018);
+}
+
+.tutorial-generic .jn-after > strong {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  margin: 0 0 .6rem;
+}
+
+.tutorial-generic .jn-after > strong::before {
+  content: "▦";
+  color: #00a878;
+  font-size: .95rem;
+}
+
+/* Tous les tableaux du tutoriel */
+.tutorial-generic .jn-table {
+  overflow: hidden;
+  border: 1px solid rgba(0, 174, 122, .16);
+  border-radius: 8px;
+}
+
+/* RIGHT / OUTER : deux vraies cartes distinctes */
+.tutorial-generic .jn-join-pair > div {
+  padding: .9rem;
+  border: 1px solid rgba(0, 174, 122, .28);
+  border-radius: 12px;
+  background: rgba(0, 174, 122, .018);
+}
+
+.tutorial-generic .jn-join-pair h4 {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  margin: 0 0 .7rem;
+}
+
+.tutorial-generic .jn-join-pair h4::before {
+  content: "▦";
+  color: #00a878;
+  font-size: .95rem;
+}
+
+/* Un peu d'air entre le code et le tableau */
+.tutorial-generic .jn-join-pair pre {
+  margin-bottom: .8rem;
+}
+
+/* Dark mode */
+html[data-theme="dark"] .tutorial-generic .jn-after,
+html[data-theme="dark"] .tutorial-generic .jn-join-pair > div {
+  border-color: rgba(73, 211, 169, .25);
+  background: rgba(0, 174, 122, .035);
+}
+</style>
