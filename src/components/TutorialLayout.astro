@@ -138,10 +138,23 @@ if(shell){
   if (!root) return;
 
   const KEYWORDS = new Set([
-    'DISTINCT','NODISTINCT','TOTAL','ALL','LOAD','RESIDENT','INLINE','AUTOGENERATE',
-    'WHERE','WHILE','GROUP','BY','ORDER','AS','LET','SET','FROM','JOIN','KEEP',
-    'CONCATENATE','NOCONCATENATE','ASCENDING','DESCENDING','NUMERIC','TEXT',
-    'FREQUENCY','LOAD_ORDER','NULL','TRUE','FALSE'
+    'DISTINCT','NODISTINCT','TOTAL','ALL',
+    'LOAD','RESIDENT','INLINE','AUTOGENERATE','MAPPING',
+    'WHERE','WHILE','GROUP','BY','ORDER','AS',
+    'LET','SET','FROM',
+    'LEFT','RIGHT','INNER','OUTER','JOIN','KEEP',
+    'CONCATENATE','NOCONCATENATE',
+    'CROSSTABLE','GENERIC',
+    'SECTION','ACCESS','APPLICATION',
+    'STORE','INTO','DROP','TABLE','FIELD',
+    'FOR','EACH','IN','TO','STEP','NEXT',
+    'DO','UNTIL','LOOP','EXIT',
+    'SUB','END','CALL',
+    'IF','THEN','ELSE','ELSEIF','ENDIF',
+    'SQL','SELECT',
+    'ASCENDING','DESCENDING','NUMERIC','TEXT',
+    'FREQUENCY','LOAD_ORDER',
+    'NULL','TRUE','FALSE'
   ]);
 
   const esc = (x) => x.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
@@ -219,7 +232,9 @@ if(shell){
     return out;
   }
 
-  const targets = root.querySelectorAll('.qlik-code, .noob-box code');
+  const targets = root.querySelectorAll(
+    '.tutorial-example-body pre code, .qlik-code, .noob-box code'
+  );
   targets.forEach(el => {
     if(el.dataset.qlikHighlighted==='1') return;
     const source=el.textContent || '';

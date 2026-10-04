@@ -1,21 +1,964 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import TutorialLayout from '../../components/TutorialLayout.astro';
-const lessons=[
-{id:'principe',n:'01',title:'Deux façons d’enchaîner les transformations',level:'Intermédiaire',intro:'Resident Load et Preceding Load appliquent plusieurs étapes de transformation.',detail:'Resident relit une table déjà matérialisée. Preceding empile un LOAD au-dessus du chargement qui le suit.',example:`<pre><code>// Resident
-Final:
-LOAD ID, Date(DateBrute) AS Date
-Resident Source;</code></pre>`,facts:[['Resident','table déjà chargée'],['Preceding','LOAD au-dessus du suivant']],note:'Le choix dépend surtout du traitement et de la lisibilité.',advantages:['Techniques complémentaires'],disadvantages:['Ne pas choisir par habitude']},
-{id:'preceding',n:'02',title:'Le Preceding Load',level:'Intermédiaire',intro:'Le LOAD supérieur reçoit le résultat du LOAD situé dessous.',detail:'Le flux se comprend de bas en haut.',example:`<pre><code>LOAD ID, Date(DateBrute) AS Date;
-LOAD ID, Timestamp#(DateTexte,'YYYY-MM-DD hh:mm:ss') AS DateBrute
-FROM [lib://Donnees/Source.qvd] (qvd);</code></pre>`,facts:[['LOAD inférieur','prépare'],['LOAD supérieur','transforme']],note:'Gardez des noms intermédiaires explicites.',advantages:['Pas de table temporaire nommée'],disadvantages:['Lecture moins intuitive au début']},
-{id:'resident',n:'03',title:'Quand Resident est plus naturel',level:'Intermédiaire',intro:'Resident convient lorsqu’une étape doit être réutilisée ou traitée séparément.',detail:'La table source existe en mémoire et peut alimenter plusieurs traitements.',example:`<pre><code>CA_Client:
-LOAD ID_CLIENT, Sum(CA_HT) AS CA_CLIENT
-Resident Commandes
-Group By ID_CLIENT;
 
-DROP TABLE Commandes;</code></pre>`,facts:[['Resident','réutilisation'],['DROP TABLE','nettoyage']],note:'Resident est souvent plus pédagogique pour plusieurs branches.',advantages:['Lisible et réutilisable'],disadvantages:['Mémoire temporaire']},
-{id:'choisir',n:'04',title:'Comment choisir ?',level:'Intermédiaire',intro:'Il n’existe pas de gagnant universel.',detail:'Chaîne linéaire : Preceding est souvent naturel. Réutilisation ou étape explicite : Resident est souvent plus clair.',example:`<div class="master-demo"><b>Réflexe SOSBI</b><span>Chaîne simple → Preceding · Étape réutilisée → Resident</span><i>privilégier la lisibilité</i></div>`,facts:[['linéaire','Preceding'],['réutilisation','Resident']],note:'Mesurez sur vos données si le volume rend le choix sensible.',advantages:['Choix raisonné'],disadvantages:['Certains scripts utilisent les deux']}
+const lessons = [
+  {
+    id:'besoin',
+    n:'01',
+    title:'Le problème à résoudre',
+    level:'Intermédiaire',
+    intro:'Resident Load et Preceding Load permettent tous les deux d’enchaîner plusieurs étapes de transformation. Pour bien voir leur différence, nous allons résoudre exactement le même besoin avec les deux méthodes.',
+    detail:`
+      <p>Notre fichier <strong>VENTES.qvd</strong> contient une date brute, une quantité et un prix unitaire.</p>
+
+      <div class="rp-table-card">
+        <div class="rp-table-title"><span>🧾</span><strong>VENTES.qvd</strong></div>
+        <table>
+          <thead>
+            <tr>
+              <th>ID_VENTE</th>
+              <th>DATE_TEXTE</th>
+              <th>QUANTITE</th>
+              <th>PRIX_UNITAIRE</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>V001</td><td>2026-09-15</td><td>2</td><td>25</td></tr>
+            <tr><td>V002</td><td>2026-09-16</td><td>3</td><td>40</td></tr>
+            <tr><td>V003</td><td>2026-09-17</td><td>1</td><td>75</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="rp-goal">
+        <span>🎯</span>
+        <div>
+          <strong>Notre objectif</strong>
+          <p>Interpréter <code>DATE_TEXTE</code>, calculer <code>CA_LIGNE</code>, puis créer une date propre <code>DATE_VENTE</code>.</p>
+        </div>
+      </div>
+    `,
+    facts:[
+      ['DATE_TEXTE','date présente dans la source'],
+      ['CA_LIGNE','QUANTITE × PRIX_UNITAIRE'],
+      ['DATE_VENTE','date finale']
+    ],
+    note:'💡 Nous conserverons le même besoin dans les chapitres suivants : seule la façon d’enchaîner les transformations changera.',
+    advantages:['Même exemple pour comparer les deux méthodes'],
+    disadvantages:[]
+  },
+
+  {
+    id:'resident',
+    n:'02',
+    title:'Resident Load : créer puis relire une table',
+    level:'Intermédiaire',
+    intro:'Avec Resident, la première étape crée réellement une table dans Qlik. Une seconde instruction LOAD peut ensuite relire cette table et poursuivre les transformations.',
+    detail:`
+      <div class="rp-flow resident-flow">
+        <div class="rp-node source"><span>🧾</span><strong>VENTES.qvd</strong><small>source externe</small></div>
+        <div class="rp-arrow">→</div>
+        <div class="rp-node temp"><span>📦</span><strong>VENTES_TMP</strong><small>table chargée dans Qlik</small></div>
+        <div class="rp-arrow">→</div>
+        <div class="rp-node result"><span>✨</span><strong>VENTES</strong><small>table finale</small></div>
+      </div>
+
+      <div class="rp-explain-card">
+        <span class="rp-step">1</span>
+        <p>Le premier <strong>LOAD</strong> lit le QVD et crée <code>VENTES_TMP</code> en mémoire.</p>
+      </div>
+
+      <div class="rp-explain-card">
+        <span class="rp-step">2</span>
+        <p>Le second <strong>LOAD ... Resident VENTES_TMP</strong> relit cette table déjà chargée.</p>
+      </div>
+
+      <div class="rp-explain-card">
+        <span class="rp-step">3</span>
+        <p>Lorsque la table temporaire n’est plus utile, <strong>DROP TABLE</strong> permet de la retirer.</p>
+      </div>
+    `,
+    exampleTitle:'Même transformation avec Resident Load',
+    example:`<pre><code>// ÉTAPE 1 — création d'une table intermédiaire
+VENTES_TMP:
+LOAD
+    ID_VENTE,
+    Date#(DATE_TEXTE, 'YYYY-MM-DD') AS DATE_BRUTE,
+    QUANTITE,
+    PRIX_UNITAIRE,
+    QUANTITE * PRIX_UNITAIRE AS CA_LIGNE
+FROM [lib://Donnees/VENTES.qvd] (qvd);
+
+// ÉTAPE 2 — on relit la table déjà chargée
+VENTES:
+LOAD
+    ID_VENTE,
+    Date(DATE_BRUTE, 'DD/MM/YYYY') AS DATE_VENTE,
+    CA_LIGNE
+Resident VENTES_TMP;
+
+// ÉTAPE 3 — la table intermédiaire n'est plus utile
+DROP TABLE VENTES_TMP;</code></pre>`,
+    facts:[
+      ['VENTES_TMP','existe réellement dans Qlik'],
+      ['Resident','relit une table déjà chargée'],
+      ['DROP TABLE','retire la table temporaire']
+    ],
+    note:'📦 Le mot important est « Resident » : la source du second LOAD réside déjà dans la mémoire de l’application Qlik.',
+    advantages:['Étapes très explicites','Table intermédiaire réutilisable'],
+    disadvantages:['La table intermédiaire existe temporairement en mémoire','Il faut penser à la supprimer lorsqu’elle n’est plus utile']
+  },
+
+  {
+    id:'preceding',
+    n:'03',
+    title:'Preceding Load : faire remonter les données',
+    level:'Intermédiaire',
+    intro:'Avec un Preceding Load, il n’y a pas de table intermédiaire nommée. Le résultat du LOAD inférieur est transmis directement au LOAD placé juste au-dessus.',
+    detail:`
+      <div class="rp-preceding">
+        <div class="rp-read-label">👀 Lecture du script</div>
+
+        <div class="rp-stack">
+          <div class="rp-stack-box upper">
+            <span>②</span>
+            <div>
+              <strong>LOAD supérieur</strong>
+              <small>utilise DATE_BRUTE et CA_LIGNE</small>
+            </div>
+          </div>
+
+          <div class="rp-up-arrow">
+            <b>↑</b>
+            <span>les résultats remontent</span>
+          </div>
+
+          <div class="rp-stack-box lower">
+            <span>①</span>
+            <div>
+              <strong>LOAD inférieur</strong>
+              <small>calcule DATE_BRUTE et CA_LIGNE</small>
+            </div>
+          </div>
+
+          <div class="rp-up-arrow">
+            <b>↑</b>
+          </div>
+
+          <div class="rp-stack-source">
+            🧾 VENTES.qvd
+          </div>
+        </div>
+
+        <div class="rp-reading-tip">
+          <span>💡</span>
+          <p><strong>Le réflexe à prendre :</strong> pour comprendre un Preceding Load, commencez par le bas. Le LOAD inférieur s’exécute d’abord et son résultat alimente celui placé au-dessus.</p>
+        </div>
+      </div>
+    `,
+    exampleTitle:'La même transformation avec un Preceding Load',
+    example:`<pre><code>// ÉTAPE 2 — ce LOAD reçoit le résultat du LOAD inférieur
+VENTES:
+LOAD
+    ID_VENTE,
+    Date(DATE_BRUTE, 'DD/MM/YYYY') AS DATE_VENTE,
+    CA_LIGNE;
+
+// ÉTAPE 1 — celui-ci s'exécute d'abord
+LOAD
+    ID_VENTE,
+    Date#(DATE_TEXTE, 'YYYY-MM-DD') AS DATE_BRUTE,
+    QUANTITE * PRIX_UNITAIRE AS CA_LIGNE
+FROM [lib://Donnees/VENTES.qvd] (qvd);</code></pre>`,
+    facts:[
+      ['LOAD inférieur','s’exécute en premier'],
+      ['Résultat','remonte au LOAD supérieur'],
+      ['Table temporaire','aucune table nommée']
+    ],
+    note:'⬆️ Dans le fichier script, le LOAD supérieur est écrit en premier. Dans le flux de données, c’est pourtant le LOAD du bas qui commence le travail.',
+    advantages:['Pas de table intermédiaire nommée','Très naturel pour une chaîne de transformations successives'],
+    disadvantages:['La lecture de bas en haut peut dérouter au début']
+  },
+
+  {
+    id:'comparaison',
+    n:'04',
+    title:'Même résultat, deux chemins',
+    level:'Intermédiaire',
+    intro:'Resident et Preceding aboutissent ici au même résultat. Mais les deux solutions ne sont pas équivalentes en termes de simplicité : dans ce cas précis, le Preceding Load est le choix le plus naturel.',
+    detail:`
+      <div class="rp-compare">
+        <article class="rp-method resident">
+          <div class="rp-method-icon">📦</div>
+          <span class="rp-method-label">RESIDENT LOAD</span>
+          <h3>Une étape matérialisée</h3>
+          <div class="rp-mini-flow">
+            <span>VENTES.qvd</span><b>→</b>
+            <span class="temp">VENTES_TMP</span><b>→</b>
+            <span>VENTES</span>
+          </div>
+          <p><code>VENTES_TMP</code> est une vraie table chargée dans Qlik avant d’être relue.</p>
+        </article>
+
+        <article class="rp-method preceding">
+          <div class="rp-method-icon">⬆️</div>
+          <span class="rp-method-label">PRECEDING LOAD</span>
+          <h3>Une chaîne de transformations</h3>
+          <div class="rp-mini-stack">
+            <span>LOAD supérieur</span>
+            <b>↑</b>
+            <span>LOAD inférieur</span>
+            <b>↑</b>
+            <span>VENTES.qvd</span>
+          </div>
+          <p>Le résultat remonte directement d’un LOAD au suivant, sans table intermédiaire nommée.</p>
+        </article>
+      </div>
+
+      <div class="rp-best-choice">
+        <div class="rp-best-choice-icon">⬆️</div>
+        <div>
+          <span class="rp-best-choice-label">DANS CET EXEMPLE</span>
+          <strong>Le Preceding Load est le choix le plus naturel</strong>
+          <p>
+            Le traitement est entièrement linéaire et la table intermédiaire
+            <code>VENTES_TMP</code> ne serait utilisée qu’une seule fois.
+            Resident produirait le même résultat, mais ajouterait ici une étape
+            intermédiaire sans réel bénéfice.
+          </p>
+        </div>
+      </div>
+
+      <div class="rp-result">
+        <div class="rp-result-head"><span>✨</span><strong>Dans les deux cas, nous obtenons le même résultat</strong></div>
+        <table>
+          <thead><tr><th>ID_VENTE</th><th>DATE_VENTE</th><th>CA_LIGNE</th></tr></thead>
+          <tbody>
+            <tr><td>V001</td><td>15/09/2026</td><td>50</td></tr>
+            <tr><td>V002</td><td>16/09/2026</td><td>120</td></tr>
+            <tr><td>V003</td><td>17/09/2026</td><td>75</td></tr>
+          </tbody>
+        </table>
+      </div>
+    `,
+    facts:[
+      ['Résultat final','identique dans cet exemple'],
+      ['Resident','table intermédiaire'],
+      ['Preceding','chaîne directe']
+    ],
+    note:'✓ Ici, choisissez Preceding : le traitement est linéaire et aucune étape intermédiaire n’a besoin d’être conservée ou réutilisée.',
+    advantages:['Comparaison sur un même cas métier'],
+    disadvantages:[]
+  },
+
+  {
+    id:'resident-naturel',
+    n:'05',
+    title:'Quand Resident devient plus naturel',
+    level:'Intermédiaire',
+    intro:'Preceding est très pratique pour une chaîne linéaire. Resident devient particulièrement intéressant lorsque la même étape intermédiaire doit être relue, agrégée ou servir à plusieurs traitements.',
+    detail:`
+      <div class="rp-branch">
+        <div class="rp-branch-source">
+          <span>📦</span>
+          <strong>VENTES_TMP</strong>
+          <small>une table déjà chargée</small>
+        </div>
+
+        <div class="rp-branch-lines">
+          <span>↙</span><span>↓</span><span>↘</span>
+        </div>
+
+        <div class="rp-branch-targets">
+          <div><span>📊</span><strong>CA par client</strong><small>agrégation</small></div>
+          <div><span>📅</span><strong>CA par mois</strong><small>autre traitement</small></div>
+          <div><span>🔎</span><strong>Contrôle</strong><small>réutilisation</small></div>
+        </div>
+      </div>
+
+      <div class="rp-situations">
+        <article>
+          <span>♻️</span>
+          <div><strong>Réutiliser une étape</strong><p>Une même table intermédiaire peut alimenter plusieurs traitements Resident.</p></div>
+        </article>
+        <article>
+          <span>Σ</span>
+          <div><strong>Agréger</strong><p>Resident est très lisible lorsqu’on veut regrouper des données déjà préparées.</p></div>
+        </article>
+        <article>
+          <span>🧭</span>
+          <div><strong>Rendre une étape explicite</strong><p>Nommer une table intermédiaire peut rendre un traitement complexe beaucoup plus facile à comprendre.</p></div>
+        </article>
+      </div>
+    `,
+    exampleTitle:'Une table intermédiaire réutilisée',
+    example:`<pre><code>// VENTES_TMP existe déjà dans Qlik
+
+CA_Client:
+LOAD
+    ID_CLIENT,
+    Sum(CA_LIGNE) AS CA_CLIENT
+Resident VENTES_TMP
+GROUP BY ID_CLIENT;
+
+CA_Mois:
+LOAD
+    Month(DATE_VENTE) AS MOIS,
+    Sum(CA_LIGNE) AS CA_MOIS
+Resident VENTES_TMP
+GROUP BY Month(DATE_VENTE);
+
+// Une fois toutes les réutilisations terminées
+DROP TABLE VENTES_TMP;</code></pre>`,
+    facts:[
+      ['1 table source','plusieurs traitements possibles'],
+      ['GROUP BY','agrégation lisible'],
+      ['DROP TABLE','après la dernière utilisation']
+    ],
+    note:'💡 Ici, matérialiser VENTES_TMP a un véritable intérêt : la même étape préparée sert plusieurs fois.',
+    advantages:['Réutilisation claire','Découpage pédagogique du traitement'],
+    disadvantages:['Conserver inutilement de grosses tables intermédiaires peut consommer de la mémoire']
+  },
+
+  {
+    id:'choisir',
+    n:'06',
+    title:'Comment choisir ?',
+    level:'À retenir',
+    intro:'Resident et Preceding ne sont pas des concurrents. Ce sont deux outils différents pour organiser les transformations d’un script Qlik.',
+    detail:`
+      <div class="rp-choice-grid">
+        <article class="rp-choice simple">
+          <div class="rp-choice-icon">①</div>
+          <span>CAS LE PLUS SIMPLE</span>
+          <h3>Un seul LOAD suffit ?</h3>
+          <p>Gardez un seul LOAD. N’ajoutez ni Resident ni Preceding sans nécessité.</p>
+        </article>
+
+        <article class="rp-choice preceding">
+          <div class="rp-choice-icon">⬆️</div>
+          <span>CHAÎNE LINÉAIRE</span>
+          <h3>Preceding Load</h3>
+          <p>Une transformation doit exploiter le résultat calculé juste en dessous, sans avoir besoin de conserver une étape intermédiaire.</p>
+        </article>
+
+        <article class="rp-choice resident">
+          <div class="rp-choice-icon">📦</div>
+          <span>ÉTAPE RÉUTILISABLE</span>
+          <h3>Resident Load</h3>
+          <p>Les données préparées doivent être relues, agrégées, réutilisées plusieurs fois ou matérialisées pour rendre le traitement plus clair.</p>
+        </article>
+      </div>
+
+      <div class="rp-rule">
+        <span>🧠</span>
+        <div>
+          <strong>Le bon réflexe</strong>
+          <p>Ne choisissez pas une technique parce qu’elle semble plus « avancée ». Choisissez celle qui rend le chemin des données le plus évident.</p>
+        </div>
+      </div>
+    `,
+    example:`<div class="master-demo"><b>Réflexe SOSBI</b><span>Un seul LOAD si possible · Preceding pour une chaîne directe · Resident pour une étape matérialisée ou réutilisée</span><i>la lisibilité du traitement reste prioritaire</i></div>`,
+    facts:[
+      ['1 LOAD','si une seule étape suffit'],
+      ['Preceding','transformations en chaîne'],
+      ['Resident','étape matérialisée ou réutilisée']
+    ],
+    note:'✓ Un même script peut parfaitement utiliser Resident à un endroit et Preceding à un autre.',
+    advantages:['Choix fondé sur le besoin réel'],
+    disadvantages:['Il n’existe pas de règle universelle valable pour tous les traitements']
+  }
 ];
 ---
-<BaseLayout title="Resident Load ou Preceding Load — SOSBI"><TutorialLayout title="Resident Load ou Preceding Load ?" description="Comprendre les deux techniques et choisir la plus lisible selon le traitement." navTitle="Resident vs Preceding" lessons={lessons}/></BaseLayout>
+
+<BaseLayout
+  title="Resident Load ou Preceding Load ? — SOSBI"
+  description="Comprendre Resident Load et Preceding Load dans Qlik Sense avec un même exemple, des schémas visuels et des critères simples pour choisir la bonne approche."
+>
+  <TutorialLayout
+    title="Resident Load ou Preceding Load ?"
+    description="Deux façons d’enchaîner des transformations dans Qlik Sense : suivez les données pas à pas et voyez quand utiliser chacune."
+    navTitle="Resident vs Preceding"
+    lessons={lessons}
+  />
+</BaseLayout>
+
+<style is:global>
+  /* SOSBI — Resident vs Preceding
+     Complément local à TutorialLayout */
+
+  .tutorial-generic .rp-table-card,
+  .tutorial-generic .rp-result{
+    margin-top:1rem;
+    overflow:hidden;
+    border:1px solid rgba(22,154,118,.20);
+    border-radius:14px;
+    background:var(--surface,#fff);
+  }
+
+  .tutorial-generic .rp-table-title,
+  .tutorial-generic .rp-result-head{
+    display:flex;
+    align-items:center;
+    gap:.55rem;
+    padding:.8rem 1rem;
+    background:rgba(22,154,118,.06);
+    border-bottom:1px solid rgba(22,154,118,.14);
+  }
+
+  .tutorial-generic .rp-table-card table,
+  .tutorial-generic .rp-result table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:.84rem;
+  }
+
+  .tutorial-generic .rp-table-card th,
+  .tutorial-generic .rp-table-card td,
+  .tutorial-generic .rp-result th,
+  .tutorial-generic .rp-result td{
+    padding:.65rem .75rem;
+    text-align:left;
+    border-bottom:1px solid rgba(110,130,140,.13);
+  }
+
+  .tutorial-generic .rp-table-card th,
+  .tutorial-generic .rp-result th{
+    font-size:.7rem;
+    letter-spacing:.035em;
+    color:var(--text-muted,#5d7285);
+    background:rgba(120,140,150,.045);
+  }
+
+  .tutorial-generic .rp-goal,
+  .tutorial-generic .rp-reading-tip,
+  .tutorial-generic .rp-rule{
+    display:flex;
+    align-items:flex-start;
+    gap:.75rem;
+    margin-top:1rem;
+    padding:.9rem 1rem;
+    border-left:4px solid var(--green,#00a878);
+    border-radius:0 12px 12px 0;
+    background:rgba(0,168,120,.06);
+  }
+
+  .tutorial-generic .rp-goal p,
+  .tutorial-generic .rp-reading-tip p,
+  .tutorial-generic .rp-rule p{
+    margin:.15rem 0 0;
+    line-height:1.5;
+  }
+
+  .tutorial-generic .rp-flow{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:.65rem;
+    margin:1.1rem 0;
+  }
+
+  .tutorial-generic .rp-node{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    min-width:135px;
+    padding:.8rem;
+    border-radius:13px;
+    border:1px solid rgba(90,130,150,.18);
+    background:rgba(120,140,150,.04);
+    text-align:center;
+  }
+
+  .tutorial-generic .rp-node span{font-size:1.2rem;margin-bottom:.25rem}
+  .tutorial-generic .rp-node small{margin-top:.2rem;color:var(--text-muted,#5d7285)}
+  .tutorial-generic .rp-node.temp{
+    border-color:rgba(77,126,190,.25);
+    background:rgba(77,126,190,.07);
+  }
+  .tutorial-generic .rp-node.result{
+    border-color:rgba(22,154,118,.25);
+    background:rgba(22,154,118,.07);
+  }
+
+  .tutorial-generic .rp-arrow{
+    color:var(--green,#00a878);
+    font-size:1.35rem;
+    font-weight:800;
+  }
+
+  .tutorial-generic .rp-explain-card{
+    display:flex;
+    gap:.7rem;
+    align-items:center;
+    margin:.55rem 0;
+    padding:.65rem .8rem;
+    border:1px solid rgba(110,130,140,.14);
+    border-radius:11px;
+    background:rgba(120,140,150,.025);
+  }
+
+  .tutorial-generic .rp-explain-card p{margin:0;line-height:1.45}
+
+  .tutorial-generic .rp-step{
+    display:grid;
+    place-items:center;
+    width:1.8rem;
+    height:1.8rem;
+    flex:0 0 1.8rem;
+    border-radius:50%;
+    background:rgba(0,168,120,.12);
+    color:var(--green,#00a878);
+    font-weight:850;
+  }
+
+  .tutorial-generic .rp-preceding{
+    margin-top:.75rem;
+  }
+
+  .tutorial-generic .rp-read-label{
+    margin-bottom:.6rem;
+    text-align:center;
+    font-size:.75rem;
+    font-weight:800;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    color:var(--text-muted,#5d7285);
+  }
+
+  .tutorial-generic .rp-stack{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    max-width:440px;
+    margin:0 auto;
+  }
+
+  .tutorial-generic .rp-stack-box{
+    display:flex;
+    align-items:center;
+    gap:.7rem;
+    width:100%;
+    padding:.8rem 1rem;
+    border:1px solid;
+    border-radius:13px;
+  }
+
+  .tutorial-generic .rp-stack-box > span{
+    display:grid;
+    place-items:center;
+    width:1.9rem;
+    height:1.9rem;
+    flex:0 0 1.9rem;
+    border-radius:50%;
+    font-weight:850;
+  }
+
+  .tutorial-generic .rp-stack-box div{
+    display:flex;
+    flex-direction:column;
+  }
+
+  .tutorial-generic .rp-stack-box small{
+    margin-top:.15rem;
+    color:var(--text-muted,#5d7285);
+  }
+
+  .tutorial-generic .rp-stack-box.upper{
+    border-color:rgba(22,154,118,.25);
+    background:rgba(22,154,118,.07);
+  }
+
+  .tutorial-generic .rp-stack-box.upper > span{
+    background:rgba(22,154,118,.14);
+    color:#168564;
+  }
+
+  .tutorial-generic .rp-stack-box.lower{
+    border-color:rgba(76,126,190,.25);
+    background:rgba(76,126,190,.07);
+  }
+
+  .tutorial-generic .rp-stack-box.lower > span{
+    background:rgba(76,126,190,.13);
+    color:#426fa8;
+  }
+
+  .tutorial-generic .rp-up-arrow{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:.25rem 0;
+    color:var(--green,#00a878);
+  }
+
+  .tutorial-generic .rp-up-arrow b{font-size:1.35rem;line-height:1}
+  .tutorial-generic .rp-up-arrow span{font-size:.68rem;font-weight:700}
+
+  .tutorial-generic .rp-stack-source{
+    padding:.6rem .9rem;
+    border-radius:10px;
+    background:rgba(120,140,150,.07);
+    font-weight:750;
+  }
+
+  .tutorial-generic .rp-compare{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:.9rem;
+    margin-top:1rem;
+  }
+
+  .tutorial-generic .rp-method{
+    position:relative;
+    padding:1rem;
+    border:1px solid;
+    border-radius:16px;
+    overflow:hidden;
+  }
+
+  .tutorial-generic .rp-method.resident{
+    border-color:rgba(76,126,190,.23);
+    background:linear-gradient(145deg,rgba(91,155,214,.12),rgba(91,155,214,.04));
+  }
+
+  .tutorial-generic .rp-method.preceding{
+    border-color:rgba(22,154,118,.23);
+    background:linear-gradient(145deg,rgba(61,197,157,.12),rgba(61,197,157,.04));
+  }
+
+  .tutorial-generic .rp-method-icon{
+    font-size:1.35rem;
+    margin-bottom:.35rem;
+  }
+
+  .tutorial-generic .rp-method-label{
+    font-size:.65rem;
+    font-weight:850;
+    letter-spacing:.07em;
+    color:var(--text-muted,#5d7285);
+  }
+
+  .tutorial-generic .rp-method h3{
+    margin:.25rem 0 .7rem;
+    font-size:1rem;
+  }
+
+  .tutorial-generic .rp-method p{
+    margin:.7rem 0 0;
+    font-size:.78rem;
+    line-height:1.5;
+  }
+
+  .tutorial-generic .rp-mini-flow{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-wrap:wrap;
+    gap:.35rem;
+    font-size:.72rem;
+  }
+
+  .tutorial-generic .rp-mini-flow span{
+    padding:.35rem .45rem;
+    border-radius:7px;
+    background:rgba(255,255,255,.55);
+  }
+
+  .tutorial-generic .rp-mini-flow .temp{
+    font-weight:800;
+  }
+
+  .tutorial-generic .rp-mini-stack{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:.2rem;
+    font-size:.72rem;
+  }
+
+  .tutorial-generic .rp-mini-stack span{
+    padding:.3rem .5rem;
+    border-radius:7px;
+    background:rgba(255,255,255,.55);
+  }
+
+  .tutorial-generic .rp-mini-stack b{
+    color:var(--green,#00a878);
+  }
+
+  .tutorial-generic .rp-branch{
+    max-width:620px;
+    margin:1rem auto;
+    text-align:center;
+  }
+
+  .tutorial-generic .rp-branch-source{
+    display:inline-flex;
+    flex-direction:column;
+    padding:.7rem 1.2rem;
+    border:1px solid rgba(76,126,190,.24);
+    border-radius:12px;
+    background:rgba(76,126,190,.07);
+  }
+
+  .tutorial-generic .rp-branch-source small{
+    color:var(--text-muted,#5d7285);
+  }
+
+  .tutorial-generic .rp-branch-lines{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    margin:.25rem auto;
+    max-width:400px;
+    font-size:1.25rem;
+    color:var(--green,#00a878);
+  }
+
+  .tutorial-generic .rp-branch-targets{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:.55rem;
+  }
+
+  .tutorial-generic .rp-branch-targets div{
+    display:flex;
+    flex-direction:column;
+    padding:.65rem;
+    border:1px solid rgba(110,130,140,.15);
+    border-radius:10px;
+    background:rgba(120,140,150,.03);
+    font-size:.76rem;
+  }
+
+  .tutorial-generic .rp-branch-targets small{
+    margin-top:.15rem;
+    color:var(--text-muted,#5d7285);
+  }
+
+  .tutorial-generic .rp-situations{
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:.7rem;
+    margin-top:1rem;
+  }
+
+  .tutorial-generic .rp-situations article{
+    display:flex;
+    gap:.55rem;
+    padding:.75rem;
+    border:1px solid rgba(110,130,140,.15);
+    border-radius:12px;
+    background:rgba(120,140,150,.025);
+  }
+
+  .tutorial-generic .rp-situations article > span{
+    font-size:1.05rem;
+  }
+
+  .tutorial-generic .rp-situations strong{
+    font-size:.8rem;
+  }
+
+  .tutorial-generic .rp-situations p{
+    margin:.2rem 0 0;
+    font-size:.72rem;
+    line-height:1.45;
+    color:var(--text-muted,#5d7285);
+  }
+
+  .tutorial-generic .rp-choice-grid{
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:.75rem;
+    margin-top:1rem;
+  }
+
+  .tutorial-generic .rp-choice{
+    padding:.9rem;
+    border:1px solid;
+    border-radius:15px;
+  }
+
+  .tutorial-generic .rp-choice.simple{
+    border-color:rgba(130,140,150,.22);
+    background:rgba(120,140,150,.045);
+  }
+
+  .tutorial-generic .rp-choice.preceding{
+    border-color:rgba(22,154,118,.23);
+    background:rgba(22,154,118,.06);
+  }
+
+  .tutorial-generic .rp-choice.resident{
+    border-color:rgba(76,126,190,.23);
+    background:rgba(76,126,190,.06);
+  }
+
+  .tutorial-generic .rp-choice-icon{
+    display:grid;
+    place-items:center;
+    width:2.15rem;
+    height:2.15rem;
+    margin-bottom:.55rem;
+    border-radius:10px;
+    background:rgba(255,255,255,.65);
+  }
+
+  .tutorial-generic .rp-choice > span{
+    font-size:.62rem;
+    font-weight:850;
+    letter-spacing:.07em;
+    color:var(--text-muted,#5d7285);
+  }
+
+  .tutorial-generic .rp-choice h3{
+    margin:.25rem 0 .45rem;
+    font-size:.9rem;
+  }
+
+  .tutorial-generic .rp-choice p{
+    margin:0;
+    font-size:.75rem;
+    line-height:1.48;
+  }
+
+  html[data-theme="dark"] .tutorial-generic .rp-table-card,
+  html[data-theme="dark"] .tutorial-generic .rp-result{
+    border-color:rgba(102,237,189,.16);
+  }
+
+  html[data-theme="dark"] .tutorial-generic .rp-table-title,
+  html[data-theme="dark"] .tutorial-generic .rp-result-head{
+    background:rgba(102,237,189,.055);
+  }
+
+  html[data-theme="dark"] .tutorial-generic .rp-mini-flow span,
+  html[data-theme="dark"] .tutorial-generic .rp-mini-stack span,
+  html[data-theme="dark"] .tutorial-generic .rp-choice-icon{
+    background:rgba(7,24,32,.42);
+  }
+
+  html[data-theme="dark"] .tutorial-generic .rp-method.resident{
+    border-color:rgba(105,165,218,.20);
+    background:linear-gradient(145deg,rgba(51,103,151,.20),rgba(29,64,96,.08));
+  }
+
+  html[data-theme="dark"] .tutorial-generic .rp-method.preceding{
+    border-color:rgba(83,205,168,.20);
+    background:linear-gradient(145deg,rgba(32,137,107,.18),rgba(22,78,65,.08));
+  }
+
+  @media(max-width:900px){
+    .tutorial-generic .rp-situations,
+    .tutorial-generic .rp-choice-grid{
+      grid-template-columns:1fr;
+    }
+  }
+
+  @media(max-width:700px){
+    .tutorial-generic .rp-flow{
+      flex-direction:column;
+    }
+
+    .tutorial-generic .rp-arrow{
+      transform:rotate(90deg);
+    }
+
+    .tutorial-generic .rp-node{
+      width:100%;
+    }
+
+    .tutorial-generic .rp-compare{
+      grid-template-columns:1fr;
+    }
+
+    .tutorial-generic .rp-branch-targets{
+      grid-template-columns:1fr;
+    }
+
+    .tutorial-generic .rp-branch-lines{
+      display:none;
+    }
+
+    .tutorial-generic .rp-table-card{
+      overflow-x:auto;
+    }
+  }
+
+  /* Resident vs Preceding — priorité au contenu pédagogique */
+  .tutorial-generic .exercise .learning-row {
+    grid-template-columns: 1fr;
+  }
+
+  .tutorial-generic .exercise .concrete-card-v3 {
+    display: none;
+  }
+
+  .tutorial-generic .exercise .what-card {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .tutorial-generic .exercise .what-copy {
+    min-width: 0;
+  }
+
+
+  .tutorial-generic .rp-best-choice{
+    display:flex;
+    align-items:flex-start;
+    gap:.85rem;
+    margin:1rem 0;
+    padding:1rem 1.1rem;
+    border:1px solid rgba(22,154,118,.28);
+    border-radius:14px;
+    background:linear-gradient(
+      135deg,
+      rgba(22,154,118,.10),
+      rgba(22,154,118,.035)
+    );
+  }
+
+  .tutorial-generic .rp-best-choice-icon{
+    display:grid;
+    place-items:center;
+    width:2.4rem;
+    height:2.4rem;
+    flex:0 0 2.4rem;
+    border-radius:12px;
+    background:rgba(22,154,118,.14);
+    font-size:1.15rem;
+  }
+
+  .tutorial-generic .rp-best-choice-label{
+    display:block;
+    margin-bottom:.18rem;
+    font-size:.63rem;
+    font-weight:850;
+    letter-spacing:.08em;
+    color:var(--green,#00a878);
+  }
+
+  .tutorial-generic .rp-best-choice strong{
+    display:block;
+    font-size:.94rem;
+  }
+
+  .tutorial-generic .rp-best-choice p{
+    margin:.35rem 0 0;
+    line-height:1.55;
+    font-size:.79rem;
+  }
+
+  html[data-theme="dark"] .tutorial-generic .rp-best-choice{
+    border-color:rgba(83,205,168,.22);
+    background:linear-gradient(
+      135deg,
+      rgba(32,137,107,.18),
+      rgba(22,78,65,.07)
+    );
+  }
+
+</style>

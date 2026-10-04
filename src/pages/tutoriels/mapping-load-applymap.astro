@@ -1,17 +1,754 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import TutorialLayout from '../../components/TutorialLayout.astro';
-const lessons=[
-{id:'mapping',n:'01',title:'Construire une table de mapping',level:'Intermédiaire',intro:'Mapping LOAD crée une correspondance à deux colonnes.',detail:'La première colonne contient la clé recherchée et la seconde la valeur retournée.',example:`<pre><code>MapPays:
-Mapping LOAD CODE_PAYS, LIBELLE_PAYS
-FROM [lib://Donnees/Pays.qvd] (qvd);</code></pre>`,facts:[['colonne 1','clé'],['colonne 2','valeur']],note:'Ce n’est pas une table classique du modèle final.',advantages:['Simple et efficace'],disadvantages:['Correspondance à deux colonnes']},
-{id:'applymap',n:'02',title:'Appliquer le mapping',level:'Intermédiaire',intro:'ApplyMap() recherche la clé et renvoie la valeur associée.',detail:'Le troisième paramètre définit la valeur retournée en l’absence de correspondance.',example:`<pre><code>Clients:
-LOAD ID_CLIENT, CODE_PAYS,
-    ApplyMap('MapPays', CODE_PAYS, 'Inconnu') AS PAYS
-FROM [lib://Donnees/Clients.qvd] (qvd);</code></pre>`,facts:[['MapPays','mapping'],['3e paramètre','valeur par défaut']],note:'L’astuce ApplyMap() existante couvre déjà le cas simple face au JOIN.',advantages:['Lisible'],disadvantages:['Mapping chargé avant utilisation']},
-{id:'join',n:'03',title:'Mapping ou JOIN ?',level:'Intermédiaire',intro:'ApplyMap() n’est pas meilleur que JOIN dans l’absolu.',detail:'Quelques attributs indépendants se prêtent bien aux mappings. Pour de nombreuses colonnes liées, réévaluez le modèle, le JOIN ou l’association naturelle.',example:`<pre><code>ApplyMap('MapPays', CODE_PAYS, 'Inconnu') AS PAYS,
-ApplyMap('MapSegment', ID_CLIENT, 'Non classé') AS SEGMENT</code></pre>`,facts:[['quelques attributs','mapping'],['beaucoup de colonnes','réévaluer']],note:'Choisissez selon le besoin.',advantages:['Évite des JOIN inutiles'],disadvantages:['Trop de mappings nuit à la lisibilité']},
-{id:'default',n:'04',title:'Soigner la valeur par défaut',level:'Intermédiaire',intro:'Une absence de correspondance doit être traitée consciemment.',detail:'Une valeur explicite facilite les contrôles qualité.',example:`<pre><code>ApplyMap('MapProduit', ID_PRODUIT, 'Produit inconnu') AS PRODUIT</code></pre>`,facts:[['défaut','contrôle qualité']],note:'Ne masquez pas silencieusement une anomalie.',advantages:['Contrôle simple'],disadvantages:['Un mauvais défaut peut masquer un problème']}
+
+const lessons = [
+  {
+    id: 'donnees-depart',
+    n: '01',
+    title: 'Les données de départ',
+    level: 'Débutant',
+    icon: '🗂️',
+    explain: `Nous disposons de deux QVD classiques : VENTES.qvd contient les commandes et leur code région ; REGIONS.qvd contient la correspondance entre chaque code et son libellé.`,
+    detail: `
+      <div class="map-source-grid">
+        <section class="map-table-card">
+          <div class="map-table-title"><span>🧾</span><strong>VENTES.qvd</strong></div>
+          <table>
+            <thead><tr><th>NUM_COMMANDE</th><th>CODE_REGION</th></tr></thead>
+            <tbody>
+              <tr><td>C001</td><td>PACA</td></tr>
+              <tr><td>C002</td><td>OCC</td></tr>
+              <tr><td>C003</td><td>BRE</td></tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section class="map-table-card">
+          <div class="map-table-title"><span>🗺️</span><strong>REGIONS.qvd</strong></div>
+          <table>
+            <thead><tr><th>CODE_REGION</th><th>LIBELLE_REGION</th></tr></thead>
+            <tbody>
+              <tr><td>PACA</td><td>Provence-Alpes-Côte d’Azur</td></tr>
+              <tr><td>OCC</td><td>Occitanie</td></tr>
+              <tr><td>NAQ</td><td>Nouvelle-Aquitaine</td></tr>
+            </tbody>
+          </table>
+        </section>
+      </div>
+    `,
+    facts: [
+      ['VENTES.qvd', 'table à enrichir'],
+      ['REGIONS.qvd', 'table de référence'],
+      ['Clé commune', 'CODE_REGION']
+    ],
+    note: 'ⓘ BRE existe dans les ventes, mais pas dans le référentiel : ce cas va nous être utile.',
+    advantages: [],
+    disadvantages: []
+  },
+
+  {
+    id: 'mapping-load',
+    n: '02',
+    title: 'Créer la table de mapping',
+    level: 'Débutant',
+    icon: '🧩',
+    explain: `MAPPING LOAD transforme le référentiel en table de correspondance à deux colonnes : une clé recherchée et la valeur à retourner.`,
+    detail: `
+      <p>La première colonne est la <strong>clé</strong>. La seconde est la <strong>valeur associée</strong>.</p>
+      <div class="map-flow">
+        <span>CODE_REGION</span><b>→</b><span>LIBELLE_REGION</span>
+      </div>
+
+      <div class="map-uniqueness">
+        <div class="map-uniqueness-icon">⚠️</div>
+        <div>
+          <strong>Une clé = une valeur</strong>
+          <p>
+            Une table de mapping est conçue pour associer une clé à une valeur.
+            Vérifiez donc que chaque <code>CODE_REGION</code> correspond à un seul
+            <code>LIBELLE_REGION</code>.
+          </p>
+          <p>
+            Si une même clé doit réellement correspondre à plusieurs valeurs,
+            <strong>ApplyMap() n’est probablement pas la bonne solution</strong> :
+            on n’est plus dans une correspondance simple de type 1 → 1.
+          </p>
+        </div>
+      </div>
+    `,
+    exampleTitle: 'Script Qlik Sense',
+    example: `<pre><code class="qlik-code">CarteRegions:
+MAPPING LOAD
+    CODE_REGION,
+    LIBELLE_REGION
+FROM [lib://Donnees/REGIONS.qvd] (qvd);</code></pre>`,
+    facts: [
+      ['Colonne 1', 'clé recherchée'],
+      ['Colonne 2', 'valeur retournée'],
+      ['CarteRegions', 'nom du mapping']
+    ],
+    note: 'ⓘ Une table de mapping sert à la correspondance pendant le script ; elle n’est pas une table classique du modèle final.',
+    advantages: ['Structure simple à deux colonnes', 'Très lisible pour une correspondance clé → valeur'],
+    disadvantages: ['Le mapping doit être chargé avant son utilisation']
+  },
+
+  {
+    id: 'applymap',
+    n: '03',
+    title: 'Utiliser ApplyMap()',
+    level: 'Débutant',
+    icon: '🔎',
+    explain: `ApplyMap() recherche CODE_REGION dans CarteRegions et renvoie le libellé correspondant. Le troisième paramètre permet de décider quoi retourner si la clé n’existe pas.`,
+    detail: `
+      <div class="map-signature">
+        <span>ApplyMap(</span>
+        <b>'CarteRegions'</b>,
+        <b>CODE_REGION</b>,
+        <b>'Région inconnue'</b>
+        <span>)</span>
+      </div>
+      <div class="map-params">
+        <span><b>1</b> table de mapping</span>
+        <span><b>2</b> valeur recherchée</span>
+        <span><b>3</b> valeur par défaut</span>
+      </div>
+    `,
+    exampleTitle: 'Enrichissement de VENTES.qvd',
+    example: `<pre><code class="qlik-code">Ventes:
+LOAD
+    NUM_COMMANDE,
+    CODE_REGION,
+    ApplyMap(
+        'CarteRegions',
+        CODE_REGION,
+        'Région inconnue'
+    ) AS REGION
+FROM [lib://Donnees/VENTES.qvd] (qvd);</code></pre>`,
+    facts: [
+      ['PACA', 'trouvé dans CarteRegions'],
+      ['OCC', 'trouvé dans CarteRegions'],
+      ['BRE', 'absent du mapping']
+    ],
+    note: '💡 Le troisième paramètre est facultatif, mais son absence change le résultat lorsqu’aucune correspondance n’est trouvée.',
+    advantages: ['Expression courte dans le LOAD', 'Pas besoin d’ajouter une jointure pour un simple libellé'],
+    disadvantages: ['Une valeur par défaut mal choisie peut masquer une anomalie']
+  },
+
+  {
+    id: 'resultat',
+    n: '04',
+    title: 'Observer le résultat',
+    level: 'Débutant',
+    icon: '✨',
+    explain: `PACA et OCC trouvent leur libellé dans CarteRegions. BRE n’existe pas dans REGIONS.qvd : ApplyMap() retourne donc la valeur par défaut que nous avons choisie.`,
+    detail: `
+      <div class="map-result-card">
+        <div class="map-result-title"><span>✨</span><strong>VENTES après enrichissement</strong></div>
+        <table>
+          <thead>
+            <tr><th>NUM_COMMANDE</th><th>CODE_REGION</th><th>REGION</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>C001</td><td>PACA</td><td class="map-ok">Provence-Alpes-Côte d’Azur</td></tr>
+            <tr><td>C002</td><td>OCC</td><td class="map-ok">Occitanie</td></tr>
+            <tr><td>C003</td><td>BRE</td><td class="map-missing">Région inconnue</td></tr>
+          </tbody>
+        </table>
+      </div>
+    `,
+    facts: [
+      ['C001', 'PACA → libellé trouvé'],
+      ['C002', 'OCC → libellé trouvé'],
+      ['C003', 'BRE → valeur par défaut']
+    ],
+    note: 'ⓘ La ligne C003 reste présente : seule la nouvelle valeur REGION indique que la correspondance n’a pas été trouvée.',
+    advantages: [],
+    disadvantages: []
+  },
+
+  {
+    id: 'cas-particuliers',
+    n: '05',
+    title: 'Les petits cas particuliers',
+    level: 'À connaître',
+    icon: '🧠',
+    explain: `C’est ici que le troisième paramètre d’ApplyMap() devient important. Selon la présence de la clé et de la valeur par défaut, Qlik ne renvoie pas la même chose.`,
+    detail: `
+      <div class="special-title">Trois comportements à retenir</div>
+
+      <div class="special-grid">
+        <article class="special-card special-found">
+          <div class="special-icon">🔎</div>
+          <div>
+            <span class="special-label">Clé trouvée</span>
+            <h3>La correspondance existe</h3>
+            <code>PACA → Provence-Alpes-Côte d’Azur</code>
+            <p>Qlik trouve <strong>PACA</strong> dans CarteRegions et retourne simplement la valeur associée.</p>
+          </div>
+        </article>
+
+        <article class="special-card special-default">
+          <div class="special-icon">🛟</div>
+          <div>
+            <span class="special-label">Clé absente + défaut</span>
+            <h3>On maîtrise la valeur retournée</h3>
+            <code>BRE → Région inconnue</code>
+            <p>BRE est absent du mapping. Le troisième paramètre est présent : c’est donc lui qui est retourné.</p>
+          </div>
+        </article>
+
+        <article class="special-card special-warning">
+          <div class="special-icon">⚠️</div>
+          <div>
+            <span class="special-label">Clé absente sans défaut</span>
+            <h3>Qlik restitue la clé recherchée</h3>
+            <code>BRE → BRE</code>
+            <p>Sans troisième paramètre, une clé non trouvée ne devient pas NULL : <strong>ApplyMap() retourne la valeur recherchée elle-même.</strong></p>
+          </div>
+        </article>
+      </div>
+
+      <div class="special-code-compare">
+        <div>
+          <strong>Avec valeur par défaut</strong>
+          <pre><code class="qlik-code">ApplyMap('CarteRegions', CODE_REGION, 'Région inconnue')</code></pre>
+          <span>BRE → Région inconnue</span>
+        </div>
+        <div>
+          <strong>Sans valeur par défaut</strong>
+          <pre><code class="qlik-code">ApplyMap('CarteRegions', CODE_REGION)</code></pre>
+          <span>BRE → BRE</span>
+        </div>
+      </div>
+    `,
+    facts: [
+      ['Clé trouvée', 'valeur du mapping'],
+      ['Absente + défaut', 'valeur par défaut'],
+      ['Absente sans défaut', 'valeur recherchée']
+    ],
+    note: '💡 C’est un détail facile à oublier : sans troisième paramètre, ApplyMap() ne renvoie pas automatiquement NULL.',
+    advantages: [],
+    disadvantages: []
+  },
+
+  {
+    id: 'bonnes-pratiques',
+    n: '06',
+    title: 'Bonnes pratiques',
+    level: 'À retenir',
+    icon: '🌱',
+    explain: `ApplyMap() est particulièrement agréable pour enrichir une table avec une information simple. Quelques habitudes permettent de garder le script lisible et les anomalies visibles.`,
+    detail: `
+      <div class="practice-grid">
+        <article><span>①</span><div><strong>Charger le mapping avant</strong><p>CarteRegions doit exister avant le LOAD qui appelle ApplyMap().</p></div></article>
+        <article><span>②</span><div><strong>Nommer clairement</strong><p>Un nom comme CarteRegions décrit immédiatement le rôle du mapping.</p></div></article>
+        <article><span>③</span><div><strong>Choisir le défaut consciemment</strong><p>« Région inconnue » rend ici l’absence de correspondance visible.</p></div></article>
+        <article><span>④</span><div><strong>Rester simple</strong><p>Pour récupérer un libellé ou un attribut, ApplyMap() évite souvent une jointure inutile.</p></div></article>
+        <article><span>⑤</span><div><strong>Vérifier l’unicité de la clé</strong><p>Une clé du mapping doit correspondre à une seule valeur. Une relation 1 → N demande une autre approche.</p></div></article>
+      </div>
+
+      <div class="map-takeaway">
+        <span>💡</span>
+        <p><strong>L’idée à retenir :</strong> MAPPING LOAD prépare la correspondance ; ApplyMap() l’utilise au moment du chargement.</p>
+      </div>
+    `,
+    facts: [
+      ['MAPPING LOAD', 'prépare la correspondance'],
+      ['ApplyMap()', 'recherche la valeur'],
+      ['3e paramètre', 'gère le cas absent']
+    ],
+    note: '✓ Une solution simple reste généralement plus facile à relire, contrôler et maintenir.',
+    advantages: ['Très adapté à l’ajout d’un attribut simple', 'Évite d’alourdir inutilement le modèle'],
+    disadvantages: ['Pour de nombreuses colonnes liées, il faut réévaluer le modèle ou l’usage d’une jointure']
+  }
 ];
 ---
-<BaseLayout title="Mapping LOAD et ApplyMap — SOSBI"><TutorialLayout title="Mapping LOAD et ApplyMap()" description="Approfondir les mappings, les valeurs absentes et le choix face à une jointure." navTitle="Mapping / ApplyMap" lessons={lessons}/></BaseLayout>
+
+<BaseLayout
+  title="Mapping LOAD et ApplyMap() — SOSBI"
+  description="Comprendre MAPPING LOAD et ApplyMap() dans Qlik Sense avec un cas complet : table de correspondance, valeur par défaut, cas particuliers et bonnes pratiques."
+>
+  <TutorialLayout
+    title="Mapping LOAD et ApplyMap()"
+    description="Enrichir simplement une table Qlik à partir d’un référentiel, comprendre la valeur par défaut et maîtriser les cas où la correspondance n’existe pas."
+    navTitle="Mapping / ApplyMap"
+    lessons={lessons}
+  />
+</BaseLayout>
+
+<style is:global>
+  /* SOSBI — Mapping LOAD / ApplyMap
+     Complément local à la charte TutorialLayout.
+     Aucun style global existant n'est modifié. */
+
+  .tutorial-generic .map-source-grid{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:1rem;
+    margin-top:1rem;
+  }
+
+  .tutorial-generic .map-table-card,
+  .tutorial-generic .map-result-card{
+    overflow:hidden;
+    border:1px solid rgba(22,154,118,.22);
+    border-radius:14px;
+    background:var(--surface,#fff);
+    box-shadow:0 8px 24px rgba(13,50,62,.05);
+  }
+
+  .tutorial-generic .map-table-title,
+  .tutorial-generic .map-result-title{
+    display:flex;
+    align-items:center;
+    gap:.55rem;
+    padding:.8rem 1rem;
+    border-bottom:1px solid rgba(22,154,118,.15);
+    background:rgba(22,154,118,.06);
+  }
+
+  .tutorial-generic .map-table-card table,
+  .tutorial-generic .map-result-card table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:.88rem;
+  }
+
+  .tutorial-generic .map-table-card th,
+  .tutorial-generic .map-table-card td,
+  .tutorial-generic .map-result-card th,
+  .tutorial-generic .map-result-card td{
+    padding:.68rem .8rem;
+    text-align:left;
+    border-bottom:1px solid rgba(110,130,140,.13);
+  }
+
+  .tutorial-generic .map-table-card th,
+  .tutorial-generic .map-result-card th{
+    font-size:.72rem;
+    letter-spacing:.035em;
+    color:var(--text-muted,#5d7285);
+    background:rgba(120,140,150,.045);
+  }
+
+  .tutorial-generic .map-table-card tbody tr:last-child td,
+  .tutorial-generic .map-result-card tbody tr:last-child td{
+    border-bottom:0;
+  }
+
+  .tutorial-generic .map-flow{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-wrap:wrap;
+    gap:.8rem;
+    margin:1rem 0 .25rem;
+  }
+
+  .tutorial-generic .map-flow span{
+    padding:.55rem .85rem;
+    border:1px solid rgba(0,168,120,.22);
+    border-radius:10px;
+    background:rgba(0,168,120,.06);
+    font-weight:700;
+  }
+
+  .tutorial-generic .map-flow b{
+    color:var(--green,#00a878);
+    font-size:1.25rem;
+  }
+
+  .tutorial-generic .map-uniqueness{
+    display:flex;
+    gap:.8rem;
+    align-items:flex-start;
+    margin-top:1rem;
+    padding:.9rem 1rem;
+    border:1px solid rgba(205,145,45,.28);
+    border-radius:13px;
+    background:linear-gradient(145deg,rgba(241,185,83,.15),rgba(241,185,83,.05));
+    color:#795317;
+  }
+
+  .tutorial-generic .map-uniqueness-icon{
+    display:grid;
+    place-items:center;
+    width:2.1rem;
+    height:2.1rem;
+    flex:0 0 2.1rem;
+    border-radius:10px;
+    background:rgba(255,255,255,.72);
+    box-shadow:0 3px 10px rgba(20,40,50,.07);
+  }
+
+  .tutorial-generic .map-uniqueness strong{
+    display:block;
+    margin-bottom:.3rem;
+  }
+
+  .tutorial-generic .map-uniqueness p{
+    margin:.15rem 0;
+    line-height:1.5;
+    font-size:.82rem;
+  }
+
+  .tutorial-generic .map-uniqueness code{
+    padding:.08rem .28rem;
+    border-radius:5px;
+    background:rgba(255,255,255,.58);
+    font-size:.9em;
+  }
+
+  .tutorial-generic .map-signature{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:.32rem;
+    margin:1rem 0 .65rem;
+    padding:.85rem 1rem;
+    border-radius:12px;
+    background:rgba(74,116,196,.07);
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    font-size:.88rem;
+  }
+
+  .tutorial-generic .map-signature b:nth-of-type(1){color:#557fc6}
+  .tutorial-generic .map-signature b:nth-of-type(2){color:#b37b45}
+  .tutorial-generic .map-signature b:nth-of-type(3){color:#668f3e}
+
+  .tutorial-generic .map-params{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:.55rem;
+    margin-bottom:.3rem;
+  }
+
+  .tutorial-generic .map-params span{
+    display:flex;
+    align-items:center;
+    gap:.45rem;
+    font-size:.78rem;
+    color:var(--text-muted,#5d7285);
+  }
+
+  .tutorial-generic .map-params b{
+    display:grid;
+    place-items:center;
+    width:1.55rem;
+    height:1.55rem;
+    flex:0 0 1.55rem;
+    border-radius:50%;
+    background:rgba(0,168,120,.12);
+    color:var(--green,#00a878);
+  }
+
+  .tutorial-generic .map-ok{
+    color:#15805f;
+    font-weight:650;
+  }
+
+  .tutorial-generic .map-missing{
+    color:#ad7419;
+    font-weight:700;
+  }
+
+  .tutorial-generic .special-title{
+    margin:1.2rem 0 .7rem;
+    font-size:.78rem;
+    font-weight:800;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    color:var(--text-muted,#5d7285);
+  }
+
+  .tutorial-generic .special-grid{
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:.85rem;
+  }
+
+  .tutorial-generic .special-card{
+    position:relative;
+    display:flex;
+    gap:.7rem;
+    min-width:0;
+    padding:1rem;
+    border:1px solid;
+    border-radius:16px;
+    overflow:hidden;
+  }
+
+  .tutorial-generic .special-card::after{
+    content:"";
+    position:absolute;
+    width:75px;
+    height:75px;
+    right:-28px;
+    bottom:-32px;
+    border-radius:50%;
+    background:currentColor;
+    opacity:.055;
+  }
+
+  .tutorial-generic .special-icon{
+    display:grid;
+    place-items:center;
+    width:2.25rem;
+    height:2.25rem;
+    flex:0 0 2.25rem;
+    border-radius:11px;
+    background:rgba(255,255,255,.72);
+    box-shadow:0 3px 10px rgba(20,40,50,.08);
+    font-size:1.05rem;
+  }
+
+  .tutorial-generic .special-label{
+    display:block;
+    margin-bottom:.22rem;
+    font-size:.66rem;
+    font-weight:850;
+    letter-spacing:.055em;
+    text-transform:uppercase;
+    opacity:.76;
+  }
+
+  .tutorial-generic .special-card h3{
+    margin:0 0 .55rem;
+    font-size:.94rem;
+    line-height:1.25;
+  }
+
+  .tutorial-generic .special-card code{
+    display:block;
+    margin-bottom:.55rem;
+    padding:.42rem .5rem;
+    border-radius:8px;
+    background:rgba(255,255,255,.66);
+    font-size:.7rem;
+    line-height:1.35;
+    overflow-wrap:anywhere;
+  }
+
+  .tutorial-generic .special-card p{
+    margin:0;
+    font-size:.76rem;
+    line-height:1.48;
+  }
+
+  .tutorial-generic .special-found{
+    color:#176f5a;
+    border-color:rgba(22,143,108,.25);
+    background:linear-gradient(145deg,rgba(61,197,157,.14),rgba(61,197,157,.055));
+  }
+
+  .tutorial-generic .special-default{
+    color:#376a9b;
+    border-color:rgba(67,126,181,.25);
+    background:linear-gradient(145deg,rgba(91,155,214,.14),rgba(91,155,214,.05));
+  }
+
+  .tutorial-generic .special-warning{
+    color:#946318;
+    border-color:rgba(205,145,45,.28);
+    background:linear-gradient(145deg,rgba(241,185,83,.18),rgba(241,185,83,.055));
+  }
+
+  .tutorial-generic .special-code-compare{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:.8rem;
+    margin-top:1rem;
+  }
+
+  .tutorial-generic .special-code-compare > div{
+    padding:.85rem;
+    border:1px solid rgba(110,130,140,.18);
+    border-radius:12px;
+    background:rgba(120,140,150,.035);
+  }
+
+  .tutorial-generic .special-code-compare strong{
+    display:block;
+    margin-bottom:.45rem;
+    font-size:.8rem;
+  }
+
+  .tutorial-generic .special-code-compare pre{
+    margin:.3rem 0 .55rem;
+    white-space:pre-wrap;
+  }
+
+  .tutorial-generic .special-code-compare > div > span{
+    font-size:.76rem;
+    color:var(--text-muted,#5d7285);
+  }
+
+  .tutorial-generic .practice-grid{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:.75rem;
+    margin-top:1rem;
+  }
+
+  .tutorial-generic .practice-grid article{
+    display:flex;
+    gap:.75rem;
+    padding:.85rem;
+    border:1px solid rgba(0,168,120,.16);
+    border-radius:13px;
+    background:rgba(0,168,120,.035);
+  }
+
+  .tutorial-generic .practice-grid article > span{
+    display:grid;
+    place-items:center;
+    width:1.9rem;
+    height:1.9rem;
+    flex:0 0 1.9rem;
+    border-radius:50%;
+    background:rgba(0,168,120,.12);
+    color:var(--green,#00a878);
+    font-weight:800;
+  }
+
+  .tutorial-generic .practice-grid strong{
+    font-size:.84rem;
+  }
+
+  .tutorial-generic .practice-grid p{
+    margin:.2rem 0 0;
+    font-size:.76rem;
+    line-height:1.45;
+    color:var(--text-muted,#5d7285);
+  }
+
+  .tutorial-generic .map-takeaway{
+    display:flex;
+    gap:.75rem;
+    align-items:flex-start;
+    margin-top:1rem;
+    padding:.9rem 1rem;
+    border-left:4px solid var(--green,#00a878);
+    border-radius:0 12px 12px 0;
+    background:rgba(0,168,120,.065);
+  }
+
+  .tutorial-generic .map-takeaway p{
+    margin:0;
+    line-height:1.55;
+  }
+
+  html[data-theme="dark"] .tutorial-generic .map-uniqueness{
+    color:#f0c574;
+    border-color:rgba(218,166,72,.23);
+    background:linear-gradient(145deg,rgba(151,105,34,.20),rgba(87,63,27,.08));
+  }
+
+  html[data-theme="dark"] .tutorial-generic .map-uniqueness-icon,
+  html[data-theme="dark"] .tutorial-generic .map-uniqueness code{
+    background:rgba(7,24,32,.44);
+  }
+
+  html[data-theme="dark"] .tutorial-generic .map-table-card,
+  html[data-theme="dark"] .tutorial-generic .map-result-card{
+    border-color:rgba(102,237,189,.18);
+    box-shadow:none;
+  }
+
+  html[data-theme="dark"] .tutorial-generic .map-table-title,
+  html[data-theme="dark"] .tutorial-generic .map-result-title{
+    background:rgba(102,237,189,.065);
+    border-bottom-color:rgba(102,237,189,.12);
+  }
+
+  html[data-theme="dark"] .tutorial-generic .map-signature{
+    background:rgba(91,135,205,.09);
+  }
+
+  html[data-theme="dark"] .tutorial-generic .map-signature b:nth-of-type(1){color:#78a7ff}
+  html[data-theme="dark"] .tutorial-generic .map-signature b:nth-of-type(2){color:#e2b27d}
+  html[data-theme="dark"] .tutorial-generic .map-signature b:nth-of-type(3){color:#9bc56a}
+
+  html[data-theme="dark"] .tutorial-generic .map-ok{color:#72d7b7}
+  html[data-theme="dark"] .tutorial-generic .map-missing{color:#f0bd67}
+
+  html[data-theme="dark"] .tutorial-generic .special-icon,
+  html[data-theme="dark"] .tutorial-generic .special-card code{
+    background:rgba(7,24,32,.44);
+  }
+
+  html[data-theme="dark"] .tutorial-generic .special-found{
+    color:#85ddc1;
+    border-color:rgba(83,205,168,.22);
+    background:linear-gradient(145deg,rgba(32,137,107,.20),rgba(22,78,65,.09));
+  }
+
+  html[data-theme="dark"] .tutorial-generic .special-default{
+    color:#9bc9f1;
+    border-color:rgba(105,165,218,.22);
+    background:linear-gradient(145deg,rgba(51,103,151,.22),rgba(29,64,96,.09));
+  }
+
+  html[data-theme="dark"] .tutorial-generic .special-warning{
+    color:#f0c574;
+    border-color:rgba(218,166,72,.23);
+    background:linear-gradient(145deg,rgba(151,105,34,.22),rgba(87,63,27,.09));
+  }
+
+  html[data-theme="dark"] .tutorial-generic .special-code-compare > div{
+    background:rgba(255,255,255,.025);
+    border-color:rgba(255,255,255,.09);
+  }
+
+  html[data-theme="dark"] .tutorial-generic .practice-grid article{
+    background:rgba(102,237,189,.035);
+    border-color:rgba(102,237,189,.12);
+  }
+
+  @media(max-width:900px){
+    .tutorial-generic .special-grid{
+      grid-template-columns:1fr;
+    }
+  }
+
+  @media(max-width:700px){
+    .tutorial-generic .map-source-grid,
+    .tutorial-generic .map-params,
+    .tutorial-generic .special-code-compare,
+    .tutorial-generic .practice-grid{
+      grid-template-columns:1fr;
+    }
+
+    .tutorial-generic .map-table-card table,
+    .tutorial-generic .map-result-card table{
+      font-size:.78rem;
+    }
+
+    .tutorial-generic .map-table-card th,
+    .tutorial-generic .map-table-card td,
+    .tutorial-generic .map-result-card th,
+    .tutorial-generic .map-result-card td{
+      padding:.58rem .55rem;
+    }
+  }
+
+  /* Chapitre 05 — les cas particuliers ont besoin de toute la largeur */
+  .tutorial-generic #cas-particuliers .learning-row {
+    grid-template-columns: 1fr;
+  }
+
+  .tutorial-generic #cas-particuliers .concrete-card-v3 {
+    display: none;
+  }
+
+  .tutorial-generic #cas-particuliers .what-card {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .tutorial-generic #cas-particuliers .what-copy {
+    min-width: 0;
+  }
+
+</style>
