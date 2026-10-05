@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import '../../styles/article-tech-v455.css';
-import '../../styles/article-associatif-v521.css';
+import '../../styles/article-associatif-v536.css';
 ---
 <BaseLayout title="Comprendre le modèle associatif de Qlik — SOSBI">
 <section class="article-hero tech-hero"><div class="container">
@@ -41,12 +41,45 @@ import '../../styles/article-associatif-v521.css';
 
 <section id="modele"><h2>2. Notre mini-modèle</h2>
 <p>Gardons le même petit jeu de données pendant tout l’article. Les ventes sont reliées aux clients et aux produits par des champs communs.</p>
-<figure class="assoc-model-figure assoc-model-figure-v5">
-<img src="/assets/modele-associatif-qlik-v5.png"
-     alt="Illustration du modèle associatif Qlik : tables CLIENTS, VENTES et PRODUITS reliées directement sur ID_CLIENT et ID_PRODUIT, propagation d’une sélection Région = Nord et graphique recalculé dans le contexte courant."
-     loading="lazy" />
-<figcaption>Les associations relient les champs homonymes ; une sélection se propage dans le modèle et met à jour les valeurs possibles, exclues et les graphiques.</figcaption>
-</figure>
+
+<div class="assoc-css-model" aria-label="Association entre les tables Clients, Ventes et Produits">
+  <div class="assoc-model-row">
+    <div class="assoc-table-card table-clients">
+      <div class="assoc-table-head">CLIENTS</div>
+      <div class="assoc-table-fields">
+        <span class="model-key client-key"><b>ID_CLIENT</b><i class="model-port right"></i></span>
+        <span>Client</span>
+        <span>Région</span>
+      </div>
+    </div>
+
+    <div class="model-link client-link">
+      <span>Association sur<br><b>ID_CLIENT</b></span><i></i>
+    </div>
+
+    <div class="assoc-table-card table-sales">
+      <div class="assoc-table-head">VENTES</div>
+      <div class="assoc-table-fields">
+        <span class="model-key client-key"><i class="model-port left"></i><b>ID_CLIENT</b></span>
+        <span class="model-key product-key"><b>ID_PRODUIT</b><i class="model-port right"></i></span>
+        <span>Montant</span>
+      </div>
+    </div>
+
+    <div class="model-link product-link">
+      <span>Association sur<br><b>ID_PRODUIT</b></span><i></i>
+    </div>
+
+    <div class="assoc-table-card table-products">
+      <div class="assoc-table-head">PRODUITS</div>
+      <div class="assoc-table-fields">
+        <span class="model-key product-key"><i class="model-port left"></i><b>ID_PRODUIT</b></span>
+        <span>Produit</span>
+      </div>
+    </div>
+  </div>
+  <p class="assoc-model-caption">Les tables restent distinctes : <strong>ID_CLIENT</strong> associe CLIENTS à VENTES et <strong>ID_PRODUIT</strong> associe VENTES à PRODUITS.</p>
+</div>
 <p>Dans Qlik, des champs portant le même nom associent naturellement les tables. <strong>Le schéma ci-dessus représente des associations, pas des cardinalités 1→N imposées comme dans un modèle relationnel classique.</strong> Ici, <code>ID_CLIENT</code> et <code>ID_PRODUIT</code> permettent aux sélections de traverser le modèle.</p>
 <h3>Le jeu de données de référence</h3>
 <p>À partir d’ici, <strong>tous les exemples de l’article découlent exactement des mêmes données</strong>. Cela nous permettra de vérifier chaque valeur blanche, verte ou grise sans changer les règles en cours de route.</p>
