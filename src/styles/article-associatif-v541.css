@@ -1,0 +1,1660 @@
+
+/* SOSBI V516 — complément dédié à l'article associatif. Aucun style global modifié. */
+.assoc-demo{margin:1.6rem 0;padding:1.1rem;border:1px solid rgba(120,130,145,.22);border-radius:18px;background:rgba(127,127,127,.04)}
+.assoc-demo h3{margin:.1rem 0 1rem}.assoc-filters{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
+.assoc-filter{padding:1rem;border:1px solid rgba(120,130,145,.18);border-radius:14px}.assoc-filter>b{display:block;margin-bottom:.6rem}
+.assoc-filter span,.assoc-compare span{display:block;margin:.35rem 0;padding:.45rem .65rem;border-radius:8px;border:1px solid rgba(0,0,0,.1);font-weight:650}
+.selected{background:#52a943!important;color:#fff!important}.possible{background:#fff!important;color:#20252a!important}.alternative{background:#d8dadd!important;color:#34393e!important}.excluded,.selected-excluded{background:#73777c!important;color:#fff!important}
+.assoc-model{display:flex;align-items:center;justify-content:center;gap:.6rem;margin:1.8rem 0}.assoc-model>div{min-width:150px;padding:1rem;border:1px solid rgba(120,130,145,.22);border-radius:14px}.assoc-model .fact{border-color:rgba(0,152,69,.5)}.assoc-model b,.assoc-model span{display:block}.assoc-model b{color:#008d43;margin-bottom:.5rem}.assoc-model span{font-size:.86rem;padding:.18rem 0}.assoc-model i{font-style:normal;font-size:.72rem;color:#008d43}
+.assoc-states{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin:1.5rem 0}.assoc-states>div{display:flex;align-items:center;gap:.9rem;padding:1rem;border:1px solid rgba(120,130,145,.18);border-radius:13px}.assoc-states em{display:grid;place-items:center;flex:0 0 44px;height:44px;border-radius:9px;border:1px solid rgba(0,0,0,.1);font-style:normal}.assoc-states p{margin:0}.assoc-states>div:last-child{grid-column:1/-1}
+.assoc-flow,.assoc-final,.assoc-underhood{display:flex;align-items:center;gap:.45rem;margin:1.7rem 0}.assoc-flow>div,.assoc-final>div,.assoc-underhood>div{flex:1;padding:.8rem;border:1px solid rgba(120,130,145,.2);border-radius:13px;text-align:center}.assoc-flow small,.assoc-final>div>b{display:grid;place-items:center;width:26px;height:26px;margin:0 auto .4rem;border-radius:50%;background:#009845;color:#fff}.assoc-flow b,.assoc-flow span,.assoc-underhood small,.assoc-underhood b{display:block}.assoc-flow span{font-size:.8rem;opacity:.8}.assoc-flow i,.assoc-final i,.assoc-underhood i{font-style:normal;color:#009845}.assoc-underhood small{font-size:.62rem;color:#008d43;font-weight:800;margin-bottom:.3rem}
+.assoc-question{display:flex;align-items:center;gap:1rem;margin:1.5rem 0;padding:1.2rem;border:1px solid rgba(0,152,69,.22);border-radius:16px;background:rgba(0,152,69,.07)}.assoc-question>strong{display:grid;place-items:center;flex:0 0 55px;height:55px;border-radius:50%;background:#009845;color:#fff;font-size:1.7rem}.assoc-question p{margin:0}
+.assoc-compare,.assoc-expert{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1.5rem 0}.assoc-compare>div,.assoc-expert>div{padding:1rem;border:1px solid rgba(120,130,145,.2);border-radius:14px}.assoc-compare h3{margin-top:0}.assoc-expert>div{position:relative}.assoc-expert>div>b{position:absolute;right:.7rem;top:.35rem;font-size:2rem;opacity:.08}.assoc-expert h3{margin-top:.1rem}.assoc-expert p{margin-bottom:0}
+.assoc-versus{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:1rem;margin:1.6rem 0}.assoc-versus>div{padding:1.1rem;border:1px solid rgba(120,130,145,.2);border-radius:14px}.assoc-versus>b{font-size:2rem;color:#009845}.assoc-versus small{color:#008d43;font-weight:800}.assoc-versus h3{margin:.2rem 0}
+.assoc-final>div{display:flex;align-items:center;justify-content:center;gap:.5rem;min-height:78px}.assoc-final>div>b{margin:0}.assoc-final span{font-size:.75rem}.assoc-closing{margin:2rem auto .5rem;max-width:780px;text-align:center;font-size:1.08rem;line-height:1.7}
+html[data-theme="dark"] .assoc-filter,html[data-theme="dark"] .assoc-model>div,html[data-theme="dark"] .assoc-states>div,html[data-theme="dark"] .assoc-flow>div,html[data-theme="dark"] .assoc-final>div,html[data-theme="dark"] .assoc-underhood>div,html[data-theme="dark"] .assoc-compare>div,html[data-theme="dark"] .assoc-expert>div,html[data-theme="dark"] .assoc-versus>div{background:rgba(255,255,255,.035)}
+@media(max-width:820px){.assoc-filters,.assoc-states,.assoc-compare,.assoc-expert{grid-template-columns:1fr}.assoc-states>div:last-child{grid-column:auto}.assoc-model,.assoc-flow,.assoc-final,.assoc-underhood{flex-direction:column}.assoc-model i,.assoc-flow i,.assoc-final i,.assoc-underhood i{transform:rotate(90deg)}.assoc-model>div{width:min(100%,300px)}.assoc-versus{grid-template-columns:1fr}.assoc-versus>b{justify-self:center}}
+
+/* V2 — sélections multiples, sélectionné-exclu, valeur sans correspondance, calculs */
+.assoc-logic{display:grid;grid-template-columns:1fr auto 1fr;gap:1rem;align-items:stretch;margin:1.5rem 0}
+.assoc-logic>div:not(.logic-sign){padding:1.1rem;border:1px solid rgba(120,130,145,.2);border-radius:14px}
+.assoc-logic small{color:#008d43;font-weight:800;letter-spacing:.07em}.assoc-logic h3{margin:.3rem 0}.assoc-logic h3 b{color:#009845}.logic-sign{align-self:center;font-size:1.6rem;font-weight:900;color:#009845}
+.assoc-filters.two{grid-template-columns:1fr 1fr}.selected-excluded{background:#73777c!important;color:#fff!important;box-shadow:inset 0 0 0 2px rgba(255,255,255,.5)}
+.assoc-orphan{display:grid;grid-template-columns:1fr auto 1fr;gap:1rem;align-items:center;margin:1.6rem 0}.orphan-table{padding:1rem;border:1px solid rgba(120,130,145,.2);border-radius:14px}.orphan-table b,.orphan-table span{display:block}.orphan-table b{color:#008d43;margin-bottom:.5rem}.orphan-table span{padding:.22rem 0}.orphan-table .orphan{font-weight:800}.orphan-link{text-align:center;color:#73777c;font-weight:800}.orphan-link span{display:block;font-size:.72rem;font-weight:650}
+.assoc-calc{display:grid;grid-template-columns:1fr auto 1fr;gap:1rem;align-items:center;margin:1.5rem 0}.assoc-calc>div{padding:1.1rem;border:1px solid rgba(120,130,145,.2);border-radius:14px;text-align:center}.assoc-calc small,.assoc-calc b,.assoc-calc span{display:block}.assoc-calc small{color:#008d43;font-weight:800}.assoc-calc b{margin:.35rem 0;font-family:monospace}.assoc-calc span{font-size:.85rem}.assoc-calc>i{font-style:normal;color:#009845;font-weight:800;font-size:.8rem;text-align:center}
+.assoc-deeper{margin:1.5rem 0;padding:1.15rem;border-left:4px solid #009845;border-radius:0 14px 14px 0;background:rgba(0,152,69,.06)}.assoc-deeper small{color:#008d43;font-weight:850;letter-spacing:.08em}.assoc-deeper h3{margin:.35rem 0}.assoc-deeper p{margin:.25rem 0}
+html[data-theme="dark"] .assoc-logic>div:not(.logic-sign),html[data-theme="dark"] .orphan-table,html[data-theme="dark"] .assoc-calc>div{background:rgba(255,255,255,.035)}
+@media(max-width:820px){.assoc-logic,.assoc-orphan,.assoc-calc{grid-template-columns:1fr}.logic-sign{justify-self:center}.assoc-filters.two{grid-template-columns:1fr}.orphan-link,.assoc-calc>i{padding:.25rem}.assoc-calc>i{transform:none}}
+
+/* V3 — dataset de référence et séquence selected-excluded vérifiée */
+.assoc-data{display:grid;grid-template-columns:minmax(0,2fr) minmax(180px,1fr);gap:1rem;align-items:center;margin:1.4rem 0}
+.assoc-data table{width:100%;border-collapse:collapse;border:1px solid rgba(120,130,145,.2);border-radius:12px;overflow:hidden}
+.assoc-data th,.assoc-data td{padding:.58rem .7rem;border-bottom:1px solid rgba(120,130,145,.15);text-align:left}.assoc-data th{font-size:.78rem;color:#008d43}
+.assoc-emma{padding:1.1rem;border:1px dashed rgba(0,152,69,.45);border-radius:14px;text-align:center}.assoc-emma b,.assoc-emma span,.assoc-emma strong{display:block}.assoc-emma b{font-size:1.15rem;color:#008d43}.assoc-emma span{margin:.25rem 0;font-size:.85rem}.assoc-emma strong{font-size:.78rem}
+.assoc-sequence{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:.65rem;align-items:center;margin:1.5rem 0}.assoc-sequence>div{padding:1rem;border:1px solid rgba(120,130,145,.2);border-radius:14px;min-height:165px}.assoc-sequence>div>small{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:#009845;color:#fff;font-weight:800}.assoc-sequence>div>span{display:block;padding:.45rem .65rem;border-radius:8px;border:1px solid rgba(0,0,0,.1);font-weight:650}.assoc-sequence>i{font-style:normal;color:#009845;font-size:1.3rem}.assoc-sequence p{font-size:.88rem}
+html[data-theme="dark"] .assoc-sequence>div,html[data-theme="dark"] .assoc-data table,html[data-theme="dark"] .assoc-emma{background:rgba(255,255,255,.035)}
+@media(max-width:820px){.assoc-data{grid-template-columns:1fr}.assoc-sequence{grid-template-columns:1fr}.assoc-sequence>i{justify-self:center;transform:rotate(90deg)}}
+
+/* V4 — finition visuelle : cartes à en-têtes différenciés + illustration associative */
+.assoc-model-figure{
+  margin:1.8rem 0 1.45rem;
+  padding:0;
+  overflow:hidden;
+  border:1px solid rgba(120,130,145,.16);
+  border-radius:18px;
+  background:#fff;
+  box-shadow:0 14px 38px rgba(25,45,65,.07);
+}
+.assoc-model-figure img{display:block;width:100%;height:auto}
+.assoc-model-figure figcaption{
+  padding:.72rem 1rem .82rem;
+  border-top:1px solid rgba(120,130,145,.12);
+  color:rgba(35,45,55,.72);
+  font-size:.82rem;
+  text-align:center;
+  background:linear-gradient(180deg,#fff,#f8fafb);
+}
+
+/* Les blocs pédagogiques reprennent le langage visuel du schéma :
+   une vraie zone d'en-tête, un corps plus doux, davantage de relief. */
+.assoc-filter{
+  padding:0 0 .78rem;
+  overflow:hidden;
+  background:linear-gradient(180deg,rgba(255,255,255,.98),rgba(249,251,252,.98));
+  box-shadow:0 8px 24px rgba(25,45,65,.055);
+}
+.assoc-filter>b{
+  margin:0 0 .7rem;
+  padding:.72rem .85rem;
+  background:linear-gradient(135deg,#eaf5ff,#f3f9ff);
+  border-bottom:1px solid rgba(65,125,175,.12);
+  color:#174d78;
+}
+.assoc-filter:nth-child(2)>b{
+  background:linear-gradient(135deg,#e9f8ef,#f3fbf6);
+  color:#087c42;
+}
+.assoc-filter:nth-child(3)>b{
+  background:linear-gradient(135deg,#fff5df,#fffaf0);
+  color:#87510a;
+}
+.assoc-filter>span{margin-left:.78rem;margin-right:.78rem}
+
+.assoc-states>div,.assoc-compare>div,.assoc-expert>div,.assoc-logic>div:not(.logic-sign),
+.assoc-sequence>div,.assoc-calc>div{
+  overflow:hidden;
+  box-shadow:0 8px 24px rgba(25,45,65,.045);
+}
+
+html[data-theme="dark"] .assoc-model-figure{background:rgba(255,255,255,.96)}
+html[data-theme="dark"] .assoc-model-figure figcaption{background:#f5f7f8;color:#38434d}
+html[data-theme="dark"] .assoc-filter{
+  background:rgba(255,255,255,.045);
+}
+@media(max-width:820px){
+  .assoc-model-figure{border-radius:14px}
+  .assoc-model-figure img{min-width:760px;width:760px;max-width:none;transform:translateX(calc((100vw - 760px)/2 - 1rem))}
+  .assoc-model-figure{overflow-x:auto}
+}
+
+/* V5 — illustration finale validée */
+.assoc-model-figure-v5{
+  border-color:rgba(75,125,165,.18);
+  box-shadow:0 16px 42px rgba(24,61,91,.08);
+}
+.assoc-model-figure-v5 img{
+  width:100%;
+  height:auto;
+  object-fit:contain;
+}
+.assoc-model-figure-v5 figcaption{
+  color:#34536d;
+  background:linear-gradient(180deg,#fbfdff,#f3f8fb);
+}
+html[data-theme="dark"] .assoc-model-figure-v5 figcaption{
+  color:#34536d;
+  background:#f3f8fb;
+}
+@media(max-width:820px){
+  .assoc-model-figure-v5 img{
+    min-width:980px;
+    width:980px;
+    transform:none;
+  }
+}
+
+/* V6 — Emma sans vente : finition visuelle cohérente avec les cartes de l'article */
+.assoc-orphan-v6{
+  display:grid;
+  grid-template-columns:minmax(220px,1fr) minmax(190px,.7fr) minmax(320px,1.25fr);
+  gap:1.1rem;
+  align-items:center;
+  margin:1.7rem 0;
+}
+.orphan-card{
+  overflow:hidden;
+  border:1px solid rgba(90,130,160,.20);
+  border-radius:16px;
+  background:#fff;
+  box-shadow:0 10px 28px rgba(25,55,80,.065);
+}
+.orphan-head{
+  display:flex;
+  align-items:center;
+  gap:.65rem;
+  padding:.82rem 1rem;
+  border-bottom:1px solid rgba(80,125,165,.12);
+  font-size:.92rem;
+  letter-spacing:.025em;
+}
+.orphan-clients .orphan-head{
+  color:#174f7b;
+  background:linear-gradient(135deg,#e6f3ff,#f3f9ff);
+}
+.orphan-sales .orphan-head{
+  color:#087c42;
+  background:linear-gradient(135deg,#e7f8ee,#f2fbf6);
+}
+.orphan-icon{
+  display:grid;
+  place-items:center;
+  width:30px;height:30px;
+  border-radius:9px;
+  background:rgba(255,255,255,.72);
+  box-shadow:inset 0 0 0 1px rgba(70,110,140,.10);
+  font-size:1rem;
+}
+.orphan-body{padding:.72rem .82rem .82rem}
+.orphan-body>span{
+  display:block;
+  padding:.48rem .58rem;
+  border-radius:8px;
+  font-size:.88rem;
+}
+.orphan-body>span:nth-child(even){background:rgba(75,130,175,.045)}
+.orphan-emma{
+  display:flex!important;
+  align-items:center;
+  justify-content:space-between;
+  gap:.6rem;
+  margin-top:.25rem;
+  border:1px dashed rgba(65,125,175,.30);
+  background:linear-gradient(90deg,rgba(224,241,255,.75),rgba(246,250,253,.9))!important;
+}
+.orphan-emma small{
+  padding:.18rem .4rem;
+  border-radius:999px;
+  background:#eef2f4;
+  color:#65717a;
+  font-size:.65rem;
+  font-weight:750;
+  white-space:nowrap;
+}
+.sales-lines>span{
+  display:grid;
+  grid-template-columns:1fr 1fr auto;
+  gap:.55rem;
+  align-items:center;
+}
+.sales-lines b{font-weight:700}
+.sales-lines i{font-style:normal;color:#536575}
+.sales-lines em{font-style:normal;font-weight:750;color:#173f61;white-space:nowrap}
+.orphan-break{text-align:center;color:#60717e}
+.broken-line{
+  display:grid;
+  grid-template-columns:1fr auto 1fr;
+  gap:.4rem;
+  align-items:center;
+  margin:0 auto .65rem;
+  width:min(100%,180px);
+}
+.broken-line span{
+  height:2px;
+  background:repeating-linear-gradient(90deg,#9fb0bc 0 7px,transparent 7px 12px);
+}
+.broken-line i{
+  display:grid;
+  place-items:center;
+  width:28px;height:28px;
+  border-radius:50%;
+  background:#f1f4f6;
+  border:1px solid #d6dee3;
+  color:#6e7c85;
+  font-style:normal;
+  font-weight:900;
+}
+.orphan-break>b{display:block;color:#435967;font-size:.84rem}
+.orphan-break>small{display:block;margin-top:.35rem;font-size:.72rem;line-height:1.45;color:#75848e}
+
+html[data-theme="dark"] .orphan-card{background:rgba(255,255,255,.045)}
+html[data-theme="dark"] .orphan-body>span:nth-child(even){background:rgba(255,255,255,.035)}
+html[data-theme="dark"] .orphan-emma{background:rgba(80,145,190,.11)!important}
+html[data-theme="dark"] .sales-lines em{color:inherit}
+
+@media(max-width:820px){
+  .assoc-orphan-v6{grid-template-columns:1fr}
+  .orphan-break{padding:.25rem 0}
+  .broken-line{transform:rotate(90deg);width:90px;margin:1.15rem auto}
+}
+
+/* V7 — corrections éditoriales */
+.assoc-flat-note{
+  margin:.7rem 0 1rem;
+  padding:.7rem .9rem;
+  border-left:3px solid rgba(23,79,123,.45);
+  background:rgba(234,245,255,.45);
+  border-radius:0 10px 10px 0;
+  font-size:.88rem;
+}
+.assoc-summary-sentence{
+  margin:1.2rem 0;
+  padding:1rem 1.1rem;
+  border:1px solid rgba(23,79,123,.14);
+  border-radius:14px;
+  background:linear-gradient(135deg,rgba(234,245,255,.62),rgba(233,248,239,.48));
+  font-size:1.02rem;
+  line-height:1.65;
+}
+
+/* V8 — démonstration associative 100 % HTML/CSS */
+.assoc-css-demo{
+  margin:1.65rem 0 2rem;
+  padding:1.15rem;
+  border:1px solid rgba(64,112,148,.14);
+  border-radius:18px;
+  background:linear-gradient(145deg,rgba(246,251,255,.96),rgba(255,255,255,.98));
+  box-shadow:0 12px 34px rgba(25,55,80,.055);
+}
+.assoc-demo-title{
+  display:flex;
+  align-items:baseline;
+  gap:.65rem;
+  flex-wrap:wrap;
+  margin:0 0 1rem;
+  color:#123f6c;
+}
+.assoc-demo-title strong{font-size:1.02rem}
+.assoc-demo-title span{font-size:.86rem;color:#607487}
+.assoc-demo-grid{
+  display:grid;
+  grid-template-columns:minmax(145px,.82fr) 34px minmax(170px,1fr) 34px minmax(145px,.82fr);
+  gap:.65rem;
+  align-items:center;
+}
+.assoc-select-card{
+  align-self:stretch;
+  overflow:hidden;
+  border:1px solid #d6e3ed;
+  border-radius:13px;
+  background:#fff;
+  box-shadow:0 7px 18px rgba(34,72,102,.06);
+}
+.assoc-select-head{
+  padding:.65rem .8rem;
+  border-bottom:1px solid rgba(80,120,150,.11);
+  background:linear-gradient(135deg,#e7f4ff,#ddecf8);
+  color:#174d78;
+  font-size:.9rem;
+  font-weight:800;
+}
+.product-card .assoc-select-head{
+  background:linear-gradient(135deg,#fff3d8,#f8e8c4);
+  color:#9a560d;
+}
+.assoc-select-body{
+  display:grid;
+  gap:.34rem;
+  padding:.65rem;
+}
+.assoc-select-body>span{
+  min-height:31px;
+  display:flex;
+  align-items:center;
+  gap:.45rem;
+  padding:.38rem .62rem;
+  border:1px solid transparent;
+  border-radius:7px;
+  font-size:.82rem;
+  line-height:1.2;
+}
+.state-selected{
+  color:#fff;
+  background:linear-gradient(135deg,#12a55d,#078d4b);
+  box-shadow:0 4px 10px rgba(8,141,75,.16);
+  font-weight:750;
+}
+.state-selected b{font-size:1rem}
+.state-possible{
+  color:#173f68;
+  background:#fff;
+  border-color:#dce6ee!important;
+}
+.state-alternative{
+  color:#234b70;
+  background:#eef1f4;
+}
+.state-excluded{
+  color:#465766;
+  background:#cbd2d8;
+}
+.assoc-propagation{
+  color:#0b9a58;
+  font-size:1.65rem;
+  font-weight:800;
+  text-align:center;
+}
+.assoc-demo-legend{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:.55rem 1.15rem;
+  margin-top:1rem;
+  padding-top:.8rem;
+  border-top:1px solid rgba(70,115,150,.10);
+  color:#627381;
+  font-size:.73rem;
+}
+.assoc-demo-legend span{display:flex;align-items:center;gap:.35rem}
+.assoc-demo-legend i{
+  width:17px;
+  height:17px;
+  flex:0 0 17px;
+  border-radius:5px;
+  border:1px solid rgba(50,82,105,.24);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.22);
+}
+.lg-selected{background:#0b9853;border-color:#078548!important}
+.lg-possible{background:#fff}
+.lg-alternative{background:#eef1f4}
+.lg-excluded{background:#cbd2d8}
+
+html[data-theme="dark"] .assoc-css-demo{
+  background:rgba(255,255,255,.035);
+  border-color:rgba(170,205,230,.14);
+}
+html[data-theme="dark"] .assoc-demo-title{color:#dcecff}
+html[data-theme="dark"] .assoc-demo-title span{color:#aebdca}
+html[data-theme="dark"] .assoc-select-card{background:rgba(255,255,255,.045);border-color:rgba(170,205,230,.16)}
+html[data-theme="dark"] .state-possible{background:rgba(255,255,255,.08);color:#edf6ff;border-color:rgba(210,230,245,.14)!important}
+html[data-theme="dark"] .state-alternative{background:rgba(170,185,198,.18);color:#e2eaf0}
+html[data-theme="dark"] .state-excluded{background:rgba(92,108,122,.42);color:#c0cbd3}
+
+@media(max-width:760px){
+  .assoc-demo-grid{grid-template-columns:1fr}
+  .assoc-propagation{transform:rotate(90deg);line-height:1}
+  .assoc-select-card{width:100%}
+}
+
+/* V8.2 — diagramme du mini-modèle, 100 % HTML/CSS */
+.assoc-css-model{margin:1.45rem 0 1.65rem;padding:1.1rem 1rem .85rem;border:1px solid rgba(63,108,142,.14);border-radius:17px;background:linear-gradient(145deg,rgba(248,252,255,.98),rgba(255,255,255,.98))}
+.assoc-model-row{display:grid;grid-template-columns:minmax(155px,1fr) minmax(105px,.62fr) minmax(165px,1fr) minmax(105px,.62fr) minmax(155px,1fr);align-items:center;gap:0}
+.assoc-table-card{min-width:0;overflow:visible;border:1px solid #d5e2ec;border-radius:13px;background:#fff;box-shadow:0 7px 18px rgba(34,72,102,.055)}
+.assoc-table-head{padding:.72rem .85rem;border-radius:12px 12px 0 0;border-bottom:1px solid rgba(70,110,140,.10);font-size:.88rem;font-weight:850;letter-spacing:.025em}
+.table-clients .assoc-table-head{color:#174d78;background:linear-gradient(135deg,#e6f3ff,#dcecf9)}
+.table-sales .assoc-table-head{color:#087c42;background:linear-gradient(135deg,#e5f7ed,#d8f1e3)}
+.table-products .assoc-table-head{color:#99560c;background:linear-gradient(135deg,#fff3d8,#f8e7c2)}
+.assoc-table-fields{display:grid;gap:.35rem;padding:.68rem}
+.assoc-table-fields>span{position:relative;min-height:32px;display:flex;align-items:center;padding:.4rem .62rem;border-radius:7px;color:#24445f;font-size:.8rem}
+.assoc-table-fields .model-key{font-weight:750}
+.table-clients .client-key,.table-sales .client-key{background:#eaf5ff;color:#174d78}
+.table-sales .product-key,.table-products .product-key{background:#fff2d9;color:#95540c}
+.model-port{position:absolute;top:50%;width:11px;height:11px;border-radius:50%;transform:translateY(-50%);z-index:3}
+.model-port.left{left:-17px}.model-port.right{right:-17px}
+.client-key .model-port{background:#1880c8}.product-key .model-port{background:#e79000}
+.model-link{position:relative;height:86px;display:flex;align-items:center;justify-content:center}
+.model-link>i{position:absolute;left:0;right:0;top:58%;height:2px;background:#1880c8}
+.model-link.product-link>i{background:#e79000}
+.model-link>span{position:relative;z-index:2;align-self:flex-start;margin-top:.1rem;padding:.32rem .48rem;border-radius:7px;text-align:center;font-size:.67rem;line-height:1.25}
+.client-link>span{color:#175b8b;background:#edf7ff}.product-link>span{color:#8e570d;background:#fff7e7}
+.assoc-model-caption{margin:.9rem .15rem 0;padding-top:.72rem;border-top:1px solid rgba(70,110,140,.10);color:#637482;text-align:center;font-size:.76rem}
+html[data-theme="dark"] .assoc-css-model{background:rgba(255,255,255,.03);border-color:rgba(170,205,230,.14)}
+html[data-theme="dark"] .assoc-table-card{background:rgba(255,255,255,.045);border-color:rgba(170,205,230,.16)}
+html[data-theme="dark"] .assoc-table-fields>span{color:#dce8f1}
+html[data-theme="dark"] .model-link>span{background:#17232d}
+html[data-theme="dark"] .assoc-model-caption{color:#aebcc7}
+@media(max-width:780px){
+ .assoc-model-row{grid-template-columns:1fr}
+ .model-link{height:68px}
+ .model-link>i{left:50%;right:auto;top:0;bottom:0;width:2px;height:auto;transform:translateX(-50%)}
+ .model-link>span{align-self:center;margin:0}
+ .model-port{display:none}
+}
+
+
+/* V8.3 — alignement précis des associations sur les lignes de clés */
+@media(min-width:781px){
+  .assoc-model-row{align-items:start}
+
+  .assoc-table-card{position:relative}
+
+  .model-link{
+    height:100%;
+    min-height:194px;
+    position:relative;
+    align-self:start;
+  }
+
+  /* ID_CLIENT : première ligne de champ dans CLIENTS et VENTES */
+  .model-link.client-link>i{
+    top:91px;
+  }
+
+  /* ID_PRODUIT : deuxième ligne dans VENTES, première dans PRODUITS.
+     Le trait est calé sur ID_PRODUIT côté VENTES ; la carte PRODUITS est
+     descendue pour que son ID_PRODUIT arrive exactement au même niveau. */
+  .table-products{
+    margin-top:37px;
+  }
+  .model-link.product-link>i{
+    top:128px;
+  }
+
+  /* Les points suivent exactement le centre des mêmes lignes. */
+  .table-clients .client-key .model-port,
+  .table-sales .client-key .model-port,
+  .table-sales .product-key .model-port,
+  .table-products .product-key .model-port{
+    top:50%;
+  }
+
+  .model-link>span{
+    position:absolute;
+    top:46px;
+    left:50%;
+    transform:translateX(-50%);
+    width:max-content;
+    max-width:100px;
+    margin:0;
+  }
+  .model-link.product-link>span{
+    top:82px;
+  }
+}
+
+
+/* V8.4 — raccords visuels : libellés au-dessus, traits centrés sur les points */
+@media(min-width:781px){
+  /* Les cartes reviennent sur le même axe supérieur. */
+  .assoc-model-row{align-items:start}
+  .table-products{margin-top:37px}
+
+  /* On neutralise les positions absolues V8.3 des libellés. */
+  .model-link>span{
+    top:auto;
+    left:auto;
+    transform:none;
+    width:auto;
+    max-width:108px;
+    margin:0;
+    position:absolute;
+    z-index:4;
+  }
+
+  /* Liaison CLIENT : libellé nettement au-dessus du trait. */
+  .model-link.client-link>span{
+    top:25px;
+    left:50%;
+    transform:translateX(-50%);
+  }
+
+  /* Liaison PRODUIT : même principe, plus bas car ID_PRODUIT est la 2e clé de VENTES. */
+  .model-link.product-link>span{
+    top:61px;
+    left:50%;
+    transform:translateX(-50%);
+  }
+
+  /*
+   * Les traits sont placés sur l'axe horizontal passant par le centre des ports.
+   * On utilise des valeurs recalées sur le rendu réel V8.3 :
+   * le trait bleu remonte de 19px, l'orange remonte de 19px.
+   */
+  .model-link.client-link>i{
+    top:72px;
+  }
+  .model-link.product-link>i{
+    top:109px;
+  }
+
+  /* Ports un peu plus petits pour une jonction plus nette. */
+  .model-port{
+    width:10px;
+    height:10px;
+  }
+  .model-port.left{left:-16px}
+  .model-port.right{right:-16px}
+}
+
+
+/* V8.5 — micro-ajustement final : remonter uniquement les libellés */
+@media(min-width:781px){
+  .model-link.client-link>span{
+    top:20px;
+  }
+  .model-link.product-link>span{
+    top:56px;
+  }
+}
+
+
+/* V8.6 — correction du thème sombre uniquement
+   Aucun changement de géométrie du diagramme. */
+html[data-theme="dark"] .assoc-css-model{
+  background:#102631;
+  border-color:rgba(157,196,219,.24);
+}
+html[data-theme="dark"] .assoc-table-card{
+  background:#192f3a;
+  border-color:rgba(164,199,219,.22);
+  box-shadow:0 7px 18px rgba(0,0,0,.14);
+}
+
+/* Les bandeaux pastel restent lisibles en sombre. */
+html[data-theme="dark"] .table-clients .assoc-table-head{
+  background:#dcecf9;
+  color:#174d78;
+}
+html[data-theme="dark"] .table-sales .assoc-table-head{
+  background:#d8f1e3;
+  color:#087c42;
+}
+html[data-theme="dark"] .table-products .assoc-table-head{
+  background:#f8e7c2;
+  color:#99560c;
+}
+
+/* Champs ordinaires sur fond sombre. */
+html[data-theme="dark"] .assoc-table-fields>span{
+  color:#edf5fa;
+}
+
+/* Clés : fonds clairs + textes foncés explicitement forcés. */
+html[data-theme="dark"] .table-clients .client-key,
+html[data-theme="dark"] .table-sales .client-key{
+  background:#eaf5ff;
+  color:#174d78;
+}
+html[data-theme="dark"] .table-sales .product-key,
+html[data-theme="dark"] .table-products .product-key{
+  background:#fff2d9;
+  color:#95540c;
+}
+html[data-theme="dark"] .assoc-table-fields .model-key b{
+  color:inherit;
+}
+
+/* Libellés d'association : lisibles sur fond sombre. */
+html[data-theme="dark"] .client-link>span{
+  background:#153343;
+  color:#69bff4;
+  border:1px solid rgba(74,167,224,.18);
+}
+html[data-theme="dark"] .product-link>span{
+  background:#342a19;
+  color:#f2ad35;
+  border:1px solid rgba(231,144,0,.18);
+}
+html[data-theme="dark"] .model-link>span b{
+  color:inherit;
+}
+
+/* Légende sous le mini-modèle. */
+html[data-theme="dark"] .assoc-model-caption{
+  color:#c1d1dc;
+  border-top-color:rgba(164,199,219,.14);
+}
+html[data-theme="dark"] .assoc-model-caption strong{
+  color:#e6f1f7;
+}
+
+/* Démonstration Région -> Client -> Produit : contraste dark explicite. */
+html[data-theme="dark"] .assoc-css-demo{
+  background:#102631;
+  border-color:rgba(157,196,219,.24);
+}
+html[data-theme="dark"] .assoc-select-card{
+  background:#192f3a;
+  border-color:rgba(164,199,219,.22);
+}
+html[data-theme="dark"] .region-card .assoc-select-head,
+html[data-theme="dark"] .client-card .assoc-select-head{
+  background:#dcecf9;
+  color:#174d78;
+}
+html[data-theme="dark"] .product-card .assoc-select-head{
+  background:#f8e7c2;
+  color:#99560c;
+}
+html[data-theme="dark"] .state-selected{
+  background:#0b9853;
+  color:#fff;
+}
+html[data-theme="dark"] .state-possible{
+  background:#f8fbfd;
+  color:#173f68;
+  border-color:#d7e3eb!important;
+}
+html[data-theme="dark"] .state-alternative{
+  background:#dfe5e9;
+  color:#294b67;
+}
+html[data-theme="dark"] .state-excluded{
+  background:#aeb8c0;
+  color:#263b4b;
+}
+html[data-theme="dark"] .assoc-demo-legend{
+  color:#c3d1da;
+  border-top-color:rgba(164,199,219,.14);
+}
+html[data-theme="dark"] .lg-possible{background:#f8fbfd}
+html[data-theme="dark"] .lg-alternative{background:#dfe5e9}
+html[data-theme="dark"] .lg-excluded{background:#aeb8c0}
+
+
+/* =========================================================
+   V8.9 — DARK MODE GLOBAL DE L'ARTICLE
+   Le thème clair reste strictement inchangé.
+   ========================================================= */
+
+html[data-theme="dark"] .tech-article{
+  --assoc-dark-panel:#102631;
+  --assoc-dark-card:#172e39;
+  --assoc-dark-card-2:#1b3440;
+  --assoc-dark-border:rgba(164,199,219,.20);
+  --assoc-dark-text:#edf5f8;
+  --assoc-dark-muted:#b7c8d2;
+  --assoc-dark-blue:#9fd0f2;
+  --assoc-dark-green:#65d79b;
+  --assoc-dark-amber:#f0bd68;
+  --assoc-dark-possible:#dce7ed;
+  --assoc-dark-alt:#81929e;
+  --assoc-dark-excluded:#465964;
+}
+
+/* Blocs génériques propres à l'article */
+html[data-theme="dark"] .tech-article .toc,
+html[data-theme="dark"] .tech-article .article-note,
+html[data-theme="dark"] .tech-article .box,
+html[data-theme="dark"] .tech-article .takeaway,
+html[data-theme="dark"] .tech-article .assoc-css-demo,
+html[data-theme="dark"] .tech-article .assoc-css-model,
+html[data-theme="dark"] .tech-article .assoc-orphan{
+  background:var(--assoc-dark-panel);
+  border-color:var(--assoc-dark-border);
+  color:var(--assoc-dark-text);
+  box-shadow:none;
+}
+
+html[data-theme="dark"] .tech-article .toc a,
+html[data-theme="dark"] .tech-article .assoc-model-caption,
+html[data-theme="dark"] .tech-article .assoc-demo-title span{
+  color:var(--assoc-dark-muted);
+}
+
+/* Cartes de champs / sélections : plus aucun "bloc blanc" agressif */
+html[data-theme="dark"] .tech-article .assoc-select-card,
+html[data-theme="dark"] .tech-article .assoc-table-card,
+html[data-theme="dark"] .tech-article .orphan-card{
+  background:var(--assoc-dark-card);
+  border-color:var(--assoc-dark-border);
+  box-shadow:0 7px 18px rgba(0,0,0,.10);
+}
+
+/* Bandeaux : versions sombres colorées, sans effet thème clair collé dessus */
+html[data-theme="dark"] .tech-article .region-card .assoc-select-head,
+html[data-theme="dark"] .tech-article .client-card .assoc-select-head,
+html[data-theme="dark"] .tech-article .table-clients .assoc-table-head{
+  background:#183c51;
+  color:#a9d9fa;
+  border-bottom-color:rgba(112,181,226,.18);
+}
+html[data-theme="dark"] .tech-article .table-sales .assoc-table-head{
+  background:#173f35;
+  color:#82dfad;
+  border-bottom-color:rgba(88,202,141,.18);
+}
+html[data-theme="dark"] .tech-article .product-card .assoc-select-head,
+html[data-theme="dark"] .tech-article .table-products .assoc-table-head{
+  background:#49391f;
+  color:#f3c978;
+  border-bottom-color:rgba(231,174,73,.18);
+}
+
+/* Etats Qlik — lisibles mais intégrés au dark mode */
+html[data-theme="dark"] .tech-article .state-selected{
+  background:#10a05a;
+  color:#fff;
+  border-color:#10a05a!important;
+  box-shadow:none;
+}
+html[data-theme="dark"] .tech-article .state-possible{
+  background:#dce7ed;
+  color:#173b53;
+  border-color:#c8d6df!important;
+}
+html[data-theme="dark"] .tech-article .state-alternative{
+  background:#81929e;
+  color:#f4f8fa;
+}
+html[data-theme="dark"] .tech-article .state-excluded{
+  background:#465964;
+  color:#d3dde3;
+}
+
+/* Les anciens composants de sélection de l'article utilisent parfois
+   des cellules génériques plutôt que state-* */
+html[data-theme="dark"] .tech-article .assoc-select-body>span{
+  border-color:rgba(180,207,223,.12);
+}
+html[data-theme="dark"] .tech-article .assoc-demo-title{
+  color:#e7f3f9;
+}
+html[data-theme="dark"] .tech-article .assoc-demo-legend{
+  color:#bfd0da;
+  border-top-color:rgba(164,199,219,.13);
+}
+html[data-theme="dark"] .tech-article .lg-selected{background:#10a05a}
+html[data-theme="dark"] .tech-article .lg-possible{background:#dce7ed}
+html[data-theme="dark"] .tech-article .lg-alternative{background:#81929e}
+html[data-theme="dark"] .tech-article .lg-excluded{background:#465964}
+
+/* Mini-modèle : clés teintées, mais plus de pavés presque blancs */
+html[data-theme="dark"] .tech-article .table-clients .client-key,
+html[data-theme="dark"] .tech-article .table-sales .client-key{
+  background:#21485e;
+  color:#b7ddf6;
+}
+html[data-theme="dark"] .tech-article .table-sales .product-key,
+html[data-theme="dark"] .tech-article .table-products .product-key{
+  background:#4c3c22;
+  color:#f3ca7c;
+}
+html[data-theme="dark"] .tech-article .assoc-table-fields>span{
+  color:#e7f0f5;
+}
+html[data-theme="dark"] .tech-article .assoc-table-fields .model-key b{
+  color:inherit;
+}
+
+/* Cartouches d'association */
+html[data-theme="dark"] .tech-article .client-link>span{
+  background:#102d3d;
+  color:#75c5f5;
+  border-color:rgba(83,174,229,.20);
+}
+html[data-theme="dark"] .tech-article .product-link>span{
+  background:#352a18;
+  color:#f0b54d;
+  border-color:rgba(231,144,0,.20);
+}
+html[data-theme="dark"] .tech-article .model-link>span b{
+  color:inherit;
+}
+html[data-theme="dark"] .tech-article .assoc-model-caption{
+  color:#bdcdd6;
+  border-top-color:rgba(164,199,219,.12);
+}
+html[data-theme="dark"] .tech-article .assoc-model-caption strong{
+  color:#e7f1f6;
+}
+
+/* Cas Emma / absence de correspondance */
+html[data-theme="dark"] .tech-article .orphan-row,
+html[data-theme="dark"] .tech-article .orphan-table span{
+  color:#e5eef3;
+}
+html[data-theme="dark"] .tech-article .orphan-row.is-orphan,
+html[data-theme="dark"] .tech-article .orphan{
+  background:#42535e;
+  color:#dce6eb;
+}
+html[data-theme="dark"] .tech-article .orphan-break,
+html[data-theme="dark"] .tech-article .orphan-link{
+  color:#b9c9d2;
+}
+
+/* Tableaux et code éventuels : rester dans la même famille visuelle */
+html[data-theme="dark"] .tech-article table{
+  border-color:var(--assoc-dark-border);
+}
+html[data-theme="dark"] .tech-article th{
+  background:#18313d;
+  color:#eaf3f7;
+}
+html[data-theme="dark"] .tech-article td{
+  background:#132a35;
+  color:#dce8ee;
+  border-color:rgba(164,199,219,.12);
+}
+html[data-theme="dark"] .tech-article .code-block{
+  background:#0c2029;
+  border-color:rgba(164,199,219,.16);
+}
+
+/* Si les premières démonstrations emploient les cartes génériques de V7/V8,
+   on neutralise les fonds blancs sans modifier le HTML. */
+html[data-theme="dark"] .tech-article [class*="state-card"],
+html[data-theme="dark"] .tech-article [class*="selection-card"],
+html[data-theme="dark"] .tech-article [class*="field-card"]{
+  background:var(--assoc-dark-card);
+  border-color:var(--assoc-dark-border);
+}
+
+/* Les éléments blancs hérités dans les blocs pédagogiques sont adoucis. */
+html[data-theme="dark"] .tech-article .flow,
+html[data-theme="dark"] .tech-article .assoc-flow{
+  border-color:var(--assoc-dark-border);
+}
+
+/* Conserve les couleurs sémantiques des traits/points du diagramme. */
+html[data-theme="dark"] .tech-article .client-key .model-port,
+html[data-theme="dark"] .tech-article .client-link>i{
+  background:#2496d6;
+}
+html[data-theme="dark"] .tech-article .product-key .model-port,
+html[data-theme="dark"] .tech-article .product-link>i{
+  background:#e99a12;
+}
+
+
+/* =========================================================
+   V9 — PALETTE SOMBRE UNIFIÉE
+   Référence : le mini-modèle CLIENTS / VENTES / PRODUITS.
+   Aucun changement du thème clair ou de la géométrie.
+   ========================================================= */
+html[data-theme="dark"] .tech-article{
+  --v9-bg:#071f2b;
+  --v9-panel:#102a36;
+  --v9-card:#18323e;
+  --v9-card-soft:#1d3a47;
+  --v9-border:#355463;
+  --v9-text:#eef6fa;
+  --v9-muted:#b9cad4;
+
+  --v9-blue:#1d4b62;
+  --v9-blue-cell:#285b73;
+  --v9-blue-text:#a9d9f6;
+
+  --v9-green:#174b3a;
+  --v9-green-cell:#225a46;
+  --v9-green-text:#78dfa7;
+
+  --v9-amber:#55401e;
+  --v9-amber-cell:#684b20;
+  --v9-amber-text:#f2c467;
+
+  --v9-selected:#12a15c;
+  --v9-possible:#294958;
+  --v9-alternative:#667985;
+  --v9-excluded:#3d4d57;
+}
+
+/* Tous les grands conteneurs pédagogiques */
+html[data-theme="dark"] .tech-article .assoc-css-demo,
+html[data-theme="dark"] .tech-article .assoc-css-model,
+html[data-theme="dark"] .tech-article .assoc-orphan,
+html[data-theme="dark"] .tech-article .selection-demo,
+html[data-theme="dark"] .tech-article .selection-box,
+html[data-theme="dark"] .tech-article .state-demo,
+html[data-theme="dark"] .tech-article .state-grid,
+html[data-theme="dark"] .tech-article .logic-demo,
+html[data-theme="dark"] .tech-article .assoc-example{
+  background:var(--v9-panel);
+  border-color:var(--v9-border);
+  box-shadow:none;
+}
+
+/* Toutes les cartes/tabulations pédagogiques */
+html[data-theme="dark"] .tech-article .assoc-select-card,
+html[data-theme="dark"] .tech-article .assoc-table-card,
+html[data-theme="dark"] .tech-article .orphan-card,
+html[data-theme="dark"] .tech-article .selection-card,
+html[data-theme="dark"] .tech-article .field-card,
+html[data-theme="dark"] .tech-article .state-card{
+  background:var(--v9-card);
+  border-color:var(--v9-border);
+  box-shadow:none;
+}
+
+/* Famille bleue : Région / CLIENTS */
+html[data-theme="dark"] .tech-article .region-card .assoc-select-head,
+html[data-theme="dark"] .tech-article .table-clients .assoc-table-head,
+html[data-theme="dark"] .tech-article .head-region,
+html[data-theme="dark"] .tech-article .head-clients{
+  background:var(--v9-blue);
+  color:var(--v9-blue-text);
+  border-bottom-color:#39708b;
+}
+
+/* Famille verte : Client / VENTES */
+html[data-theme="dark"] .tech-article .client-card .assoc-select-head,
+html[data-theme="dark"] .tech-article .table-sales .assoc-table-head,
+html[data-theme="dark"] .tech-article .head-client,
+html[data-theme="dark"] .tech-article .head-sales{
+  background:var(--v9-green);
+  color:var(--v9-green-text);
+  border-bottom-color:#2d7057;
+}
+
+/* Famille ambre : Produit / PRODUITS */
+html[data-theme="dark"] .tech-article .product-card .assoc-select-head,
+html[data-theme="dark"] .tech-article .table-products .assoc-table-head,
+html[data-theme="dark"] .tech-article .head-product,
+html[data-theme="dark"] .tech-article .head-products{
+  background:var(--v9-amber);
+  color:var(--v9-amber-text);
+  border-bottom-color:#80612d;
+}
+
+/* Etats Qlik : plus aucun blanc pur */
+html[data-theme="dark"] .tech-article .state-selected{
+  background:var(--v9-selected);
+  color:#fff;
+  border-color:#24b66e!important;
+}
+html[data-theme="dark"] .tech-article .state-possible{
+  background:var(--v9-possible);
+  color:#f0f7fa;
+  border-color:#426574!important;
+}
+html[data-theme="dark"] .tech-article .state-alternative{
+  background:var(--v9-alternative);
+  color:#f3f7f9;
+  border-color:#778995!important;
+}
+html[data-theme="dark"] .tech-article .state-excluded{
+  background:var(--v9-excluded);
+  color:#c8d3d9;
+  border-color:#52636d!important;
+}
+
+/* Lignes génériques dans les cartes de sélection */
+html[data-theme="dark"] .tech-article .assoc-select-body>span{
+  border-color:#385664;
+}
+html[data-theme="dark"] .tech-article .assoc-demo-title{
+  color:var(--v9-text);
+}
+html[data-theme="dark"] .tech-article .assoc-demo-title span,
+html[data-theme="dark"] .tech-article .assoc-demo-legend{
+  color:var(--v9-muted);
+}
+html[data-theme="dark"] .tech-article .lg-selected{background:var(--v9-selected)}
+html[data-theme="dark"] .tech-article .lg-possible{background:var(--v9-possible);border-color:#52707e}
+html[data-theme="dark"] .tech-article .lg-alternative{background:var(--v9-alternative);border-color:#83949e}
+html[data-theme="dark"] .tech-article .lg-excluded{background:var(--v9-excluded);border-color:#5a6a74}
+
+/* Mini-modèle : conserve son identité, palette étendue */
+html[data-theme="dark"] .tech-article .table-clients .client-key,
+html[data-theme="dark"] .tech-article .table-sales .client-key{
+  background:var(--v9-blue-cell);
+  color:#b9e1fa;
+}
+html[data-theme="dark"] .tech-article .table-sales .product-key,
+html[data-theme="dark"] .tech-article .table-products .product-key{
+  background:var(--v9-amber-cell);
+  color:#ffd27d;
+}
+html[data-theme="dark"] .tech-article .assoc-table-fields>span{
+  color:#e8f2f6;
+}
+
+/* Les tableaux HTML classiques de l'article adoptent eux aussi la palette */
+html[data-theme="dark"] .tech-article table{
+  background:var(--v9-card);
+  border-color:var(--v9-border);
+}
+html[data-theme="dark"] .tech-article thead th{
+  background:#1c4253;
+  color:#dff1fa;
+  border-color:var(--v9-border);
+}
+html[data-theme="dark"] .tech-article tbody td{
+  background:#17313d;
+  color:#e4eef3;
+  border-color:#304e5d;
+}
+html[data-theme="dark"] .tech-article tbody tr:nth-child(even) td{
+  background:#1b3743;
+}
+
+/* Cas Emma */
+html[data-theme="dark"] .tech-article .orphan-table,
+html[data-theme="dark"] .tech-article .orphan-body{
+  background:var(--v9-card);
+  border-color:var(--v9-border);
+}
+html[data-theme="dark"] .tech-article .orphan-row,
+html[data-theme="dark"] .tech-article .orphan-table span{
+  color:#e7f0f4;
+}
+html[data-theme="dark"] .tech-article .orphan-row.is-orphan,
+html[data-theme="dark"] .tech-article .orphan{
+  background:#52636d;
+  color:#f0f5f7;
+}
+
+/* Notes / messages pédagogiques : variantes de la même palette */
+html[data-theme="dark"] .tech-article .article-note{
+  background:#102f3a;
+  border-color:#2d5668;
+  color:#e5f0f5;
+}
+html[data-theme="dark"] .tech-article .article-note strong{
+  color:#59d4ad;
+}
+html[data-theme="dark"] .tech-article .box{
+  background:#122c38;
+  border-color:#355463;
+}
+html[data-theme="dark"] .tech-article .takeaway{
+  background:#143329;
+  border-color:#32634e;
+  color:#e8f5ee;
+}
+
+/* Cartouches d'association */
+html[data-theme="dark"] .tech-article .client-link>span{
+  background:#123447;
+  color:#82ccf7;
+  border-color:#285d79;
+}
+html[data-theme="dark"] .tech-article .product-link>span{
+  background:#3d3019;
+  color:#f4bd55;
+  border-color:#6b5125;
+}
+html[data-theme="dark"] .tech-article .assoc-model-caption{
+  color:#c2d1d9;
+  border-top-color:#294754;
+}
+
+/* Code : même bleu nuit, légèrement plus profond */
+html[data-theme="dark"] .tech-article .code-block{
+  background:#071b24;
+  border-color:#294754;
+}
+
+
+/* =========================================================
+   V9.1 — harmonisation finale des tableaux en DARK MODE
+   Référence visuelle : mini-modèle CLIENTS / VENTES / PRODUITS.
+   Thème clair et géométrie du mini-modèle inchangés.
+   ========================================================= */
+@media (min-width:0px){
+  html[data-theme="dark"] .tech-article{
+    --v91-blue-head:#1d4b62;
+    --v91-green-head:#174b3a;
+    --v91-amber-head:#55401e;
+    --v91-blue-head-text:#a9d9f6;
+    --v91-green-head-text:#78dfa7;
+    --v91-amber-head-text:#f2c467;
+
+    --v91-possible:#496572;
+    --v91-alternative:#61727b;
+    --v91-excluded:#3d4d57;
+    --v91-selected:#12a15c;
+  }
+
+  /* Entêtes : même langage visuel que le mini-modèle */
+  html[data-theme="dark"] .tech-article .region-card .assoc-select-head{
+    background:var(--v91-blue-head)!important;
+    color:var(--v91-blue-head-text)!important;
+    border-bottom-color:#39708b!important;
+  }
+  html[data-theme="dark"] .tech-article .client-card .assoc-select-head{
+    background:var(--v91-green-head)!important;
+    color:var(--v91-green-head-text)!important;
+    border-bottom-color:#2d7057!important;
+  }
+  html[data-theme="dark"] .tech-article .product-card .assoc-select-head{
+    background:var(--v91-amber-head)!important;
+    color:var(--v91-amber-head-text)!important;
+    border-bottom-color:#80612d!important;
+  }
+
+  /* Etats Qlik : aucune cellule blanche en thème sombre */
+  html[data-theme="dark"] .tech-article .state-selected{
+    background:var(--v91-selected)!important;
+    color:#fff!important;
+    border-color:#24b66e!important;
+  }
+  html[data-theme="dark"] .tech-article .state-possible{
+    background:var(--v91-possible)!important;
+    color:#f4f8fa!important;
+    border-color:#5f7b88!important;
+  }
+  html[data-theme="dark"] .tech-article .state-alternative{
+    background:var(--v91-alternative)!important;
+    color:#f5f8fa!important;
+    border-color:#74858e!important;
+  }
+  html[data-theme="dark"] .tech-article .state-excluded{
+    background:var(--v91-excluded)!important;
+    color:#d4dee3!important;
+    border-color:#50616b!important;
+  }
+
+  /* Carrés de légende : exactement les mêmes teintes */
+  html[data-theme="dark"] .tech-article .lg-selected{
+    background:var(--v91-selected)!important;
+  }
+  html[data-theme="dark"] .tech-article .lg-possible{
+    background:var(--v91-possible)!important;
+    border-color:#5f7b88!important;
+  }
+  html[data-theme="dark"] .tech-article .lg-alternative{
+    background:var(--v91-alternative)!important;
+    border-color:#74858e!important;
+  }
+  html[data-theme="dark"] .tech-article .lg-excluded{
+    background:var(--v91-excluded)!important;
+    border-color:#50616b!important;
+  }
+
+  /* Le mini-modèle reste la référence : on verrouille ses entêtes actuelles. */
+  html[data-theme="dark"] .tech-article .table-clients .assoc-table-head{
+    background:var(--v91-blue-head)!important;
+    color:var(--v91-blue-head-text)!important;
+  }
+  html[data-theme="dark"] .tech-article .table-sales .assoc-table-head{
+    background:var(--v91-green-head)!important;
+    color:var(--v91-green-head-text)!important;
+  }
+  html[data-theme="dark"] .tech-article .table-products .assoc-table-head{
+    background:var(--v91-amber-head)!important;
+    color:var(--v91-amber-head-text)!important;
+  }
+}
+
+
+/* =========================================================
+   V9.2 — correction ciblée des VRAIES classes de la section 1
+   "Avant la sélection" / "Sélection : Région = Nord"
+   Dark mode uniquement.
+   ========================================================= */
+
+html[data-theme="dark"] .tech-article .assoc-demo{
+  background:#102a36!important;
+  border-color:#355463!important;
+  box-shadow:none!important;
+}
+
+html[data-theme="dark"] .tech-article .demo-card{
+  background:#18323e!important;
+  border-color:#355463!important;
+  box-shadow:none!important;
+}
+
+/* Les 3 entêtes sont distinguées par leur position dans la grille */
+html[data-theme="dark"] .tech-article .demo-card:nth-child(1) .demo-head{
+  background:#1d4b62!important;
+  color:#a9d9f6!important;
+  border-color:#39708b!important;
+}
+html[data-theme="dark"] .tech-article .demo-card:nth-child(2) .demo-head{
+  background:#174b3a!important;
+  color:#78dfa7!important;
+  border-color:#2d7057!important;
+}
+html[data-theme="dark"] .tech-article .demo-card:nth-child(3) .demo-head{
+  background:#55401e!important;
+  color:#f2c467!important;
+  border-color:#80612d!important;
+}
+
+/* Valeurs avant sélection : possibles, donc bleu-gris sombre, jamais blanc */
+html[data-theme="dark"] .tech-article .demo-list span{
+  background:#496572!important;
+  color:#f4f8fa!important;
+  border-color:#5f7b88!important;
+}
+
+/* Etats explicites après sélection */
+html[data-theme="dark"] .tech-article .demo-list span.selected,
+html[data-theme="dark"] .tech-article .demo-list .selected{
+  background:#12a15c!important;
+  color:#fff!important;
+  border-color:#24b66e!important;
+}
+html[data-theme="dark"] .tech-article .demo-list span.possible,
+html[data-theme="dark"] .tech-article .demo-list .possible{
+  background:#496572!important;
+  color:#f4f8fa!important;
+  border-color:#5f7b88!important;
+}
+html[data-theme="dark"] .tech-article .demo-list span.alternative,
+html[data-theme="dark"] .tech-article .demo-list .alternative{
+  background:#61727b!important;
+  color:#f5f8fa!important;
+  border-color:#74858e!important;
+}
+html[data-theme="dark"] .tech-article .demo-list span.excluded,
+html[data-theme="dark"] .tech-article .demo-list .excluded{
+  background:#3d4d57!important;
+  color:#d4dee3!important;
+  border-color:#50616b!important;
+}
+
+/* Même logique pour les autres anciens blocs utilisant ces classes. */
+html[data-theme="dark"] .tech-article .demo-head{
+  border-bottom-width:1px!important;
+  border-bottom-style:solid!important;
+}
+
+
+/* =========================================================
+   V9.3 — EN-TÊTES DARK IDENTIQUES AU MINI-MODÈLE
+   Uniquement les entêtes des cartes .demo-card.
+   ========================================================= */
+
+html[data-theme="dark"] .tech-article .assoc-demo .demo-card:nth-child(1) > .demo-head{
+  background:#1d4b62 !important;
+  color:#a9d9f6 !important;
+  border-bottom:1px solid #39708b !important;
+}
+
+html[data-theme="dark"] .tech-article .assoc-demo .demo-card:nth-child(2) > .demo-head{
+  background:#174b3a !important;
+  color:#78dfa7 !important;
+  border-bottom:1px solid #2d7057 !important;
+}
+
+html[data-theme="dark"] .tech-article .assoc-demo .demo-card:nth-child(3) > .demo-head{
+  background:#55401e !important;
+  color:#f2c467 !important;
+  border-bottom:1px solid #80612d !important;
+}
+
+/* Variante de structure possible : cartes contenues dans une grille interne.
+   Même palette, sans toucher aux cellules. */
+html[data-theme="dark"] .tech-article .assoc-demo-grid .demo-card:nth-child(1) .demo-head{
+  background:#1d4b62 !important;
+  color:#a9d9f6 !important;
+  border-bottom-color:#39708b !important;
+}
+html[data-theme="dark"] .tech-article .assoc-demo-grid .demo-card:nth-child(2) .demo-head{
+  background:#174b3a !important;
+  color:#78dfa7 !important;
+  border-bottom-color:#2d7057 !important;
+}
+html[data-theme="dark"] .tech-article .assoc-demo-grid .demo-card:nth-child(3) .demo-head{
+  background:#55401e !important;
+  color:#f2c467 !important;
+  border-bottom-color:#80612d !important;
+}
+
+
+/* =========================================================
+   V9.4 — PALETTE ÉTENDUE DES ENTÊTES EN DARK MODE
+   Ciblage réel : .assoc-filter > b
+   Le thème clair reste inchangé.
+   ========================================================= */
+
+html[data-theme="dark"] .tech-article{
+  --head-petrol:#1d4b62;
+  --head-petrol-text:#a9d9f6;
+
+  --head-forest:#174b3a;
+  --head-forest-text:#78dfa7;
+
+  --head-amber:#55401e;
+  --head-amber-text:#f2c467;
+
+  --head-teal:#174b50;
+  --head-teal-text:#86d9d5;
+
+  --head-slate-violet:#403c59;
+  --head-slate-violet-text:#c9c2ed;
+
+  --head-wine:#51343d;
+  --head-wine-text:#e6b6c3;
+}
+
+/* Les vrais en-têtes des filtres pédagogiques */
+html[data-theme="dark"] .tech-article .assoc-filter:nth-child(1) > b{
+  background:var(--head-petrol)!important;
+  color:var(--head-petrol-text)!important;
+  border-bottom:1px solid #39708b!important;
+}
+
+html[data-theme="dark"] .tech-article .assoc-filter:nth-child(2) > b{
+  background:var(--head-forest)!important;
+  color:var(--head-forest-text)!important;
+  border-bottom:1px solid #2d7057!important;
+}
+
+html[data-theme="dark"] .tech-article .assoc-filter:nth-child(3) > b{
+  background:var(--head-amber)!important;
+  color:var(--head-amber-text)!important;
+  border-bottom:1px solid #80612d!important;
+}
+
+/* Si un exemple pédagogique comporte davantage de champs,
+   on poursuit la palette sans casser la logique visuelle. */
+html[data-theme="dark"] .tech-article .assoc-filter:nth-child(4) > b{
+  background:var(--head-teal)!important;
+  color:var(--head-teal-text)!important;
+  border-bottom:1px solid #2e6d71!important;
+}
+
+html[data-theme="dark"] .tech-article .assoc-filter:nth-child(5) > b{
+  background:var(--head-slate-violet)!important;
+  color:var(--head-slate-violet-text)!important;
+  border-bottom:1px solid #625d80!important;
+}
+
+html[data-theme="dark"] .tech-article .assoc-filter:nth-child(6) > b{
+  background:var(--head-wine)!important;
+  color:var(--head-wine-text)!important;
+  border-bottom:1px solid #76505b!important;
+}
+
+/* Uniformité de forme avec le mini-modèle */
+html[data-theme="dark"] .tech-article .assoc-filter > b{
+  box-shadow:none!important;
+}
+
+/* Les cellules et états validés en V9.2 restent inchangés.
+   On ne touche ici qu'aux en-têtes. */
+
+
+/* =========================================================
+   V9.5 — BLOC EMMA / AUCUNE CORRESPONDANCE
+   Harmonisation dark mode avec le mini-modèle.
+   ========================================================= */
+
+/* Cartes du bloc Emma */
+html[data-theme="dark"] .tech-article .assoc-orphan .orphan-card{
+  background:#18323e!important;
+  border-color:#355463!important;
+  box-shadow:none!important;
+}
+
+/* CLIENTS : bleu pétrole */
+html[data-theme="dark"] .tech-article .assoc-orphan .orphan-card:first-child .orphan-head{
+  background:#1d4b62!important;
+  color:#a9d9f6!important;
+  border-bottom:1px solid #39708b!important;
+}
+
+/* VENTES : vert forêt */
+html[data-theme="dark"] .tech-article .assoc-orphan .orphan-card:last-child .orphan-head{
+  background:#174b3a!important;
+  color:#78dfa7!important;
+  border-bottom:1px solid #2d7057!important;
+}
+
+/* Icônes intégrées aux mêmes familles chromatiques */
+html[data-theme="dark"] .tech-article .assoc-orphan .orphan-card:first-child .orphan-head i,
+html[data-theme="dark"] .tech-article .assoc-orphan .orphan-card:first-child .orphan-head span:first-child{
+  color:#a9d9f6!important;
+}
+html[data-theme="dark"] .tech-article .assoc-orphan .orphan-card:last-child .orphan-head i,
+html[data-theme="dark"] .tech-article .assoc-orphan .orphan-card:last-child .orphan-head span:first-child{
+  color:#78dfa7!important;
+}
+
+/* Lignes : nuances de la palette sombre, sans aplats clairs */
+html[data-theme="dark"] .tech-article .assoc-orphan .orphan-row,
+html[data-theme="dark"] .tech-article .assoc-orphan .orphan-body > span{
+  color:#e8f2f6!important;
+  border-color:#304e5d!important;
+}
+
+html[data-theme="dark"] .tech-article .assoc-orphan .orphan-row:nth-child(even){
+  background:#1d3a47!important;
+}
+
+/* Emma reste identifiable sans devenir une alerte criarde */
+html[data-theme="dark"] .tech-article .assoc-orphan .orphan-row.is-orphan,
+html[data-theme="dark"] .tech-article .assoc-orphan .orphan{
+  background:#3d4d57!important;
+  color:#eef5f8!important;
+  border-color:#52636d!important;
+}
+
+/* Badge "aucune vente" */
+html[data-theme="dark"] .tech-article .assoc-orphan .orphan-badge,
+html[data-theme="dark"] .tech-article .assoc-orphan .orphan-row.is-orphan small{
+  background:#d5e0e5!important;
+  color:#334b58!important;
+  border-color:#d5e0e5!important;
+}
+
+/* Rupture d'association centrale */
+html[data-theme="dark"] .tech-article .assoc-orphan .orphan-break{
+  color:#b9cad4!important;
+}
+html[data-theme="dark"] .tech-article .assoc-orphan .orphan-break::before,
+html[data-theme="dark"] .tech-article .assoc-orphan .orphan-break::after{
+  border-color:#8ba0ab!important;
+}
+html[data-theme="dark"] .tech-article .assoc-orphan .orphan-break strong,
+html[data-theme="dark"] .tech-article .assoc-orphan .orphan-break .break-x{
+  background:#dce6eb!important;
+  color:#405762!important;
+}
+html[data-theme="dark"] .tech-article .assoc-orphan .orphan-break b{
+  color:#9fb3bd!important;
+}
+html[data-theme="dark"] .tech-article .assoc-orphan .orphan-break p,
+html[data-theme="dark"] .tech-article .assoc-orphan .orphan-break span{
+  color:#91a7b2;
+}
+
+
+/* =========================================================
+   V9.6 — FINITION BLOC EMMA / DARK MODE
+   - suppression des petits pictogrammes d'entête
+   - contraste renforcé
+   - aucun changement du thème clair
+   ========================================================= */
+
+/* Suppression des petits pictogrammes/carrés avant CLIENTS et VENTES */
+html[data-theme="dark"] .tech-article .assoc-orphan .orphan-head > :first-child:not(b):not(strong){
+  display:none!important;
+}
+html[data-theme="dark"] .tech-article .assoc-orphan .orphan-head{
+  gap:0!important;
+}
+
+/* Titres nets, comme dans le mini-modèle */
+html[data-theme="dark"] .tech-article .assoc-orphan .orphan-card:first-child .orphan-head{
+  background:#1d4b62!important;
+  color:#a9d9f6!important;
+}
+html[data-theme="dark"] .tech-article .assoc-orphan .orphan-card:last-child .orphan-head{
+  background:#174b3a!important;
+  color:#78dfa7!important;
+}
+
+/* Colonne Produit dans VENTES : nettement plus lisible */
+html[data-theme="dark"] .tech-article .assoc-orphan .orphan-sales-row span:nth-child(2),
+html[data-theme="dark"] .tech-article .assoc-orphan .sales-row span:nth-child(2),
+html[data-theme="dark"] .tech-article .assoc-orphan .orphan-card:last-child .orphan-row span:nth-child(2){
+  color:#a9bec9!important;
+  opacity:1!important;
+}
+
+/* Texte central */
+html[data-theme="dark"] .tech-article .assoc-orphan .orphan-break b,
+html[data-theme="dark"] .tech-article .assoc-orphan .orphan-break strong{
+  color:#c8d8df!important;
+}
+html[data-theme="dark"] .tech-article .assoc-orphan .orphan-break p,
+html[data-theme="dark"] .tech-article .assoc-orphan .orphan-break span{
+  color:#91abb7!important;
+  opacity:1!important;
+}
+
+/* Trait de rupture plus visible */
+html[data-theme="dark"] .tech-article .assoc-orphan .orphan-break::before,
+html[data-theme="dark"] .tech-article .assoc-orphan .orphan-break::after{
+  border-color:#a7bbc5!important;
+  opacity:1!important;
+}
+
+/* Croix centrale : discrète mais lisible */
+html[data-theme="dark"] .tech-article .assoc-orphan .orphan-break .break-x{
+  background:#dce7ec!important;
+  color:#36505d!important;
+  border-color:#b9ccd5!important;
+}
+
+/* Emma : un cran de contraste supplémentaire */
+html[data-theme="dark"] .tech-article .assoc-orphan .orphan-row.is-orphan,
+html[data-theme="dark"] .tech-article .assoc-orphan .orphan{
+  background:#304f5e!important;
+  color:#f4f8fa!important;
+  border-color:#5e7885!important;
+}
+
+/* Badge "aucune vente" */
+html[data-theme="dark"] .tech-article .assoc-orphan .orphan-badge,
+html[data-theme="dark"] .tech-article .assoc-orphan .orphan-row.is-orphan small{
+  background:#dce7ec!important;
+  color:#36505d!important;
+  border-color:#dce7ec!important;
+}
+
+
+/* =========================================================
+   V9.7 — CORRECTIONS CIBLÉES DARK MODE
+   Section 9 : lisibilité produits + texte central
+   Section 14 : encadré de synthèse cohérent avec la palette
+   Thème clair inchangé.
+   ========================================================= */
+
+/* Section 9 — colonne Produit des lignes de VENTES */
+html[data-theme="dark"] .tech-article #sans-vente .orphan-sale-product {
+  color:#a9bec9!important;
+  opacity:1!important;
+}
+
+/* Section 9 — texte central de rupture */
+html[data-theme="dark"] .tech-article #sans-vente .orphan-break-title {
+  color:#d7e4ea!important;
+  opacity:1!important;
+}
+html[data-theme="dark"] .tech-article #sans-vente .orphan-break-text {
+  color:#a9bec9!important;
+  opacity:1!important;
+}
+
+/* Section 14 — phrase de synthèse : fini le pavé gris clair */
+html[data-theme="dark"] .tech-article #mecanisme-en-une-phrase .assoc-summary,
+html[data-theme="dark"] .tech-article #mecanisme-en-une-phrase .article-note {
+  background:#173746!important;
+  border:1px solid #355463!important;
+  color:#eaf3f7!important;
+  box-shadow:none!important;
+}
+html[data-theme="dark"] .tech-article #mecanisme-en-une-phrase .assoc-summary *,
+html[data-theme="dark"] .tech-article #mecanisme-en-une-phrase .article-note * {
+  color:inherit!important;
+}
+
+
+/* V9.7 — sélecteurs exacts vérifiés dans le HTML */
+
+/* Section 9 : VENTES > Produit est porté par <i> */
+html[data-theme="dark"] .tech-article #sans-vente .orphan-sales .sales-lines > span > i {
+  color:#a9bec9!important;
+  opacity:1!important;
+}
+
+/* Section 9 : libellé et explication au centre */
+html[data-theme="dark"] .tech-article #sans-vente .orphan-break > b {
+  color:#d7e4ea!important;
+  opacity:1!important;
+}
+html[data-theme="dark"] .tech-article #sans-vente .orphan-break > small {
+  color:#a9bec9!important;
+  opacity:1!important;
+}
+
+/* Section 9 : suppression réelle des pictogrammes d'entête */
+html[data-theme="dark"] .tech-article #sans-vente .orphan-head .orphan-icon {
+  display:none!important;
+}
+
+/* Section 14 : l'id réel de la section est #retenir */
+html[data-theme="dark"] .tech-article #retenir .article-note {
+  background:#173746!important;
+  border:1px solid #355463!important;
+  color:#eaf3f7!important;
+  box-shadow:none!important;
+}
+html[data-theme="dark"] .tech-article #retenir .article-note * {
+  color:inherit!important;
+}
+
+
+/* Section 14 : phrase de synthèse — classe exacte */
+html[data-theme="dark"] .tech-article #retenir .assoc-summary-sentence {
+  background:#173746!important;
+  border:1px solid #355463!important;
+  color:#eaf3f7!important;
+  box-shadow:none!important;
+}
+html[data-theme="dark"] .tech-article #retenir .assoc-summary-sentence strong {
+  color:#eaf3f7!important;
+}
+
+
+/* =========================================================
+   V9.8 — FINITION DU BLOC « À RETENIR » EN DARK MODE
+   ========================================================= */
+html[data-theme="dark"] .tech-article #retenir .takeaway {
+  background:#14383d!important;
+  border-color:#35606a!important;
+  box-shadow:none!important;
+}
+html[data-theme="dark"] .tech-article #retenir .takeaway h2,
+html[data-theme="dark"] .tech-article #retenir .takeaway li,
+html[data-theme="dark"] .tech-article #retenir .takeaway strong {
+  color:#eef6fa!important;
+}
+
+
+/* =========================================================
+   V9.9 — ÉTAT ALTERNATIF EN DARK MODE
+   Correction globale : le gris clair ne doit plus tirer
+   vers le blanc dans les listes de sélection.
+   ========================================================= */
+html[data-theme="dark"] .tech-article .alternative {
+  background:#61727b!important;
+  color:#eef6fa!important;
+  border-color:#71838c!important;
+  opacity:1!important;
+}
+
+
+/* V9.10 — alternatif légèrement éclairci en dark mode */
+html[data-theme="dark"] .tech-article .alternative {
+  background:#71828b!important;
+  color:#f2f7f9!important;
+  border-color:#82939c!important;
+}
+
+
+/* =========================================================
+   V9.11 — ÉTAT EXCLU PLUS ANTHRACITE EN DARK MODE
+   L'alternatif reste #71828b ; l'exclu s'assombrit pour
+   retrouver une différence visuelle nette clair / foncé.
+   ========================================================= */
+html[data-theme="dark"] .tech-article .excluded {
+  background:#354047!important;
+  color:#b9c7ce!important;
+  border-color:#46545c!important;
+  opacity:1!important;
+}
+
+/* Même logique pour l'état sélectionné-exclu : sombre mais lisible */
+html[data-theme="dark"] .tech-article .selected-excluded {
+  background:#354047!important;
+  color:#dbe5e9!important;
+  border-color:#59676e!important;
+  opacity:1!important;
+}
