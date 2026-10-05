@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import '../../styles/article-tech-v455.css';
-import '../../styles/article-associatif-v520.css';
+import '../../styles/article-associatif-v521.css';
 ---
 <BaseLayout title="Comprendre le modèle associatif de Qlik — SOSBI">
 <section class="article-hero tech-hero"><div class="container">
@@ -18,8 +18,8 @@ import '../../styles/article-associatif-v520.css';
 <a href="#gris">5. Le gris est une information</a><a href="#alternatif">6. Gris clair ou gris foncé ?</a>
 <a href="#et-ou">7. Plusieurs sélections : ET / OU</a><a href="#selectionne-exclu">8. Le sélectionné exclu</a>
 <a href="#sans-vente">9. Et si une valeur n’a aucune correspondance ?</a><a href="#capot">10. Sous le capot</a>
-<a href="#jointure">11. Association ≠ jointure</a><a href="#calculs">12. Et les calculs ?</a>
-<a href="#modelisation">13. Associatif ne veut pas dire magique</a><a href="#retenir">14. À retenir</a>
+<a href="#jointure">11. Association Qlik ≠ jointure SQL</a><a href="#calculs">12. Et les calculs et les graphiques dans tout ça ?</a>
+<a href="#modelisation">13. Associatif ne veut pas dire magique</a><a href="#retenir">14. Le mécanisme associatif en une phrase</a>
 </nav>
 
 <section id="clic"><h2>1. Tout commence par un clic</h2>
@@ -50,6 +50,7 @@ import '../../styles/article-associatif-v520.css';
 <p>Dans Qlik, des champs portant le même nom associent naturellement les tables. <strong>Le schéma ci-dessus représente des associations, pas des cardinalités 1→N imposées comme dans un modèle relationnel classique.</strong> Ici, <code>ID_CLIENT</code> et <code>ID_PRODUIT</code> permettent aux sélections de traverser le modèle.</p>
 <h3>Le jeu de données de référence</h3>
 <p>À partir d’ici, <strong>tous les exemples de l’article découlent exactement des mêmes données</strong>. Cela nous permettra de vérifier chaque valeur blanche, verte ou grise sans changer les règles en cours de route.</p>
+<p class="assoc-flat-note"><strong>Vue à plat :</strong> le tableau ci-dessous sert uniquement à vérifier facilement les exemples. Dans le modèle Qlik présenté juste au-dessus, CLIENTS, VENTES et PRODUITS restent bien trois tables distinctes.</p>
 <div class="assoc-data">
 <table><thead><tr><th>Région</th><th>Client</th><th>Produit</th><th>Montant</th></tr></thead><tbody>
 <tr><td>Nord</td><td>Alice</td><td>PC</td><td>1 200 €</td></tr>
@@ -107,7 +108,7 @@ import '../../styles/article-associatif-v520.css';
 <div class="assoc-filter"><b>Client</b><span class="possible">Alice</span><span class="possible">Benoît</span><span class="excluded">Chloé</span><span class="excluded">David</span><span class="excluded">Emma</span></div>
 <div class="assoc-filter"><b>Produit</b><span class="selected">✓ PC</span><span class="alternative">Souris</span><span class="excluded">Écran</span><span class="excluded">Casque</span></div>
 </div></div>
-<p>Le deuxième clic resserre donc le contexte. Les états sont recalculés après chaque sélection : une valeur blanche peut devenir grise, et une valeur jusque-là exclue peut redevenir possible si l’on modifie le contexte.</p>
+<p>Le deuxième clic resserre donc le contexte. Avec <strong>Nord ET PC</strong>, Alice et Benoît restent possibles ; <strong>Chloé, David et Emma sont exclus côté Client, tandis qu’Écran et Casque sont exclus côté Produit</strong>. Souris devient alternative dans Produit, puisque ce champ contient désormais la sélection PC. Les états sont recalculés après chaque sélection.</p>
 <div class="article-note"><strong>Raccourci utile :</strong> plusieurs valeurs d’un même champ élargissent le choix (<strong>OU</strong>) ; des sélections dans plusieurs champs cumulent les contraintes (<strong>ET</strong>).</div>
 </section>
 
@@ -163,13 +164,13 @@ import '../../styles/article-associatif-v520.css';
 <p>Le mot « associatif » ne signifie pas que Qlik abandonne les tables. Le modèle chargé en mémoire est constitué de tables et de champs. Sa particularité est la manière dont les valeurs communes permettent au moteur de déterminer, à chaque sélection, quelles valeurs sont possibles ou exclues dans l’ensemble du modèle.</p>
 <div class="assoc-underhood"><div><small>DONNÉES</small><b>Tables et champs</b></div><i>→</i><div><small>ASSOCIATIONS</small><b>Valeurs communes</b></div><i>→</i><div><small>SÉLECTIONS</small><b>Contexte logique</b></div><i>→</i><div><small>ANALYSE</small><b>Possible / exclu</b></div></div>
 <p>Pour quelqu’un venant du SQL ou d’un autre outil BI, c’est un changement de perspective : le modèle ne sert pas seulement à produire le résultat d’une requête prédéfinie. Il devient un espace que l’utilisateur explore par associations successives.</p>
-<div class="assoc-deeper"><small>POUR ALLER UN CRAN PLUS LOIN</small><h3>Pourquoi cette exploration peut-elle être si rapide ?</h3><p>Qlik travaille en mémoire avec des structures optimisées autour des valeurs de champs et de leurs associations. Pour comprendre le modèle associatif, inutile d’entrer ici dans toute l’architecture du moteur : retenons surtout que les sélections exploitent ces structures en mémoire pour retrouver rapidement les valeurs reliées au contexte courant.</p></div>
+<div class="assoc-deeper"><small>POUR ALLER UN CRAN PLUS LOIN</small><h3>Pourquoi cette exploration peut-elle être si rapide ?</h3><p>Qlik travaille en mémoire avec des structures optimisées autour des valeurs de champs et de leurs associations. Lorsqu’une sélection change, le moteur peut ainsi déterminer rapidement quelles valeurs restent reliées au contexte courant, <strong>sans reconstruire une jointure SQL à chaque clic</strong>. Nous restons volontairement à ce niveau : l’architecture interne du moteur mérite un sujet à part entière.</p></div>
 </section>
 
 <section id="jointure"><h2>11. Association Qlik ≠ jointure SQL</h2>
 <p>La comparaison avec une jointure SQL est tentante, mais elle devient vite trompeuse. Une jointure fabrique un résultat selon une condition et un type de jointure précis. Dans Qlik, les tables peuvent rester séparées et être reliées par leurs champs communs.</p>
 <div class="assoc-versus"><div><small>SQL</small><h3>JOIN</h3><p>On définit comment deux ensembles sont combinés pour produire un résultat.</p></div><b>≠</b><div><small>QLIK</small><h3>Association</h3><p>Les tables restent dans le modèle et les sélections se propagent via les valeurs associées.</p></div></div>
-<p>Prenons Emma, notre cliente sans vente. Avec un <code>INNER JOIN</code> entre CLIENTS et VENTES, sa ligne disparaîtrait du résultat. Avec un <code>LEFT JOIN</code>, elle resterait présente, mais nous aurions déjà choisi une façon précise de combiner les deux tables. Dans le modèle Qlik, CLIENTS et VENTES peuvent rester distinctes : Emma existe dans CLIENTS et son absence d’association avec VENTES devient elle-même une information exploitable.</p>
+<p>Prenons Emma, notre cliente sans vente. Avec un <code>INNER JOIN</code> entre CLIENTS et VENTES, sa ligne disparaîtrait du résultat. Avec un <code>LEFT JOIN</code>, elle resterait présente, mais nous aurions déjà choisi une façon précise de combiner les deux tables. Dans le modèle Qlik, CLIENTS et VENTES peuvent rester distinctes : Emma existe toujours dans CLIENTS. <strong>Dans une liste de sélection Client</strong>, son absence de correspondance avec VENTES peut alors devenir visible selon le contexte ; cela ne signifie pas qu’Emma apparaîtra automatiquement dans toutes les visualisations.</p>
 <p>Ce n’est donc pas « un FULL OUTER JOIN partout ». Cette image peut dépanner quelques secondes, mais elle ne décrit pas correctement le fonctionnement du modèle.</p>
 </section>
 
@@ -195,9 +196,9 @@ import '../../styles/article-associatif-v520.css';
 <div class="article-note"><strong>Pour le novice :</strong> inutile de maîtriser ces quatre sujets pour comprendre l’associativité. <strong>Pour le modélisateur :</strong> c’est précisément parce que les sélections se propagent que la qualité du modèle est essentielle.</div>
 </section>
 
-<section id="retenir"><h2>14. Ce qui se passe réellement lorsque vous cliquez</h2>
-<div class="assoc-final"><div><b>1</b><span>Vous sélectionnez<br/><strong>Nord</strong></span></div><i>→</i><div><b>2</b><span>Qlik évalue les<br/><strong>associations</strong></span></div><i>→</i><div><b>3</b><span>Le contexte se<br/><strong>propage</strong></span></div><i>→</i><div><b>4</b><span>Les valeurs changent<br/><strong>d’état</strong></span></div><i>→</i><div><b>5</b><span>Expressions et objets<br/><strong>sont recalculés</strong></span></div></div>
-<p>Voilà le cœur de l’expérience associative. La sélection n’est pas seulement un filtre qui réduit un résultat : elle révèle en permanence la structure des relations contenues dans les données.</p>
+<section id="retenir"><h2>14. Le mécanisme associatif en une phrase</h2>
+<p class="assoc-summary-sentence"><strong>Une sélection modifie le contexte logique du modèle ; Qlik réévalue alors les associations, les états des valeurs et les calculs qui dépendent de ce contexte.</strong></p>
+<p>C’est cette réévaluation permanente — et la visibilité donnée aux valeurs possibles comme exclues — qui distingue l’expérience associative d’un simple filtre appliqué à un résultat déjà construit.</p>
 <div class="takeaway"><h2>À retenir</h2><ul>
 <li>Qlik associe naturellement les tables à partir de champs communs et propage les sélections dans le modèle.</li>
 <li>Les cinq états — sélectionné, possible, alternatif, exclu et sélectionné exclu — décrivent la situation logique des valeurs.</li>
