@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import '../../styles/article-qmc-custom-v910.css';
+import '../../styles/article-qmc-custom-v10415.css';
 import RelatedContent from '../../components/RelatedContent.astro';
 ---
 <BaseLayout title="Planifier une tâche Qlik avec un trigger Custom dans la QMC — SOSBI">
@@ -48,9 +48,8 @@ import RelatedContent from '../../components/RelatedContent.astro';
 
 <section id="cas1"><em>03 — CAS PRATIQUE</em><h2>Du mardi au samedi, toutes les 30 minutes entre 03h00 et 04h59</h2>
 <p>C'est un cas typique de traitement nocturne : une fréquence régulière, une fenêtre de deux heures et seulement certains jours de la semaine.</p>
-<div class="qc-business">Besoin métier <b>Mar. → sam. · toutes les 30 min · 03h00 → 04h59</b></div>
 <div class="qc-qmc" aria-label="Reconstitution CSS de la fenêtre QMC">
-  <div class="qc-qmc-title">Trigger - Start on schedule</div>
+  <div class="qc-qmc-title"><span class="qc-qmc-badge">QMC</span><span class="qc-qmc-context">Reload task</span><span class="qc-qmc-subtitle"></span></div>
   <div class="qc-qmc-body">
     <label>Trigger name <span class="qc-input wide">VENTES_RAW_NUIT</span></label><label class="qc-check">Enabled <span>✓</span></label>
     <div class="qc-qmc-sep"></div>
@@ -76,8 +75,8 @@ import RelatedContent from '../../components/RelatedContent.astro';
 </section>
 
 <section id="cas2"><em>04 — CAS PRATIQUE</em><h2>Du lundi au vendredi, toutes les 45 minutes entre 02h00 et 04h59</h2>
-<p>Ce cas montre pourquoi il faut distinguer la fréquence de la fenêtre. On veut un pas de 45 minutes, mais uniquement pendant les heures 2, 3 et 4 des jours ouvrés.</p>
-<div class="qc-business">Besoin métier <b>Lun. → ven. · toutes les 45 min · 02h00 → 04h59</b></div>
+<p></p>
+
 <div class="qc-config"><div><small>START DATE / TIME</small><b>Lundi · 02:00</b></div><div><small>INCREMENT</small><b>45 0 0 0</b></div><div><small>FILTER</small><b>* 2-4 - 1-5 * * * *</b></div></div>
 <div class="qc-timeline">
 <div><time>02:00</time><span>dans la fenêtre</span><b>✓ Déclenchement</b></div>
@@ -95,7 +94,7 @@ import RelatedContent from '../../components/RelatedContent.astro';
 <p>Voici trois scénarios génériques que l'on rencontre souvent en exploitation BI. Chaque exemple montre le besoin métier, la saisie dans <strong>Trigger - Start on schedule</strong> et les déclenchements obtenus.</p>
 
 <div class="qc-scenario"><header><span>CAS A</span><div><b>Rafraîchir un datamart pendant la matinée</b><small>Du lundi au vendredi · toutes les 30 minutes · 07h00 à 09h59</small></div></header>
-<div class="qc-qmc compact"><div class="qc-qmc-title">Trigger - Start on schedule</div><div class="qc-qmc-body">
+<div class="qc-qmc compact"><div class="qc-qmc-title"><span class="qc-qmc-badge">QMC</span><span class="qc-qmc-context">Reload task</span><span class="qc-qmc-subtitle">Évaluer chaque jour et n'autoriser que le premier lundi.</span></div><div class="qc-qmc-body">
 <label>Trigger name <span class="qc-input wide">DATAMART_VENTES_MATIN</span></label><label class="qc-check">Enabled <span>✓</span></label>
 <div class="qc-qmc-sep"></div>
 <label>Time zone <span class="qc-input wide">(GMT+01:00) Brussels, Copenhagen, Madrid, Paris <i>⌄</i></span></label>
@@ -106,15 +105,38 @@ import RelatedContent from '../../components/RelatedContent.astro';
 <div class="qc-qmc-schedule"><div><b>Schedule</b><span>○ Once</span><span>○ Hourly</span><span>○ Daily</span><span>○ Weekly</span><span>○ Monthly</span><span class="selected">◉ Custom</span></div><div><label>Custom increment<span class="qc-input mono">30 0 0 0</span></label><label>Custom filter<span class="qc-input mono">0,30 7-9 - 1-5 * * * *</span></label></div></div>
 <div class="qc-qmc-sep"></div><div class="qc-qmc-row"><b>End</b><span class="qc-input time muted">00:00</span><span class="qc-input date muted">9999-01-01</span><span class="qc-infinite">☑ Infinite</span></div>
 </div><div class="qc-qmc-actions"><button>Cancel</button><button>OK</button></div></div>
-<div class="qc-track"><div class="on"><b>07:00</b><span>✓</span></div><i></i><div class="on"><b>07:30</b><span>✓</span></div><i></i><div class="on"><b>08:00</b><span>✓</span></div><i></i><div class="on"><b>08:30</b><span>✓</span></div><i></i><div class="on"><b>09:00</b><span>✓</span></div><i></i><div class="on"><b>09:30</b><span>✓</span></div><i></i><div class="off"><b>10:00</b><span>×</span></div></div>
+<div class="qc-timeline qc-timeline-7">
+<div><time>07:00</time><span>heure 7 · minute 00</span><b>✓ Déclenchement</b></div>
+<div><time>07:30</time><span>heure 7 · minute 30</span><b>✓ Déclenchement</b></div>
+<div><time>08:00</time><span>heure 8 · minute 00</span><b>✓ Déclenchement</b></div>
+<div><time>08:30</time><span>heure 8 · minute 30</span><b>✓ Déclenchement</b></div>
+<div><time>09:00</time><span>heure 9 · minute 00</span><b>✓ Déclenchement</b></div>
+<div><time>09:30</time><span>heure 9 · minute 30</span><b>✓ Déclenchement</b></div>
+<div class="no"><time>10:00</time><span>heure 10 hors fenêtre</span><b>× Non autorisé</b></div>
+</div>
 <p class="qc-explain">Un besoin fréquent en BI : rafraîchir plusieurs fois les données au début de la journée, puis arrêter les déclenchements une fois la fenêtre de consultation ouverte. L'Increment fixe le rythme de 30 minutes ; le Filter limite les candidats aux heures 7, 8 et 9, du lundi au vendredi.</p></div>
 
 <div class="qc-scenario"><header><span>CAS B</span><div><b>Contrôles de début de mois</b><small>Du 1er au 10 · toutes les 20 minutes · 04h00 à 05h59</small></div></header>
-<div class="qc-qmc compact"><div class="qc-qmc-title">Trigger - Start on schedule</div><div class="qc-qmc-body"><label>Trigger name <span class="qc-input wide">CONTROLES_DEBUT_MOIS</span></label><label class="qc-check">Enabled <span>✓</span></label><div class="qc-qmc-sep"></div><div class="qc-qmc-row"><b>Start</b><span class="qc-input time">04:00</span><small>(hh:mm)</small><span class="qc-input date">2026-10-01</span><small>(YYYY-MM-DD)</small></div><div class="qc-qmc-sep"></div><div class="qc-qmc-schedule"><div><b>Schedule</b><span>○ Once</span><span>○ Hourly</span><span>○ Daily</span><span>○ Weekly</span><span>○ Monthly</span><span class="selected">◉ Custom</span></div><div><label>Custom increment<span class="qc-input mono mark">20 0 0 0</span></label><label>Custom filter<span class="qc-input mono mark">0,20,40 4-5 - * * 1-10 * *</span></label></div></div></div><div class="qc-qmc-actions"><button>Cancel</button><button>OK</button></div></div>
-<div class="qc-track"><div class="on"><b>04:00</b><span>✓</span></div><i></i><div class="on"><b>04:20</b><span>✓</span></div><i></i><div class="on"><b>04:40</b><span>✓</span></div><i></i><div class="on"><b>05:00</b><span>✓</span></div><i></i><div class="on"><b>05:20</b><span>✓</span></div><i></i><div class="on"><b>05:40</b><span>✓</span></div><i></i><div class="off"><b>06:00</b><span>×</span></div></div></div>
+<div class="qc-qmc compact"><div class="qc-qmc-title"><span class="qc-qmc-badge">QMC</span><span class="qc-qmc-context">Reload task</span></div><div class="qc-qmc-body"><label>Trigger name <span class="qc-input wide">CONTROLES_DEBUT_MOIS</span></label><label class="qc-check">Enabled <span>✓</span></label><div class="qc-qmc-sep"></div><div class="qc-qmc-row"><b>Start</b><span class="qc-input time">04:00</span><small>(hh:mm)</small><span class="qc-input date">2026-10-01</span><small>(YYYY-MM-DD)</small></div><div class="qc-qmc-sep"></div><div class="qc-qmc-schedule"><div><b>Schedule</b><span>○ Once</span><span>○ Hourly</span><span>○ Daily</span><span>○ Weekly</span><span>○ Monthly</span><span class="selected">◉ Custom</span></div><div><label>Custom increment<span class="qc-input mono mark">20 0 0 0</span></label><label>Custom filter<span class="qc-input mono mark">0,20,40 4-5 - * * 1-10 * *</span></label></div></div></div><div class="qc-qmc-actions"><button>Cancel</button><button>OK</button></div></div>
+<div class="qc-timeline qc-timeline-7">
+<div><time>04:00</time><span>heure 4 · minute 00</span><b>✓ Déclenchement</b></div>
+<div><time>04:20</time><span>heure 4 · minute 20</span><b>✓ Déclenchement</b></div>
+<div><time>04:40</time><span>heure 4 · minute 40</span><b>✓ Déclenchement</b></div>
+<div><time>05:00</time><span>heure 5 · minute 00</span><b>✓ Déclenchement</b></div>
+<div><time>05:20</time><span>heure 5 · minute 20</span><b>✓ Déclenchement</b></div>
+<div><time>05:40</time><span>heure 5 · minute 40</span><b>✓ Déclenchement</b></div>
+<div class="no"><time>06:00</time><span>heure 6 hors fenêtre</span><b>× Non autorisé</b></div>
+</div></div>
 
 <div class="qc-scenario"><header><span>CAS C</span><div><b>Alimenter un tableau de bord trois matins par semaine</b><small>Lundi, mercredi, vendredi · toutes les 15 minutes · 06h00 à 06h59</small></div></header>
-<div class="qc-qmc compact"><div class="qc-qmc-title">Trigger - Start on schedule</div><div class="qc-qmc-body"><label>Trigger name <span class="qc-input wide">DASHBOARD_MATIN</span></label><label class="qc-check">Enabled <span>✓</span></label><div class="qc-qmc-sep"></div><div class="qc-qmc-row"><b>Start</b><span class="qc-input time">06:00</span><small>(hh:mm)</small><span class="qc-input date">2026-10-05</span><small>(YYYY-MM-DD)</small></div><div class="qc-qmc-sep"></div><div class="qc-qmc-schedule"><div><b>Schedule</b><span>○ Once</span><span>○ Hourly</span><span>○ Daily</span><span>○ Weekly</span><span>○ Monthly</span><span class="selected">◉ Custom</span></div><div><label>Custom increment<span class="qc-input mono mark">15 0 0 0</span></label><label>Custom filter<span class="qc-input mono mark">0,15,30,45 6 - 1,3,5 * * * *</span></label></div></div></div><div class="qc-qmc-actions"><button>Cancel</button><button>OK</button></div></div>
+<div class="qc-qmc compact"><div class="qc-qmc-title"><span class="qc-qmc-badge">QMC</span><span class="qc-qmc-context">Reload task</span></div><div class="qc-qmc-body"><label>Trigger name <span class="qc-input wide">DASHBOARD_MATIN</span></label><label class="qc-check">Enabled <span>✓</span></label><div class="qc-qmc-sep"></div><div class="qc-qmc-row"><b>Start</b><span class="qc-input time">06:00</span><small>(hh:mm)</small><span class="qc-input date">2026-10-05</span><small>(YYYY-MM-DD)</small></div><div class="qc-qmc-sep"></div><div class="qc-qmc-schedule"><div><b>Schedule</b><span>○ Once</span><span>○ Hourly</span><span>○ Daily</span><span>○ Weekly</span><span>○ Monthly</span><span class="selected">◉ Custom</span></div><div><label>Custom increment<span class="qc-input mono mark">15 0 0 0</span></label><label>Custom filter<span class="qc-input mono mark">0,15,30,45 6 - 1,3,5 * * * *</span></label></div></div></div><div class="qc-qmc-actions"><button>Cancel</button><button>OK</button></div></div>
+<div class="qc-timeline">
+<div><time>06:00</time><span>heure 6 · minute 00</span><b>✓ Déclenchement</b></div>
+<div><time>06:15</time><span>heure 6 · minute 15</span><b>✓ Déclenchement</b></div>
+<div><time>06:30</time><span>heure 6 · minute 30</span><b>✓ Déclenchement</b></div>
+<div><time>06:45</time><span>heure 6 · minute 45</span><b>✓ Déclenchement</b></div>
+<div class="no"><time>07:00</time><span>heure 7 hors fenêtre</span><b>× Non autorisé</b></div>
+</div>
 <div class="qc-week"><div class="off">Dim.<b>×</b></div><div>Lun.<b>✓</b></div><div class="off">Mar.<b>×</b></div><div>Mer.<b>✓</b></div><div class="off">Jeu.<b>×</b></div><div>Ven.<b>✓</b></div><div class="off">Sam.<b>×</b></div></div></div>
 </section>
 

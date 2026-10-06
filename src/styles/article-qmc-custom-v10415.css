@@ -1,0 +1,1156 @@
+
+.qc-hero{position:relative;min-height:198px;padding:32px 0 28px;display:flex;align-items:center;overflow:hidden;color:#fff;background:linear-gradient(90deg,rgba(5,25,34,.80),rgba(5,25,34,.58) 48%,rgba(5,25,34,.25)),url('/assets/hero-cap-canaille-v418.jpg') center 52%/cover no-repeat}.qc-hero .container{position:relative;z-index:1}.qc-eye,.qc-main section>em{font-style:normal;font-size:.7rem;font-weight:850;letter-spacing:.15em;color:#5cc867}.qc-eye{color:#61e5b0!important}.qc-hero h1{font-size:clamp(1.85rem,3.1vw,2.65rem);line-height:1.08;letter-spacing:-.035em;max-width:900px;margin:8px 0 10px}.qc-hero h1 span{color:#6bd574}.qc-hero p{max-width:800px;margin:0 0 9px;color:#f2f6f5;line-height:1.65}.qc-hero small{color:#d4dfdc}.qc-main{max-width:1000px!important;padding-top:32px;padding-bottom:80px}.qc-nav{display:flex;gap:8px;flex-wrap:wrap;align-items:center;background:var(--surface,#fff);border:1px solid var(--border-color,#dce4df);border-radius:13px;padding:13px 15px;margin-bottom:42px}.qc-nav a{text-decoration:none;color:inherit;font-size:.75rem;padding:6px 9px;border-radius:7px;background:rgba(80,190,90,.08)}.qc-main section{margin-bottom:58px;scroll-margin-top:90px}.qc-main h2{font-size:clamp(1.45rem,2.7vw,2rem);letter-spacing:-.025em;margin:7px 0 12px}.qc-main p{line-height:1.7}.mono,.qc-main code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}.qc-triad{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:9px;align-items:stretch;margin:22px 0}.qc-triad>div,.qc-config>div,.qc-memo>div,.qc-flow>div,.qc-check{background:#fff;border:1px solid #d9e3e7;border-radius:12px;padding:16px}.qc-triad>strong,.qc-flow>i{display:grid;place-items:center;color:#50b95c;font-size:1.3rem}.qc-triad small,.qc-config small,.qc-memo small{display:block;color:#4a9d53;font-size:.65rem;font-weight:850;letter-spacing:.1em}.qc-triad b,.qc-config b{display:block;margin:6px 0}.qc-triad p{font-size:.76rem;margin:0;line-height:1.45}.qc-key{display:flex;flex-direction:column;gap:5px;padding:17px 19px;margin:20px 0;background:#f4fbf6;border:1px solid #b9dec1;border-radius:12px}.qc-key b{color:#287d36}.qc-key span{line-height:1.55}.qc-window{border:1px solid #c6d0cb;border-radius:12px;overflow:hidden;margin:25px 0 7px;background:#f6f8f7;color:#26332d;box-shadow:0 14px 34px rgba(15,30,22,.1)}.qc-window>header{display:flex;gap:12px;align-items:center;background:#303a3d;color:#fff;padding:10px 14px;font-size:.78rem}.qc-window>header i{font-style:normal;background:#55c161;color:#102217;padding:3px 7px;border-radius:3px;font-weight:900}.qc-window>header b{margin-left:auto}.qc-window main{padding:21px}.qc-window label{display:block;font-size:.71rem;font-weight:750;color:#526159;margin-bottom:14px}.qc-window label>div{display:flex;justify-content:space-between;background:#fff;border:1px solid #b9c5bf;border-radius:3px;padding:9px 10px;margin-top:5px;color:#26332d;font-weight:500}.qc-cols{display:grid;grid-template-columns:1fr 1fr;gap:15px}.caption{font-size:.72rem!important;color:#78847e}.qc-warn{padding:15px 17px;border-left:4px solid #e0a448;background:rgba(224,164,72,.08);border-radius:0 10px 10px 0}.qc-positions{display:grid;gap:8px;margin:20px 0}.qc-positions.four,.qc-positions.eight{grid-template-columns:repeat(4,1fr)}.qc-positions>div{background:#fff;text-align:center;border:1px solid #d9e3e7;border-radius:10px;padding:13px}.qc-positions b{display:block;color:#50b95c;font:850 1.25rem ui-monospace,monospace}.qc-positions span{display:block;font-size:.72rem;font-weight:750;margin:4px 0}.qc-positions small{color:#7b8983;font-size:.64rem}.qc-decode>div{display:flex;min-height:142px;flex-direction:column;align-items:center;justify-content:center}.qc-decode>div>p{margin:5px 0 0!important;font-size:.69rem!important;line-height:1.35!important;color:#687872}.qc-decode-intro{font-size:.86rem;color:#65736c}.qc-code{background:#fff;border:1px solid #d9e3e7;border-radius:12px;overflow:hidden;margin:18px 0}.qc-code header{display:flex;justify-content:space-between;align-items:center;padding:9px 12px;border-bottom:1px solid #d9e3e7;background:#f6f9fa;color:#132b3a;font-size:.67rem;font-weight:800;letter-spacing:.08em}.qc-code pre{margin:0;padding:17px;overflow:auto;background:#fff;color:#183044}.qc-code button,.qc-examples button{background:#fff;border:1px solid #d7e0e4;color:#183044;border-radius:7px;padding:5px 8px;cursor:pointer}.qc-table{display:grid;grid-template-columns:2fr 1fr;border:1px solid var(--border-color,#dce4df);border-radius:10px;overflow:hidden;margin:18px 0}.qc-table>*{padding:10px 13px;border-bottom:1px solid var(--border-color,#dce4df)}.qc-table>*:nth-last-child(-n+2){border-bottom:0}.qc-table>b{background:rgba(80,190,90,.08);font-size:.72rem}.qc-filter{position:relative;text-align:left;background:#fff;color:#183044;border:1px solid #d9e3e7;border-radius:12px;padding:52px 18px 18px;margin:18px 0;overflow:auto}.qc-filter:before{content:'Expression Qlik Sense / QMC';position:absolute;inset:0 0 auto;height:38px;display:flex;align-items:center;padding:0 15px;border-bottom:1px solid #d9e3e7;background:#f6f9fa;color:#132b3a;font-size:.7rem;font-weight:800;border-radius:12px 12px 0 0}.qc-filter code{color:#4f9a54;font-weight:700}.qc-special{margin:14px 0 18px;padding:15px 17px;border:1px solid #b9dec1;border-radius:11px;background:#f4fbf6}.qc-special>b{display:block;margin-bottom:10px;color:#287d36;font-size:.8rem}.qc-special>div{display:grid;grid-template-columns:38px 1fr;gap:8px;align-items:start;margin:7px 0;font-size:.75rem;line-height:1.45}.qc-special code{display:inline-grid;place-items:center;min-width:28px;min-height:25px;padding:0 4px;border-radius:6px;background:#eef7f0;color:#318b3d;font-weight:800}.qc-flow{display:grid;grid-template-columns:1fr auto 1fr auto 1fr auto 1fr auto 1fr;gap:7px;align-items:stretch;margin:24px 0}.qc-flow small{display:block;font-size:.6rem;letter-spacing:.09em;color:#75837d}.qc-flow b{display:block;margin-top:5px}.qc-flow .run{background:#f3fbf5;border-color:#9ed1aa}.qc-config{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0}.qc-timeline{border:1px solid #d9e3e7;border-radius:12px;overflow:hidden;margin:20px 0}.qc-timeline>div{display:grid;grid-template-columns:90px 1fr 115px;gap:12px;align-items:center;padding:12px 15px;border-bottom:1px solid #e3eaed}.qc-timeline>div:last-child{border-bottom:0}.qc-timeline time{font:800 .9rem ui-monospace,monospace}.qc-timeline span{font-size:.76rem;color:#697a73}.qc-timeline b{font-size:.73rem;color:#318b3d}.qc-timeline .no{background:#faf6f3}.qc-timeline .no b{color:#9a5848}.qc-bad{border:1px solid #e2c5bb;background:#fff9f6;border-radius:12px;overflow:hidden;margin:20px 0}.qc-bad>header{padding:10px 15px;background:#f8ece7;color:#8b4a3b;font-size:.68rem;font-weight:850;letter-spacing:.08em}.qc-bad .qc-config{margin:14px}.qc-bad>p{margin:14px 16px 17px}.qc-examples{display:grid;grid-template-columns:1fr 1fr;gap:11px}.qc-examples>div{background:#fff;border:1px solid #d9e3e7;border-radius:11px;padding:15px}.qc-examples span{font-size:.8rem;font-weight:750}.qc-examples p{display:flex;justify-content:space-between;align-items:center;gap:8px;background:#f6f9fa;color:#183044;border:1px solid #e1e8eb;border-radius:8px;padding:9px 10px;margin:10px 0 6px}.qc-examples small{font-size:.7rem;line-height:1.45;color:#718079}.qc-memo{display:grid;grid-template-columns:repeat(3,1fr);gap:11px}.qc-memo b{display:block;margin:6px 0}.qc-memo p{font-size:.78rem;margin:0}.qc-check{margin:20px 0}.qc-check>b{display:block;margin-bottom:8px}.qc-check ol{margin:0;padding-left:20px;line-height:1.75}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-nav,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-positions>div,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-examples>div,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-memo>div,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-triad>div,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-config>div,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-flow>div,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-check{background:#10242d;border-color:#31505a;color:#edf5f3}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-filter,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-code{background:#102028;border-color:#31505a;color:#edf5f3}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-filter:before,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-code header{background:#132b35;border-bottom-color:#31505a;color:#dce8e5}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-filter code{color:#78db84}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-code pre{background:#102028;color:#dce8e5}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-special,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-key{background:#0f302b;border-color:#287357;color:#e8f5f0}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-special>b,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-key>b{color:#6ee09a}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-decode>div>p,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-examples small,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-timeline span{color:#a9bbb6}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-examples p{background:#132b35;border-color:#31505a;color:#edf5f3}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-code button,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-examples button{background:#102028;border-color:#405862;color:#dce8e5}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-timeline{border-color:#31505a}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-timeline>div{border-bottom-color:#31505a}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-timeline .no{background:#34272a}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-bad{background:#2d2224;border-color:#68434a}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-bad>header{background:#402b30;color:#e4aebb}
+@media(max-width:760px){.qc-cols,.qc-examples,.qc-memo,.qc-config,.qc-triad{grid-template-columns:1fr}.qc-triad>strong{height:18px}.qc-positions.eight,.qc-positions.four{grid-template-columns:1fr 1fr}.qc-flow{grid-template-columns:1fr}.qc-flow>i{height:16px;transform:rotate(90deg)}.qc-timeline>div{grid-template-columns:70px 1fr}.qc-timeline b{grid-column:2}.qc-window main{padding:14px}}@media(max-width:600px){.qc-hero{min-height:190px;padding:30px 0 27px;background-position:center}.qc-hero h1{font-size:1.9rem}}
+
+
+/* V5.1 — Start date/time unique + hiérarchie visuelle du mécanisme */
+.qc-mechanism{margin:24px 0}
+.qc-start-card{width:min(360px,100%);padding:16px 18px;border:1px solid #9bc8d8;border-radius:12px;background:#f4fafc;color:#183044}
+.qc-start-card small{display:block;font-size:.62rem;font-weight:850;letter-spacing:.09em;color:#467f96}
+.qc-start-card b{display:block;margin-top:6px;font:850 .96rem ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.qc-flow-below{grid-template-columns:1fr auto 1fr auto 1fr auto 1fr;margin:12px 0 0 30px;position:relative}
+.qc-flow-below:before{content:'';position:absolute;left:24px;top:-12px;width:1px;height:12px;background:#9bc8d8}
+.qc-flow-below .filter{background:#fffaf0;border-color:#dfc68e}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-start-card{background:#12313e;border-color:#35677a;color:#edf5f3}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-start-card small{color:#8bc4da}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-flow-below:before{background:#35677a}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-flow-below .filter{background:#3a321e;border-color:#705d2e}
+@media(max-width:760px){
+  .qc-flow-below{grid-template-columns:1fr;margin:12px 0 0 18px}
+  .qc-flow-below:before{left:18px}
+  .qc-flow-below>i{height:16px;transform:rotate(90deg)}
+}
+
+
+/* V5.2 — tutoriel orienté cas pratiques */
+.qc-three{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0 22px}
+.qc-three>div,.qc-note,.qc-business,.qc-recipes>div,.qc-pitfalls>div,.qc-cheat{border:1px solid #d9e3e7;border-radius:12px;background:#fff;padding:16px}
+.qc-three small{display:block;color:#4a9d53;font-size:.64rem;font-weight:850;letter-spacing:.09em}.qc-three b{display:block;margin:5px 0}.qc-three p{margin:0;font-size:.76rem}
+.qc-start-card p{margin:5px 0 0;font-size:.75rem;line-height:1.45}
+.qc-main h3{font-size:1rem;margin:24px 0 8px}
+.qc-business{display:flex;justify-content:space-between;gap:15px;align-items:center;margin:18px 0;background:#f4fbf6;border-color:#b9dec1;font-size:.8rem}.qc-business b{color:#287d36}
+.qc-week{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin:15px 0}.qc-week>div{display:flex;flex-direction:column;align-items:center;gap:5px;padding:10px 4px;border:1px solid #b9dec1;border-radius:9px;background:#f4fbf6;font-size:.72rem}.qc-week b{color:#318b3d}.qc-week .off{background:#f7f8f8;border-color:#dde3e1;color:#85908b}.qc-week .off b{color:#9a5848}
+.qc-note{display:grid;grid-template-columns:220px 1fr;gap:15px;align-items:start;margin:18px 0;background:#f7fafb}.qc-note b{font-size:.8rem}.qc-note span{font-size:.77rem;line-height:1.55}
+.qc-recipes{display:grid;grid-template-columns:1fr 1fr;gap:11px}.qc-recipes>div h3{margin:0 0 7px}.qc-recipes>div p{font-size:.76rem;margin:0 0 10px}.qc-recipes>div code{display:block;margin-top:6px;padding:8px 10px;border-radius:7px;background:#f6f9fa;color:#183044;font-size:.72rem}
+.qc-method{display:grid;gap:8px;margin:20px 0}.qc-method>div{display:grid;grid-template-columns:34px 1fr;gap:12px;align-items:center;padding:12px 14px;border:1px solid #d9e3e7;border-radius:10px;background:#fff}.qc-method>div>b{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:#eef7f0;color:#318b3d}.qc-method span{font-size:.79rem;line-height:1.5}
+.qc-pitfalls{display:grid;grid-template-columns:1fr 1fr;gap:11px}.qc-pitfalls>div{border-left:4px solid #e0a448}.qc-pitfalls b{font-size:.82rem}.qc-pitfalls p{font-size:.76rem;margin:7px 0 0;line-height:1.5}
+.qc-cheat{display:flex;flex-direction:column;gap:8px;margin-top:18px}.qc-cheat>b{color:#287d36}.qc-cheat code{overflow:auto;padding:10px;border-radius:8px;background:#f6f9fa;color:#183044;font-size:.72rem}.qc-cheat span{font-size:.74rem;color:#687872}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-three>div,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-note,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-recipes>div,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-pitfalls>div,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-cheat,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-method>div{background:#10242d;border-color:#31505a;color:#edf5f3}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-business{background:#0f302b;border-color:#287357;color:#e8f5f0}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-business b{color:#6ee09a}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-week>div{background:#15382b;border-color:#2f7052;color:#e8f5f0}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-week .off{background:#202c30;border-color:#3a4a50;color:#93a39e}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-recipes>div code,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-cheat code{background:#132b35;color:#dce8e5}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-method>div>b{background:#15382b;color:#78db84}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-cheat span{color:#a9bbb6}
+@media(max-width:760px){.qc-three,.qc-recipes,.qc-pitfalls{grid-template-columns:1fr}.qc-business{align-items:flex-start;flex-direction:column}.qc-note{grid-template-columns:1fr}.qc-week{grid-template-columns:repeat(4,1fr)}}
+
+
+/* ============================================================
+   V6.0 — cas pratiques visuels, 100 % HTML/CSS
+   ============================================================ */
+.qc-scenario{margin:22px 0 30px;border:1px solid #d8e4e1;border-radius:16px;background:linear-gradient(180deg,#fff,#fbfdfc);overflow:hidden}
+.qc-scenario>header{display:flex;gap:14px;align-items:center;padding:16px 18px;border-bottom:1px solid #e1e9e6;background:#f7faf9}
+.qc-scenario>header>span{display:grid;place-items:center;min-width:58px;height:30px;border-radius:999px;background:#e8f5eb;color:#267b36;font-size:.65rem;font-weight:900;letter-spacing:.08em}
+.qc-scenario>header b{display:block;font-size:1rem;color:#183044}.qc-scenario>header small{display:block;margin-top:3px;color:#71807a;font-size:.73rem}
+.qc-needline{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;padding:12px 16px;background:#fcfefd;color:#4c625a;font-size:.73rem;font-weight:750}
+.qc-needline i{width:4px;height:4px;border-radius:50%;background:#6aae78}
+.qc-scenario .qc-config{margin:0 16px 14px}
+.qc-track{display:flex;align-items:center;padding:4px 18px 18px;overflow-x:auto}.qc-track>div{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;width:64px;height:56px;border-radius:10px;border:1px solid #b9dec1;background:#f1faf3}.qc-track>div b{font-size:.76rem}.qc-track>div span{font-size:.7rem;color:#2e8b42}.qc-track>div.off{background:#f8f7f5;border-color:#ded9d2;color:#8a8379}.qc-track>div.off span{color:#a75c4b}.qc-track>i{flex:1 0 18px;height:2px;background:#c8d8d1;min-width:18px}
+.qc-track.short{max-width:650px}
+.qc-explain{margin:0;padding:0 18px 18px;font-size:.77rem;line-height:1.6;color:#52655e}
+.qc-retention{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:16px;margin:16px;padding:16px;border-radius:13px;background:#f5faf8;border:1px dashed #b7d5c9}.qc-retention>div{text-align:center}.qc-retention small{display:block;font-size:.61rem;font-weight:900;letter-spacing:.09em;color:#668278}.qc-retention b{display:block;margin:4px 0;color:#1e6740}.qc-retention p{margin:0;font-size:.7rem;color:#66756f}.qc-retention>strong{font-size:1.5rem;color:#73a282}
+.qc-midnight-track{position:relative;display:flex;align-items:center;gap:0;margin:6px 18px 18px;padding:28px 8px 22px;border-radius:14px;background:linear-gradient(90deg,#152735 0 26%,#0f1d28 26% 100%);overflow:hidden}.qc-midnight-track:before{content:'';position:absolute;left:26%;top:0;bottom:0;width:1px;background:rgba(255,255,255,.2)}.qc-time{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:70px;height:62px;border-radius:50%;background:#f4fbf6;border:2px solid #74c287;color:#183044}.qc-time b{font-size:.8rem}.qc-time span{display:grid;place-items:center;width:18px;height:18px;margin-top:3px;border-radius:50%;background:#2e8b42;color:#fff;font-size:.6rem;font-weight:900}.qc-midnight-track>i{flex:1;height:2px;background:linear-gradient(90deg,#74c287,#b9dec1);min-width:22px}.qc-daylabel{position:absolute;left:12px;top:7px;color:#d7e4e0;font-size:.61rem;font-weight:850;letter-spacing:.08em}.qc-daylabel.next{left:calc(26% + 12px)}
+.qc-midnight .qc-warn{margin-left:18px;margin-right:18px}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-scenario{background:linear-gradient(180deg,#10242d,#0d1e26);border-color:#31505a}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-scenario>header{background:#132a34;border-color:#31505a}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-scenario>header b{color:#edf5f3}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-scenario>header small,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-explain{color:#a8bbb5}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-needline{background:#0f2129;color:#bdd0ca}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-track>div{background:#15382b;border-color:#337552;color:#edf5f3}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-track>div.off{background:#252c2d;border-color:#4b5150;color:#9fa8a5}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-retention{background:#102c29;border-color:#35665a}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-retention b{color:#7cdda0}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-theme) .qc-retention p{color:#a8bbb5}
+@media(max-width:760px){
+  .qc-scenario>header{align-items:flex-start}.qc-scenario .qc-config{margin-left:10px;margin-right:10px}
+  .qc-retention{grid-template-columns:1fr}.qc-retention>strong{transform:rotate(90deg)}
+  .qc-midnight-track{margin-left:10px;margin-right:10px;padding-left:6px;padding-right:6px}.qc-time{min-width:58px;width:58px;height:58px}.qc-midnight-track>i{min-width:12px}
+  .qc-midnight .qc-warn{margin-left:10px;margin-right:10px}
+}
+
+/* ============================================================
+   V7.0 — reconstitution fidèle de la fenêtre QMC en HTML/CSS
+   ============================================================ */
+.qc-qmc{margin:18px 0 22px;border:1px solid #858585;border-radius:10px 10px 0 0;background:#f8f8f8;color:#333;overflow:hidden;font-family:Arial,Helvetica,sans-serif;box-shadow:0 8px 22px rgba(24,48,68,.08)}
+.qc-qmc-title{padding:11px 15px;background:#5d5d5d;color:#fff;font-size:.76rem;font-weight:700}
+.qc-qmc-body{display:grid;grid-template-columns:170px minmax(0,1fr);column-gap:16px;row-gap:9px;padding:17px 16px 13px;font-size:.68rem}
+.qc-qmc label{display:contents}.qc-qmc label>.qc-input{grid-column:2}.qc-qmc label:not(.qc-check){color:#3e4b53}
+.qc-input{position:relative;display:flex;align-items:center;min-height:23px;padding:2px 7px;border:1px solid #969696;background:#fff;color:#333;line-height:1.2}.qc-input i{margin-left:auto;font-style:normal}.qc-input.wide{width:min(100%,520px)}.qc-input.medium{width:min(100%,240px)}.qc-input.mono{font-family:Consolas,'Courier New',monospace;letter-spacing:.02em}.qc-input.mark{background:#fff99b}.qc-input.muted{background:#f3f3f3;color:#6f6f6f}
+.qc-check{display:grid!important;grid-template-columns:170px auto;grid-column:1/-1;align-items:center;color:#3e4b53}.qc-check>span{display:grid;place-items:center;width:14px;height:14px;background:#1683e7;color:#fff;font-size:.62rem;border-radius:2px}
+.qc-qmc-sep{grid-column:1/-1;height:1px;background:#c9c9c9;margin:8px 0}
+.qc-qmc-row{grid-column:1/-1;display:grid;grid-template-columns:170px 62px auto minmax(150px,240px) auto;gap:7px;align-items:center}.qc-qmc-row>b{font-weight:400}.qc-qmc-row small{font-size:.62rem;color:#59646a}.qc-qmc-row .time,.qc-qmc-row .date{width:auto}.qc-infinite{margin-left:0;color:#444}
+.qc-qmc-schedule{grid-column:1/-1;display:grid;grid-template-columns:170px minmax(0,330px);gap:16px}.qc-qmc-schedule>div:first-child{display:flex;flex-direction:column;align-items:flex-start}.qc-qmc-schedule>div:first-child>b{font-weight:400;margin-bottom:5px}.qc-qmc-schedule>div:first-child>span{line-height:1.35}.qc-qmc-schedule .selected{color:#056fd4}.qc-qmc-schedule>div:last-child{display:grid;gap:10px}.qc-qmc-schedule>div:last-child label{display:flex;flex-direction:column;gap:3px}.qc-qmc-schedule .qc-input{width:100%}
+.qc-qmc-actions{display:flex;justify-content:flex-end;gap:10px;padding:8px 18px;background:#5d5d5d}.qc-qmc-actions button{min-width:64px;padding:5px 12px;border:1px solid #aaa;border-radius:6px;background:linear-gradient(#fff,#e4e4e4);color:#444;font-size:.68rem}.qc-qmc.compact{max-width:760px;margin-left:auto;margin-right:auto}.qc-qmc.compact .qc-qmc-body{padding-top:13px;padding-bottom:10px}
+.qc-needline .go{padding:4px 8px;border-radius:999px;background:#183044;color:#fff}.qc-track .go-node{background:#183044;border-color:#183044;color:#fff}.qc-track .go-node span{color:#fff;font-weight:900}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-qmc{border-color:#777;background:#efefef;color:#333}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-qmc-title,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-qmc-actions{background:#555}
+@media(max-width:760px){.qc-qmc-body{grid-template-columns:1fr;gap:6px}.qc-qmc label>.qc-input{grid-column:1}.qc-check{grid-template-columns:1fr auto}.qc-qmc-sep{grid-column:1}.qc-qmc-row{grid-template-columns:1fr 68px auto;gap:5px}.qc-qmc-row .date{grid-column:2}.qc-qmc-row small:last-child{grid-column:3}.qc-qmc-schedule{grid-column:1;grid-template-columns:110px minmax(0,1fr);gap:10px}.qc-qmc-actions{padding-right:10px}.qc-input.wide,.qc-input.medium{width:100%}}
+
+/* V8 — fenêtre QMC aux couleurs des thèmes SOSBI */
+.qc-qmc{border:1px solid var(--border-color,#dce4df);border-radius:14px;background:var(--surface,#fff);color:inherit;box-shadow:none;font-family:inherit}
+.qc-qmc-title{padding:12px 16px;background:#f6faf7;color:#183044;border-bottom:1px solid var(--border-color,#dce4df);font-size:.76rem;font-weight:800}
+.qc-qmc-body{background:transparent}
+.qc-qmc label:not(.qc-check),.qc-qmc-row>b,.qc-infinite{color:inherit}
+.qc-input{border:1px solid #cbd9d3;border-radius:6px;background:#fff;color:#183044;min-height:28px;padding:4px 8px}
+.qc-input.muted{background:#f5f8f6;color:#718079}.qc-qmc-sep{background:var(--border-color,#dce4df)}.qc-qmc-row small{color:#718079}.qc-qmc-schedule .selected{color:#318b3d;font-weight:750}
+.qc-qmc .qc-check{display:grid!important;grid-template-columns:170px auto;grid-column:1/-1;align-items:center;margin:0;padding:0;border:0;border-radius:0;background:transparent;color:inherit}
+.qc-qmc .qc-check>span{display:grid;place-items:center;width:15px;height:15px;border-radius:3px;background:#3aa54a;color:#fff;font-size:.62rem}
+.qc-qmc-actions{background:#f6faf7;border-top:1px solid var(--border-color,#dce4df);padding:10px 16px}
+.qc-qmc-actions button{min-width:68px;border:1px solid #cbd9d3;border-radius:7px;background:#fff;color:#183044;font:inherit;font-size:.7rem}
+.qc-qmc-actions button:last-child{border-color:#4cad59;background:#4cad59;color:#fff;font-weight:750}
+.qc-scenario{background:var(--surface,#fff);border-color:var(--border-color,#dce4df)}.qc-scenario>header{background:#f7fbf8;border-color:var(--border-color,#dce4df)}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-qmc{background:#10242d;border-color:#31505a;color:#edf5f3}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-qmc-title,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-qmc-actions{background:#132b35;color:#edf5f3;border-color:#31505a}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-input{background:#0d1e26;border-color:#3b5963;color:#edf5f3}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-input.muted{background:#13272f;color:#91a59f}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-qmc-sep{background:#31505a}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-qmc-row small{color:#9fb2ac}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-qmc-schedule .selected{color:#78db84}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-qmc .qc-check{background:transparent;border:0;color:#edf5f3}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-qmc-actions button{background:#10242d;border-color:#46636c;color:#edf5f3}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-qmc-actions button:last-child{background:#4cad59;border-color:#4cad59;color:#fff}
+@media(max-width:760px){.qc-qmc .qc-check{grid-template-columns:1fr auto}}
+
+
+/* ============================================================
+   V9 — Mise en relief des valeurs saisies
+   Accent chaud en clair, accent lumineux en sombre.
+   Aucun asset image ajouté.
+   ============================================================ */
+
+/* Champs contenant les valeurs de paramétrage */
+.qc-qmc .qc-input{
+  background:#fff8e8;
+  border-color:#e7c76e;
+  color:#173047;
+  box-shadow:0 0 0 1px rgba(190,145,28,.06), inset 0 1px 0 rgba(255,255,255,.7);
+  font-weight:650;
+}
+
+/* Les paramètres techniques sont le point focal de la fenêtre */
+.qc-qmc .qc-input.mono{
+  background:#fff3cf;
+  border-color:#dcb84f;
+  color:#173047;
+  box-shadow:0 2px 8px rgba(117,88,13,.08);
+  font-weight:800;
+  letter-spacing:.015em;
+}
+
+/* Champs désactivés : volontairement plus discrets */
+.qc-qmc .qc-input.muted{
+  background:#f3f6f4;
+  border-color:#d6dfda;
+  color:#7c8984;
+  box-shadow:none;
+  font-weight:500;
+}
+
+/* La sélection Custom participe à la lecture sans voler la vedette */
+.qc-qmc-schedule .selected{
+  color:#237a35;
+  font-weight:800;
+}
+
+/* Thème sombre : bleu pétrole SOSBI + accent doré doux */
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-qmc .qc-input{
+  background:#173640;
+  border-color:#5d7c83;
+  color:#f4fbf8;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.035);
+  font-weight:650;
+}
+
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-qmc .qc-input.mono{
+  background:#253c3e;
+  border-color:#c6a64b;
+  color:#ffe39a;
+  box-shadow:0 0 0 1px rgba(220,184,79,.08), 0 3px 12px rgba(0,0,0,.13);
+  font-weight:800;
+}
+
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-qmc .qc-input.muted{
+  background:#13272f;
+  border-color:#304951;
+  color:#829a96;
+  box-shadow:none;
+  font-weight:500;
+}
+
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-qmc-schedule .selected{
+  color:#8ce49a;
+}
+
+/* Accent très léger au survol pour renforcer l'effet "champ" */
+.qc-qmc .qc-input:not(.muted){
+  transition:border-color .16s ease, box-shadow .16s ease, transform .16s ease;
+}
+.qc-qmc .qc-input:not(.muted):hover{
+  border-color:#c9a534;
+  box-shadow:0 3px 12px rgba(117,88,13,.10);
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-qmc .qc-input:not(.muted):hover{
+  border-color:#d7ba62;
+  box-shadow:0 3px 14px rgba(0,0,0,.18);
+}
+
+
+/* v9.2 — barre de contexte QMC / Reload task */
+.qc-qmc-title{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  min-height:42px;
+  padding:7px 13px;
+  background:#25343a;
+  color:#fff;
+  border-bottom:0;
+  font-size:.72rem;
+  font-weight:500;
+}
+.qc-qmc-badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:24px;
+  padding:4px 10px;
+  border-radius:3px;
+  background:#63d77b;
+  color:#102c1a;
+  font-size:.67rem;
+  font-weight:850;
+  letter-spacing:.04em;
+  line-height:1;
+}
+.qc-qmc-context{
+  color:#fff;
+  font-weight:600;
+  letter-spacing:.01em;
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-qmc-title{
+  background:#1d2d34;
+  color:#fff;
+  border-bottom:0;
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-qmc-context{color:#fff}
+
+
+/* v9.3 — respiration du cas pratique 45 minutes après suppression du rappel métier */
+#cas-45 > p:first-of-type,
+#cas45 > p:first-of-type,
+section:has(> h2:first-of-type) > p:first-of-type{
+  margin-bottom:1.65rem;
+}
+
+
+/* v9.4 — respiration des cas pratiques après suppression des encarts redondants */
+.qc-main section > p + .qc-qmc,
+.qc-main section > p + .qc-window{
+  margin-top:1.8rem;
+}
+
+
+/* v9.5 — fenêtres QMC allégées : plus de cadre extérieur.
+   La fenêtre se lit directement dans la page ; les petits blocs pédagogiques restent dessous. */
+.qc-qmc{
+  border:0 !important;
+  outline:0 !important;
+  box-shadow:none !important;
+  border-radius:0 !important;
+  background:transparent !important;
+  overflow:visible !important;
+}
+.qc-qmc-title{
+  border-radius:5px 5px 0 0;
+}
+.qc-qmc-body{
+  border:0 !important;
+  box-shadow:none !important;
+  border-radius:0 !important;
+}
+.qc-qmc + .qc-timeline,
+.qc-qmc + .qc-result,
+.qc-qmc + .qc-mini-grid,
+.qc-qmc + .qc-chips{
+  margin-top:1.15rem;
+}
+
+
+/* v9.6 — exemples épurés : plus de carte CAS A/B/C.
+   Un titre simple, puis directement la fenêtre QMC et ses mini-illustrations. */
+.qc-case,
+.qc-case-card,
+.qc-scenario{
+  border:0 !important;
+  outline:0 !important;
+  box-shadow:none !important;
+  background:transparent !important;
+  border-radius:0 !important;
+  padding:0 !important;
+}
+.qc-case-head,
+.qc-case-tag{
+  display:none !important;
+}
+.qc-qmc-example-title{
+  margin:0 0 1rem;
+  font-size:1.12rem;
+  line-height:1.35;
+  font-weight:750;
+}
+.qc-case .qc-qmc,
+.qc-case-card .qc-qmc,
+.qc-scenario .qc-qmc{
+  margin-top:0 !important;
+}
+
+
+/* v9.7 — présentation minimale des exemples :
+   titre simple, puis fenêtre QMC. Aucun cadre ou bandeau intermédiaire. */
+.qc-case,
+.qc-case-card,
+.qc-scenario,
+.qc-example,
+.qc-advanced-case{
+  border:0 !important;
+  outline:0 !important;
+  box-shadow:none !important;
+  background:none !important;
+  border-radius:0 !important;
+  padding:0 !important;
+}
+.qc-case-head,
+.qc-case-tag,
+.qc-case-kicker,
+.qc-scenario-head,
+.qc-scenario-tag{
+  display:none !important;
+}
+.qc-qmc-example-title,
+.qc-case > h3,
+.qc-case-card > h3,
+.qc-scenario > h3,
+.qc-example > h3,
+.qc-advanced-case > h3{
+  display:block !important;
+  margin:0 0 1.15rem !important;
+  padding:0 !important;
+  border:0 !important;
+  background:none !important;
+  box-shadow:none !important;
+  font-size:1.18rem !important;
+  line-height:1.35 !important;
+  font-weight:750 !important;
+}
+.qc-qmc{
+  margin-left:0 !important;
+  margin-right:0 !important;
+}
+
+
+/* v9.8 — exemples réellement épurés.
+   Le bandeau CAS disparaît complètement : seuls les titres restent.
+   La fenêtre QMC retrouve une bordure fine propre. */
+.qc-case-head,
+.qc-case-tag,
+.qc-case-kicker,
+.qc-scenario-head,
+.qc-scenario-tag{
+  display:none !important;
+}
+
+/* Si les titres sont inclus dans le bandeau historique, on réaffiche seulement le texte utile. */
+.qc-case,
+.qc-case-card,
+.qc-scenario,
+.qc-example,
+.qc-advanced-case{
+  border:0 !important;
+  outline:0 !important;
+  box-shadow:none !important;
+  background:transparent !important;
+  border-radius:0 !important;
+  padding:0 !important;
+}
+
+/* Fenêtre QMC : vraie fenêtre visuelle avec bordure fine. */
+.qc-qmc{
+  border:1px solid rgba(74,128,139,.72) !important;
+  outline:0 !important;
+  box-shadow:none !important;
+  border-radius:7px !important;
+  overflow:hidden !important;
+  background:var(--qc-qmc-bg, transparent) !important;
+}
+
+/* Supprime tout fond/cadre d'un éventuel titre de scénario autonome. */
+.qc-qmc-example-title,
+.qc-case-title,
+.qc-scenario-title{
+  display:block !important;
+  margin:2rem 0 1rem !important;
+  padding:0 !important;
+  border:0 !important;
+  outline:0 !important;
+  box-shadow:none !important;
+  background:transparent !important;
+  border-radius:0 !important;
+  font-size:1.25rem !important;
+  line-height:1.35 !important;
+  font-weight:800 !important;
+}
+
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,html.dark-theme,body.dark-theme) .qc-qmc{
+  border-color:rgba(91,145,156,.72) !important;
+}
+
+
+/* v9.9 — suppression définitive des bandeaux CAS.
+   Le contexte métier est intégré discrètement dans la barre de la fenêtre QMC. */
+.qc-case-head,.qc-scenario-head,.qc-case-tag,.qc-case-kicker,
+.qc-case-title,.qc-scenario-title,.qc-qmc-example-title{
+  display:none !important;
+}
+.qc-qmc-title{
+  flex-wrap:wrap;
+}
+.qc-qmc-subtitle{
+  margin-left:auto;
+  color:rgba(255,255,255,.76);
+  font-size:.68rem;
+  font-weight:500;
+  letter-spacing:0;
+}
+@media (max-width:720px){
+  .qc-qmc-subtitle{
+    width:100%;
+    margin-left:0;
+    padding-left:0;
+  }
+}
+
+
+/* v10.1 — correction sûre : on ne touche pas à la structure HTML.
+   Tous les bandeaux de scénarios CAS A/B/C sont masqués intégralement. */
+.qc-case-head,
+.qc-scenario-head,
+.qc-case-header,
+.qc-scenario-header,
+.qc-case > header,
+.qc-case-card > header,
+.qc-scenario > header{
+  display:none !important;
+}
+
+/* Sécurité pour les badges seuls. */
+.qc-case-tag,
+.qc-case-kicker,
+.qc-scenario-tag{
+  display:none !important;
+}
+
+/* Le conteneur du scénario n'est plus une carte : la QMC reste seule visuellement. */
+.qc-case,
+.qc-case-card,
+.qc-scenario,
+.qc-example,
+.qc-advanced-case{
+  border:0 !important;
+  outline:0 !important;
+  box-shadow:none !important;
+  background:transparent !important;
+  border-radius:0 !important;
+  padding:0 !important;
+}
+
+/* La fenêtre QMC conserve bien sa propre bordure. */
+.qc-qmc{
+  border:1px solid rgba(74,128,139,.72) !important;
+  border-radius:7px !important;
+  overflow:hidden !important;
+}
+
+
+/* v10.2 — contexte horaire à droite de la barre QMC */
+.qc-qmc-title{
+  display:flex !important;
+  align-items:center;
+  gap:10px;
+}
+.qc-qmc-subtitle{
+  margin-left:auto;
+  color:rgba(255,255,255,.78);
+  font-size:.69rem;
+  font-weight:550;
+  white-space:nowrap;
+}
+
+/* Les infos pédagogiques deviennent une bande compacte collée sous la QMC. */
+.qc-qmc + .qc-timeline,
+.qc-qmc + .qc-result,
+.qc-qmc + .qc-mini-grid,
+.qc-qmc + .qc-chips,
+.qc-case .qc-timeline,
+.qc-case-card .qc-timeline,
+.qc-scenario .qc-timeline{
+  margin-top:.55rem !important;
+}
+.qc-timeline{
+  gap:6px !important;
+  padding:0 !important;
+}
+.qc-timeline > *{
+  min-height:42px !important;
+  padding:6px 9px !important;
+  border-radius:6px !important;
+  font-size:.72rem !important;
+}
+.qc-mini-grid,
+.qc-chips{
+  display:flex !important;
+  flex-wrap:wrap;
+  gap:6px !important;
+}
+.qc-mini-grid > *,
+.qc-chips > *{
+  padding:6px 9px !important;
+  min-height:auto !important;
+  border-radius:6px !important;
+  font-size:.72rem !important;
+}
+@media (max-width:720px){
+  .qc-qmc-title{flex-wrap:wrap}
+  .qc-qmc-subtitle{
+    width:100%;
+    margin-left:0;
+    white-space:normal;
+  }
+}
+
+
+/* v10.4 — timeline compacte, alignée sur la largeur utile de la fenêtre QMC */
+.qc-timeline{
+  width:min(100%, 760px) !important;
+  margin:.55rem auto 0 !important;
+  gap:0 !important;
+  padding:0 !important;
+}
+.qc-timeline > *{
+  min-width:48px !important;
+  min-height:38px !important;
+  padding:5px 7px !important;
+  font-size:.68rem !important;
+  border-radius:6px !important;
+}
+.qc-timeline::before{
+  left:24px !important;
+  right:24px !important;
+}
+@media (max-width:720px){
+  .qc-timeline{
+    width:100% !important;
+    overflow-x:auto;
+    justify-content:flex-start !important;
+  }
+  .qc-timeline > *{
+    flex:0 0 48px !important;
+  }
+}
+
+
+/* v10.4.1 — correction chirurgicale de la frise des candidats uniquement */
+.qc-timeline{
+  position:relative !important;
+  display:grid !important;
+  grid-template-columns:repeat(5, minmax(0, 1fr)) !important;
+  align-items:stretch !important;
+  width:100% !important;
+  max-width:none !important;
+  margin:.8rem 0 .45rem !important;
+  padding:0 !important;
+  gap:8px !important;
+  overflow:visible !important;
+}
+
+.qc-timeline::before{
+  display:none !important;
+  content:none !important;
+}
+
+.qc-timeline > *{
+  position:relative !important;
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  justify-content:center !important;
+  box-sizing:border-box !important;
+  width:auto !important;
+  min-width:0 !important;
+  max-width:none !important;
+  min-height:58px !important;
+  margin:0 !important;
+  padding:7px 6px !important;
+  gap:2px !important;
+  overflow:hidden !important;
+  text-align:center !important;
+  line-height:1.25 !important;
+}
+
+.qc-timeline > * > *{
+  position:static !important;
+  float:none !important;
+  width:auto !important;
+  max-width:100% !important;
+  margin:0 !important;
+  transform:none !important;
+  white-space:normal !important;
+  text-align:center !important;
+}
+
+@media (max-width:720px){
+  .qc-timeline{
+    grid-template-columns:repeat(5, minmax(82px, 1fr)) !important;
+    overflow-x:auto !important;
+  }
+}
+
+
+/* v10.4.2 — lisibilité de la frise : séparateurs et heures nettes */
+.qc-timeline > *{
+  border-radius:0 !important;
+  border-top:0 !important;
+  border-bottom:0 !important;
+  border-left:0 !important;
+  border-right:1px solid rgba(92,120,128,.24) !important;
+  background:transparent !important;
+}
+
+.qc-timeline > *:first-child{
+  border-left:1px solid rgba(92,120,128,.24) !important;
+}
+
+.qc-timeline > *:last-child{
+  border-radius:0 7px 7px 0 !important;
+}
+
+.qc-timeline > *:first-child{
+  border-radius:7px 0 0 7px !important;
+}
+
+/* L'heure principale doit être immédiatement lisible. */
+.qc-timeline > * > :first-child{
+  display:block !important;
+  font-size:.92rem !important;
+  line-height:1.15 !important;
+  font-weight:800 !important;
+  letter-spacing:0 !important;
+  white-space:nowrap !important;
+}
+
+/* Les détails restent secondaires. */
+.qc-timeline > * > :not(:first-child){
+  font-size:.72rem !important;
+  line-height:1.3 !important;
+}
+
+/* Le candidat rejeté conserve son fond discret. */
+.qc-timeline > *.is-off,
+.qc-timeline > *.off,
+.qc-timeline > *.rejected{
+  background:rgba(170,105,72,.07) !important;
+}
+
+@media (prefers-color-scheme:dark){
+  .qc-timeline > *{
+    border-right-color:rgba(185,210,210,.20) !important;
+  }
+  .qc-timeline > *:first-child{
+    border-left-color:rgba(185,210,210,.20) !important;
+  }
+}
+
+
+/* v10.4.5 — UN SEUL STYLE DE FRISE pour tous les exemples.
+   On neutralise explicitement l'ancien rendu "petits carrés reliés". */
+.qc-timeline{
+  position:relative !important;
+  display:grid !important;
+  grid-template-columns:repeat(5,minmax(0,1fr)) !important;
+  gap:0 !important;
+  width:100% !important;
+  max-width:none !important;
+  margin:.8rem 0 .45rem !important;
+  padding:0 !important;
+  border:1px solid rgba(92,120,128,.22) !important;
+  border-radius:9px !important;
+  overflow:hidden !important;
+  background:transparent !important;
+}
+
+.qc-timeline::before{
+  display:none !important;
+  content:none !important;
+}
+
+.qc-timeline > *{
+  position:relative !important;
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  justify-content:center !important;
+  box-sizing:border-box !important;
+  width:auto !important;
+  min-width:0 !important;
+  max-width:none !important;
+  min-height:64px !important;
+  margin:0 !important;
+  padding:7px 10px !important;
+  gap:3px !important;
+  border:0 !important;
+  border-right:1px solid rgba(92,120,128,.20) !important;
+  border-radius:0 !important;
+  background:transparent !important;
+  overflow:visible !important;
+  text-align:center !important;
+  line-height:1.25 !important;
+}
+
+.qc-timeline > *:last-child{
+  border-right:0 !important;
+  background:rgba(190,76,55,.075) !important;
+}
+
+.qc-timeline > * > *{
+  position:static !important;
+  float:none !important;
+  width:auto !important;
+  max-width:100% !important;
+  margin:0 !important;
+  transform:none !important;
+  text-align:center !important;
+}
+
+.qc-timeline > * > :first-child{
+  font-size:.94rem !important;
+  line-height:1.1 !important;
+  font-weight:800 !important;
+  white-space:nowrap !important;
+}
+
+.qc-timeline > * > :not(:first-child){
+  font-size:.72rem !important;
+  line-height:1.28 !important;
+}
+
+/* Flèche fine entre deux tests, intégrée au séparateur. */
+.qc-timeline > *:not(:last-child)::after{
+  content:"›" !important;
+  position:absolute !important;
+  right:-8px !important;
+  top:50% !important;
+  transform:translateY(-50%) !important;
+  z-index:5 !important;
+  display:grid !important;
+  place-items:center !important;
+  width:16px !important;
+  height:20px !important;
+  padding:0 !important;
+  border:0 !important;
+  border-radius:50% !important;
+  background:#fff !important;
+  color:rgba(63,102,110,.68) !important;
+  font-family:Arial,sans-serif !important;
+  font-size:1.05rem !important;
+  font-weight:400 !important;
+  line-height:1 !important;
+}
+
+@media (prefers-color-scheme:dark){
+  .qc-timeline{
+    border-color:rgba(184,211,211,.20) !important;
+  }
+  .qc-timeline > *{
+    border-right-color:rgba(184,211,211,.18) !important;
+  }
+  .qc-timeline > *:last-child{
+    background:rgba(190,76,55,.14) !important;
+  }
+  .qc-timeline > *:not(:last-child)::after{
+    background:#071f2a !important;
+    color:rgba(190,215,215,.72) !important;
+  }
+}
+
+@media (max-width:720px){
+  .qc-timeline{
+    grid-template-columns:repeat(5,minmax(96px,1fr)) !important;
+    overflow-x:auto !important;
+  }
+}
+
+
+/* v10.4.6 — les scénarios métier utilisent désormais exactement la même frise détaillée. */
+.qc-timeline.qc-timeline-7{
+  grid-template-columns:repeat(7,minmax(0,1fr)) !important;
+}
+
+.qc-scenario .qc-timeline{
+  margin-top:.7rem !important;
+}
+
+/* Dans les frises à 7 tests, on compacte seulement le texte secondaire. */
+.qc-timeline.qc-timeline-7 > *{
+  padding-left:5px !important;
+  padding-right:5px !important;
+}
+.qc-timeline.qc-timeline-7 > * > :not(:first-child){
+  font-size:.66rem !important;
+}
+
+/* Le rouge clair s'applique au vrai candidat non autorisé, quelle que soit la frise. */
+.qc-timeline > .no{
+  background:rgba(190,76,55,.075) !important;
+}
+@media (prefers-color-scheme:dark){
+  .qc-timeline > .no{
+    background:rgba(190,76,55,.14) !important;
+  }
+}
+@media (max-width:720px){
+  .qc-timeline.qc-timeline-7{
+    grid-template-columns:repeat(7,minmax(92px,1fr)) !important;
+  }
+}
+
+
+/* v10.4.7 — scénarios métier du bas plus larges.
+   On élargit le bloc scénario/QMC, sans modifier le composant QMC lui-même. */
+.qc-scenario{
+  width:100% !important;
+  max-width:100% !important;
+}
+
+.qc-scenario .qc-qmc{
+  width:100% !important;
+  max-width:100% !important;
+}
+
+.qc-scenario .qc-timeline,
+.qc-scenario .qc-week{
+  width:100% !important;
+  max-width:100% !important;
+}
+
+
+/* v10.4.8 — flèches du thème clair : légères, sans pastille sombre.
+   Le thème sombre conserve exactement son rendu actuel. */
+@media (prefers-color-scheme: light){
+  .qc-timeline > *:not(:last-child)::after{
+    content:"›" !important;
+    width:18px !important;
+    height:22px !important;
+    right:-9px !important;
+    display:grid !important;
+    place-items:center !important;
+    border-radius:0 !important;
+    background:#fff !important;
+    color:#6f8d94 !important;
+    font-family:Arial,sans-serif !important;
+    font-size:1.18rem !important;
+    font-weight:400 !important;
+    line-height:1 !important;
+    box-shadow:none !important;
+  }
+}
+
+
+/* v10.4.9 — le site pilote le thème via html[data-theme].
+   En clair : aucune pastille, uniquement un chevron fin.
+   En sombre : on conserve le rendu précédent. */
+html:not([data-theme="dark"]) .qc-timeline > *:not(:last-child)::after,
+html[data-theme="light"] .qc-timeline > *:not(:last-child)::after{
+  content:"›" !important;
+  position:absolute !important;
+  right:-7px !important;
+  top:50% !important;
+  transform:translateY(-50%) !important;
+  z-index:6 !important;
+  display:block !important;
+  width:14px !important;
+  height:auto !important;
+  padding:0 !important;
+  border:0 !important;
+  border-radius:0 !important;
+  background:transparent !important;
+  color:#8aa0a6 !important;
+  box-shadow:none !important;
+  clip-path:none !important;
+  font-family:Georgia,serif !important;
+  font-size:1.25rem !important;
+  font-weight:400 !important;
+  line-height:1 !important;
+  text-align:center !important;
+}
+
+/* Variante courante du site si le thème est porté par une classe. */
+html.light .qc-timeline > *:not(:last-child)::after,
+body.light .qc-timeline > *:not(:last-child)::after{
+  content:"›" !important;
+  width:14px !important;
+  height:auto !important;
+  padding:0 !important;
+  border:0 !important;
+  border-radius:0 !important;
+  background:transparent !important;
+  color:#8aa0a6 !important;
+  box-shadow:none !important;
+  clip-path:none !important;
+  font-family:Georgia,serif !important;
+  font-size:1.25rem !important;
+  font-weight:400 !important;
+  line-height:1 !important;
+}
+
+
+/* v10.4.10 — thème clair : léger fond bleu sur les candidats autorisés.
+   Le candidat refusé conserve son rouge clair. Le thème sombre ne change pas. */
+html:not([data-theme="dark"]) .qc-timeline > *:not(.no):not(:last-child),
+html[data-theme="light"] .qc-timeline > *:not(.no):not(:last-child),
+html.light .qc-timeline > *:not(.no):not(:last-child),
+body.light .qc-timeline > *:not(.no):not(:last-child){
+  background:#f2f8fa !important;
+}
+
+/* Si un candidat autorisé est le dernier élément d'une autre frise. */
+html:not([data-theme="dark"]) .qc-timeline > *:last-child:not(.no),
+html[data-theme="light"] .qc-timeline > *:last-child:not(.no),
+html.light .qc-timeline > *:last-child:not(.no),
+body.light .qc-timeline > *:last-child:not(.no){
+  background:#f2f8fa !important;
+}
+
+
+/* v10.4.11 — thème sombre : candidat refusé en cuivre/ambre désaturé.
+   Le thème clair conserve son rouge pâle. */
+@media (prefers-color-scheme:dark){
+  .qc-timeline > .no,
+  .qc-timeline > *:last-child{
+    background:rgba(166,125,72,.14) !important;
+    border-color:rgba(196,157,101,.25) !important;
+  }
+
+  .qc-timeline > .no b,
+  .qc-timeline > *:last-child b{
+    color:#c99a68 !important;
+  }
+}
+html[data-theme="dark"] .qc-timeline > .no,
+html[data-theme="dark"] .qc-timeline > *:last-child{
+  background:rgba(166,125,72,.14) !important;
+  border-color:rgba(196,157,101,.25) !important;
+}
+html[data-theme="dark"] .qc-timeline > .no b,
+html[data-theme="dark"] .qc-timeline > *:last-child b{
+  color:#c99a68 !important;
+}
+
+
+/* v10.4.12 — thème sombre : bleu ardoise pour les jours autorisés.
+   Le vert des états de validation QMC / coches reste inchangé. */
+@media (prefers-color-scheme:dark){
+  .qc-week > *:not(.off){
+    background:#163746 !important;
+    border-color:#3f7182 !important;
+    color:#d9edf3 !important;
+  }
+  .qc-week > *:not(.off) b{
+    color:#79b8ca !important;
+  }
+}
+html[data-theme="dark"] .qc-week > *:not(.off){
+  background:#163746 !important;
+  border-color:#3f7182 !important;
+  color:#d9edf3 !important;
+}
+html[data-theme="dark"] .qc-week > *:not(.off) b{
+  color:#79b8ca !important;
+}
+
+
+/* v10.4.13 — thème sombre : panneau "Repères de syntaxe" en bleu ardoise.
+   Correction ciblée sur .qc-legend (et non .qc-week). */
+@media (prefers-color-scheme:dark){
+  .qc-legend{
+    background:#102f3a !important;
+    border-color:#356273 !important;
+  }
+  .qc-legend h3{
+    color:#8fc7d6 !important;
+  }
+}
+html[data-theme="dark"] .qc-legend{
+  background:#102f3a !important;
+  border-color:#356273 !important;
+}
+html[data-theme="dark"] .qc-legend h3{
+  color:#8fc7d6 !important;
+}
+
+
+/* Correction du sélecteur réel du panneau Repères de syntaxe */
+@media (prefers-color-scheme:dark){
+  .qc-special{
+    background:#102f3a !important;
+    border-color:#356273 !important;
+  }
+  .qc-special > b{
+    color:#8fc7d6 !important;
+  }
+}
+html[data-theme="dark"] .qc-special{
+  background:#102f3a !important;
+  border-color:#356273 !important;
+}
+html[data-theme="dark"] .qc-special > b{
+  color:#8fc7d6 !important;
+}
+
+
+/* v10.4.14 — respiration verticale + repères 01/02/03... plus lisibles */
+
+/* Petits titres verts numérotés : 01 — ..., 02 — ..., 03 — CAS PRATIQUE, etc. */
+.qc-main section > em{
+  display:block !important;
+  margin-bottom:.55rem !important;
+  font-size:.86rem !important;
+  line-height:1.25 !important;
+  font-weight:800 !important;
+  letter-spacing:.075em !important;
+}
+
+/* Davantage de respiration entre les grandes sections de l'article. */
+.qc-main > section{
+  margin-top:0 !important;
+  margin-bottom:4.5rem !important;
+}
+
+/* Le titre principal d'une section ne colle plus au texte qui suit. */
+.qc-main section > h2{
+  margin-top:0 !important;
+  margin-bottom:1rem !important;
+}
+.qc-main section > h2 + p{
+  margin-top:0 !important;
+  margin-bottom:1.55rem !important;
+}
+
+/* Espacement autour des principaux blocs pédagogiques/QMC. */
+.qc-main .qc-qmc{
+  margin-top:1.35rem !important;
+}
+.qc-main .qc-special,
+.qc-main .qc-legend,
+.qc-main .qc-grid,
+.qc-main .qc-cards,
+.qc-main .qc-scenarios{
+  margin-top:1.4rem !important;
+  margin-bottom:1.6rem !important;
+}
+
+/* Les scénarios successifs respirent davantage. */
+.qc-scenario + .qc-scenario{
+  margin-top:3rem !important;
+}
+
+@media (max-width:720px){
+  .qc-main > section{
+    margin-bottom:3.4rem !important;
+  }
+  .qc-main section > em{
+    font-size:.82rem !important;
+  }
+}
+
+
+/* v10.4.15 — correction du panneau "Repères de syntaxe" en thème clair.
+   Le bleu ardoise est réservé au thème sombre. */
+html:not([data-theme="dark"]) .qc-special,
+html[data-theme="light"] .qc-special,
+html.light .qc-special,
+body.light .qc-special{
+  background:#f4f9fb !important;
+  border-color:#c9dde4 !important;
+  color:#173047 !important;
+}
+
+html:not([data-theme="dark"]) .qc-special > b,
+html[data-theme="light"] .qc-special > b,
+html.light .qc-special > b,
+body.light .qc-special > b{
+  color:#2f7f91 !important;
+}
+
+html:not([data-theme="dark"]) .qc-special span,
+html[data-theme="light"] .qc-special span,
+html.light .qc-special span,
+body.light .qc-special span{
+  color:#294552 !important;
+}
+
+html:not([data-theme="dark"]) .qc-special code,
+html[data-theme="light"] .qc-special code,
+html.light .qc-special code,
+body.light .qc-special code{
+  background:#ffffff !important;
+  color:#27854d !important;
+  border-color:#d5e4df !important;
+}
