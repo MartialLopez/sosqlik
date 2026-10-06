@@ -1,69 +1,163 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import '../../styles/article-qmc-custom-v461.css';
+import '../../styles/article-qmc-custom-v910.css';
 import RelatedContent from '../../components/RelatedContent.astro';
 ---
 <BaseLayout title="Planifier une tâche Qlik avec un trigger Custom dans la QMC — SOSBI">
-<section class="qc-hero"><div class="container"><p class="qc-eye">QLIK SENSE · QMC</p><h1>Planifier finement une tâche Qlik avec un trigger <span>Custom</span></h1><p>Fréquence, fenêtre horaire, jours autorisés : comprendre et combiner <code>Custom increment</code> et <code>Custom filter</code>.</p><small>Par Martial LOPEZ · 15 septembre 2026 · Lecture ~10 min</small></div></section>
+<section class="qc-hero"><div class="container"><p class="qc-eye">QLIK SENSE · QMC</p><h1>Planifier finement une tâche Qlik avec un trigger <span>Custom</span></h1><p>Start date/time, Increment et Filter : comprendre le moteur de planification pour prévoir les déclenchements au lieu de les subir.</p><small>Par Martial LOPEZ · Mis à jour le 6 octobre 2026 · Lecture ~18 min</small></div></section>
 <article class="container qc-main">
-<nav class="qc-nav"><b>Dans cet article</b><a href="#principe">Principe</a><a href="#increment">Increment</a><a href="#filter">Filter</a><a href="#combine">Combiner</a><a href="#exemples">Exemples</a><a href="#memo">Mémo</a></nav>
+<nav class="qc-nav"><b>Dans cet article</b><a href="#comprendre">Comprendre</a><a href="#syntaxe">Syntaxe</a><a href="#cas1">Cas 30 min</a><a href="#cas2">Cas 45 min</a><a href="#avances">Cas avancés</a><a href="#calendrier">Calendrier</a><a href="#methode">Méthode</a><a href="#pieges">Pièges</a><a href="#memo">Mémo</a></nav>
 
-<section id="principe"><em>01 — PRINCIPE</em><h2>Quand passer à une planification Custom ?</h2>
-<p>Une planification standard suffit souvent. Le mode Custom devient intéressant lorsqu'il faut répéter une tâche à intervalle court tout en limitant strictement les heures et les jours pendant lesquels elle peut s'exécuter.</p>
-<div class="qc-goal"><small>OBJECTIF DE L'EXEMPLE</small><b>Toutes les 10 minutes · de 02h00 à 04h59 · du mardi au samedi</b></div>
-<div class="qc-window"><header><i>QMC</i><span>Reload task</span><b>•••</b></header><main>
-<label>Name<div>VENTES_RAW</div></label><label>Trigger type<div>Custom <span>⌄</span></div></label>
-<div class="qc-cols"><label>Custom increment<div class="mono">10 0 0 0</div></label><label>Custom filter<div class="mono">* 2-4 - 2-6 * * * *</div></label></div>
-</main></div><p class="caption">Reconstitution pédagogique d'une fenêtre QMC. <code>VENTES_RAW</code> est un nom fictif.</p></section>
+<section id="comprendre"><em>01 — COMPRENDRE</em><h2>Les trois éléments d'une planification Custom</h2>
+<p>Dans la QMC, une planification <code>Custom</code> permet de combiner une fréquence avec des contraintes horaires et calendaires. Pour la construire correctement, il faut raisonner avec trois éléments : <strong>Start date/time</strong>, <strong>Custom increment</strong> et <strong>Custom filter</strong>.</p>
+<div class="qc-start-card"><small>START DATE / TIME · POINT DE DÉPART</small><b>06/10/2026 · 03:00</b><p>La date et l'heure à partir desquelles la planification commence.</p></div>
+<div class="qc-three">
+  <div><small>1 · INCREMENT</small><b>À quel rythme ?</b><p>Ex. toutes les 30 minutes.</p></div>
+  <div><small>2 · FILTER</small><b>Quand est-ce autorisé ?</b><p>Ex. entre 03h et 04h59, du mardi au samedi.</p></div>
+  <div><small>3 · RÉSULTAT</small><b>Quels déclenchements ?</b><p>Les instants produits par le rythme qui respectent le filtre.</p></div>
+</div>
+<div class="qc-key"><b>Le principe</b><span><strong>Start date/time</strong> fixe le départ, <strong>Increment</strong> définit la progression et <strong>Filter</strong> définit les conditions dans lesquelles la tâche peut être déclenchée.</span></div>
+</section>
 
-<section id="increment"><em>02 — CUSTOM INCREMENT</em><h2>Définir le rythme</h2>
-<p>Le <code>Custom increment</code> comporte quatre positions, séparées par des espaces.</p>
-<div class="qc-positions four"><div><b>10</b><span>Minutes</span></div><div><b>0</b><span>Heures</span></div><div><b>0</b><span>Jours</span></div><div><b>0</b><span>Semaines</span></div></div>
-<div class="qc-code"><header><span>TOUTES LES 10 MINUTES</span><button>⧉ Copier</button></header><pre><code>10 0 0 0</code></pre></div>
-<div class="qc-table"><b>Besoin</b><b>Increment</b><span>Toutes les 10 minutes</span><code>10 0 0 0</code><span>Toutes les 3 heures</span><code>0 3 0 0</code><span>Tous les 3 jours</span><code>0 0 3 0</code><span>Toutes les 2 semaines</span><code>0 0 0 2</code></div>
-<div class="qc-warn"><b>Attention</b> — les espaces sont des séparateurs obligatoires. Il faut bien conserver les quatre positions.</div></section>
+<section id="syntaxe"><em>02 — SYNTAXE</em><h2>Lire Increment et Filter sans se tromper</h2>
+<h3>Custom increment : 4 positions</h3>
+<div class="qc-positions four"><div><b>30</b><span>Minutes</span></div><div><b>0</b><span>Heures</span></div><div><b>0</b><span>Jours</span></div><div><b>0</b><span>Semaines</span></div></div>
+<div class="qc-code"><header><span>EXEMPLE · TOUTES LES 30 MINUTES</span><button>⧉ Copier</button></header><pre><code>30 0 0 0</code></pre></div>
+<p>Chaque position indique de combien avancer. Ainsi <code>45 0 0 0</code> signifie 45 minutes, <code>0 3 0 0</code> trois heures et <code>0 0 1 0</code> un jour. Avec l'Increment par défaut <code>0 0 0 0</code>, Qlik indique que la tâche n'est déclenchée qu'une fois.</p>
 
-<section id="filter"><em>03 — CUSTOM FILTER</em><h2>Définir la fenêtre autorisée</h2>
-<p>Le <code>Custom filter</code> comporte huit positions. Il permet de préciser les minutes, heures, jours de semaine, jours du mois et mois pendant lesquels l'exécution est autorisée.</p>
-<div class="qc-filter"><code>* &nbsp; 2-4 &nbsp; - &nbsp; 2-6 &nbsp; * &nbsp; * &nbsp; * &nbsp; *</code></div>
-<p class="qc-decode-intro">Les huit cellules ci-dessous décodent <strong>exactement l’exemple affiché au-dessus</strong>, position par position.</p>
+<h3>Custom filter : 8 positions</h3>
+<div class="qc-filter"><code>0,30 &nbsp; 3-4 &nbsp; - &nbsp; 2-6 &nbsp; * &nbsp; * &nbsp; * &nbsp; *</code></div>
 <div class="qc-positions eight qc-decode">
-<div><small>POSITION 1</small><b>*</b><span>Minute</span><p>Toutes les minutes</p></div>
-<div><small>POSITION 2</small><b>2-4</b><span>Heure</span><p>De 02h00 à 04h59</p></div>
+<div><small>POSITION 1</small><b>0,30</b><span>Minute</span><p>00 ou 30</p></div>
+<div><small>POSITION 2</small><b>3-4</b><span>Heure</span><p>03h00 à 04h59</p></div>
 <div><small>POSITION 3</small><b>-</b><span>Préfixe jour</span><p>Aucun préfixe</p></div>
-<div><small>POSITION 4</small><b>2-6</b><span>Jour semaine</span><p>Du mardi au samedi</p></div>
+<div><small>POSITION 4</small><b>2-6</b><span>Jour semaine</span><p>Mardi à samedi</p></div>
 <div><small>POSITION 5</small><b>*</b><span>Intervalle hebdo.</span><p>Toutes les semaines</p></div>
 <div><small>POSITION 6</small><b>*</b><span>Jour du mois</span><p>Pas de restriction</p></div>
 <div><small>POSITION 7</small><b>*</b><span>Mois</span><p>Tous les mois</p></div>
 <div><small>POSITION 8</small><b>*</b><span>Intervalle mensuel</span><p>Tous les mois</p></div>
 </div>
-<div class="qc-special"><b>Comment lire les valeurs spéciales ?</b><div><code>*</code><span>Toutes les valeurs / aucune restriction sur ce critère.</span></div><div><code>-</code><span>Préfixe de jour désactivé.</span></div><div><code>¤</code><span>Dernier : par exemple le dernier jour du mois ou, avec un préfixe de jour, la dernière occurrence concernée.</span></div></div>
-<div class="qc-warn"><b>Attention aux plages horaires</b> — pour une plage allant jusqu’à la fin de la journée, utilisez <code>23</code> comme borne haute. Par exemple <code>20-23</code> couvre les déclenchements de 20h00 à 23h59. Une borne de type <code>x-24</code> est rejetée par la QMC.</div></section>
+<div class="qc-special"><b>Repères de syntaxe</b>
+<div><code>*</code><span>Toutes les valeurs / aucune restriction sur cette position.</span></div>
+<div><code>,</code><span>Liste : <code>0,30</code> signifie minute 00 ou minute 30.</span></div>
+<div><code>-</code><span>Plage lorsqu'elle est utilisée entre deux valeurs : <code>3-4</code>. À la position WeekDayPrefix, <code>-</code> signifie aucun préfixe.</span></div>
+<div><code>¤</code><span>Dernier : par exemple le dernier jour du mois.</span></div>
+</div>
+<p>Les valeurs acceptées par Qlik sont : minutes de <code>0 à 59</code>, heures de <code>0 à 23</code>, jours de la semaine de <code>0 à 6</code> (dimanche = <code>0</code>), jours du mois de <code>1 à 31</code> et mois de <code>1 à 12</code>.</p>
+</section>
 
-<section id="combine"><em>04 — COMBINAISON</em><h2>Increment = rythme · Filter = fenêtre</h2>
-<div class="qc-formula"><div><small>RYTHME</small><b>10 0 0 0</b><span>Toutes les 10 min</span></div><strong>+</strong><div><small>FENÊTRE</small><b>* 2-4 - 2-6 * * * *</b><span>02h00–04h59 · mar.→sam.</span></div><strong>=</strong><div class="ok"><small>RÉSULTAT</small><b>Toutes les 10 min</b><span>dans la fenêtre autorisée</span></div></div>
-<div class="qc-code"><header><span>PARAMÉTRAGE COMPLET</span><button>⧉ Copier</button></header><pre><code>Custom increment
-10 0 0 0
+<section id="cas1"><em>03 — CAS PRATIQUE</em><h2>Du mardi au samedi, toutes les 30 minutes entre 03h00 et 04h59</h2>
+<p>C'est un cas typique de traitement nocturne : une fréquence régulière, une fenêtre de deux heures et seulement certains jours de la semaine.</p>
+<div class="qc-business">Besoin métier <b>Mar. → sam. · toutes les 30 min · 03h00 → 04h59</b></div>
+<div class="qc-qmc" aria-label="Reconstitution CSS de la fenêtre QMC">
+  <div class="qc-qmc-title">Trigger - Start on schedule</div>
+  <div class="qc-qmc-body">
+    <label>Trigger name <span class="qc-input wide">VENTES_RAW_NUIT</span></label><label class="qc-check">Enabled <span>✓</span></label>
+    <div class="qc-qmc-sep"></div>
+    <label>Time zone <span class="qc-input wide">(GMT+01:00) Brussels, Copenhagen, Madrid, Paris <i>⌄</i></span></label>
+    <label>Daylight saving time <span class="qc-input medium">Observe daylight saving time <i>⌄</i></span></label>
+    <div class="qc-qmc-sep"></div>
+    <div class="qc-qmc-row"><b>Start</b><span class="qc-input time">03:00</span><small>(hh:mm)</small><span class="qc-input date">2026-10-06</span><small>(YYYY-MM-DD)</small></div>
+    <div class="qc-qmc-sep"></div>
+    <div class="qc-qmc-schedule"><div><b>Schedule</b><span>○ Once</span><span>○ Hourly</span><span>○ Daily</span><span>○ Weekly</span><span>○ Monthly</span><span class="selected">◉ Custom</span></div><div><label>Custom increment<span class="qc-input mono">30 0 0 0</span></label><label>Custom filter<span class="qc-input mono">0,30 3-4 - 2-6 * * * *</span></label></div></div>
+    <div class="qc-qmc-sep"></div><div class="qc-qmc-row"><b>End</b><span class="qc-input time muted">00:00</span><span class="qc-input date muted">9999-01-01</span><span class="qc-infinite">☑ Infinite</span></div>
+  </div><div class="qc-qmc-actions"><button>Cancel</button><button>OK</button></div>
+</div>
+<div class="qc-config"><div><small>START DATE / TIME</small><b>Mardi · 03:00</b></div><div><small>INCREMENT</small><b>30 0 0 0</b></div><div><small>FILTER</small><b>0,30 3-4 - 2-6 * * * *</b></div></div>
+<div class="qc-timeline">
+<div><time>03:00</time><span>heure 3 · minute 00</span><b>✓ Déclenchement</b></div>
+<div><time>03:30</time><span>heure 3 · minute 30</span><b>✓ Déclenchement</b></div>
+<div><time>04:00</time><span>heure 4 · minute 00</span><b>✓ Déclenchement</b></div>
+<div><time>04:30</time><span>heure 4 · minute 30</span><b>✓ Déclenchement</b></div>
+<div class="no"><time>05:00</time><span>heure 5 hors fenêtre</span><b>× Non autorisé</b></div>
+</div>
+<div class="qc-week"><div class="off">Dim.<b>×</b></div><div class="off">Lun.<b>×</b></div><div>Mar.<b>✓</b></div><div>Mer.<b>✓</b></div><div>Jeu.<b>✓</b></div><div>Ven.<b>✓</b></div><div>Sam.<b>✓</b></div></div>
+<p>Ici, <code>2-6</code> correspond bien à mardi → samedi puisque Qlik numérote les jours de <code>0</code> (dimanche) à <code>6</code> (samedi).</p>
+</section>
 
-Custom filter
-* 2-4 - 2-6 * * * *</code></pre></div>
-<p>Les deux paramètres se complètent : l'increment fixe la périodicité ; le filter limite les moments pendant lesquels cette périodicité peut déclencher la tâche.</p></section>
+<section id="cas2"><em>04 — CAS PRATIQUE</em><h2>Du lundi au vendredi, toutes les 45 minutes entre 02h00 et 04h59</h2>
+<p>Ce cas montre pourquoi il faut distinguer la fréquence de la fenêtre. On veut un pas de 45 minutes, mais uniquement pendant les heures 2, 3 et 4 des jours ouvrés.</p>
+<div class="qc-business">Besoin métier <b>Lun. → ven. · toutes les 45 min · 02h00 → 04h59</b></div>
+<div class="qc-config"><div><small>START DATE / TIME</small><b>Lundi · 02:00</b></div><div><small>INCREMENT</small><b>45 0 0 0</b></div><div><small>FILTER</small><b>* 2-4 - 1-5 * * * *</b></div></div>
+<div class="qc-timeline">
+<div><time>02:00</time><span>dans la fenêtre</span><b>✓ Déclenchement</b></div>
+<div><time>02:45</time><span>+ 45 minutes</span><b>✓ Déclenchement</b></div>
+<div><time>03:30</time><span>+ 45 minutes</span><b>✓ Déclenchement</b></div>
+<div><time>04:15</time><span>+ 45 minutes</span><b>✓ Déclenchement</b></div>
+<div class="no"><time>05:00</time><span>heure 5 hors fenêtre</span><b>× Non autorisé</b></div>
+</div>
+<p>Le Filter commence par <code>*</code> : toutes les minutes sont admises. C'est l'Increment de 45 minutes qui produit ici <code>02:00 → 02:45 → 03:30 → 04:15</code>. Comme 45 minutes divise exactement 24 heures (32 pas), une Start à 02:00 retrouve le même alignement horaire le lendemain.</p>
+<div class="qc-note"><b>Pourquoi ne pas mettre une liste de minutes ?</b><span>Parce qu'une fréquence de 45 minutes ne correspond pas à deux minutes fixes de chaque heure : après 02:45 vient 03:30, puis 04:15. Le rythme appartient à l'Increment.</span></div>
+</section>
 
-<section id="exemples"><em>05 — EXEMPLES</em><h2>Quelques Custom filters à garder sous la main</h2>
-<div class="qc-examples">
-<div><span>Lundi → vendredi · 20h00 à 23h59</span><p><code>* 20-23 - 1-5 * * * *</code><button>⧉</button></p></div>
-<div><span>Premier lundi du mois · 02h00 à 04h59</span><p><code>* 2-4 1 1 * * * *</code><button>⧉</button></p></div>
-<div><span>Mardi → samedi · 02h00 à 04h59</span><p><code>* 2-4 - 2-6 * * * *</code><button>⧉</button></p></div>
-<div><span>Mardi → samedi · 01h00 à 03h59</span><p><code>* 1-3 - 2-6 * * * *</code><button>⧉</button></p></div>
-</div></section>
 
-<section id="memo"><em>06 — FICHE RÉFLEXE</em><h2>À retenir</h2><div class="qc-memo"><div><small>INCREMENT</small><b>4 positions</b><p>Minutes · Heures · Jours · Semaines</p></div><div><small>FILTER</small><b>8 positions</b><p>Décrit précisément la fenêtre autorisée.</p></div><div><small>MÉTHODE</small><b>Rythme + fenêtre</b><p>Écrire d'abord le besoin en français, puis traduire séparément les deux parties.</p></div></div></section>
+<section id="avances"><em>05 — CAS PRATIQUES AVANCÉS</em><h2>Trois scénarios métier directement transposables</h2>
+<p>Voici trois scénarios génériques que l'on rencontre souvent en exploitation BI. Chaque exemple montre le besoin métier, la saisie dans <strong>Trigger - Start on schedule</strong> et les déclenchements obtenus.</p>
+
+<div class="qc-scenario"><header><span>CAS A</span><div><b>Rafraîchir un datamart pendant la matinée</b><small>Du lundi au vendredi · toutes les 30 minutes · 07h00 à 09h59</small></div></header>
+<div class="qc-qmc compact"><div class="qc-qmc-title">Trigger - Start on schedule</div><div class="qc-qmc-body">
+<label>Trigger name <span class="qc-input wide">DATAMART_VENTES_MATIN</span></label><label class="qc-check">Enabled <span>✓</span></label>
+<div class="qc-qmc-sep"></div>
+<label>Time zone <span class="qc-input wide">(GMT+01:00) Brussels, Copenhagen, Madrid, Paris <i>⌄</i></span></label>
+<label>Daylight saving time <span class="qc-input medium">Observe daylight saving time <i>⌄</i></span></label>
+<div class="qc-qmc-sep"></div>
+<div class="qc-qmc-row"><b>Start</b><span class="qc-input time">07:00</span><small>(hh:mm)</small><span class="qc-input date">2026-10-05</span><small>(YYYY-MM-DD)</small></div>
+<div class="qc-qmc-sep"></div>
+<div class="qc-qmc-schedule"><div><b>Schedule</b><span>○ Once</span><span>○ Hourly</span><span>○ Daily</span><span>○ Weekly</span><span>○ Monthly</span><span class="selected">◉ Custom</span></div><div><label>Custom increment<span class="qc-input mono">30 0 0 0</span></label><label>Custom filter<span class="qc-input mono">0,30 7-9 - 1-5 * * * *</span></label></div></div>
+<div class="qc-qmc-sep"></div><div class="qc-qmc-row"><b>End</b><span class="qc-input time muted">00:00</span><span class="qc-input date muted">9999-01-01</span><span class="qc-infinite">☑ Infinite</span></div>
+</div><div class="qc-qmc-actions"><button>Cancel</button><button>OK</button></div></div>
+<div class="qc-track"><div class="on"><b>07:00</b><span>✓</span></div><i></i><div class="on"><b>07:30</b><span>✓</span></div><i></i><div class="on"><b>08:00</b><span>✓</span></div><i></i><div class="on"><b>08:30</b><span>✓</span></div><i></i><div class="on"><b>09:00</b><span>✓</span></div><i></i><div class="on"><b>09:30</b><span>✓</span></div><i></i><div class="off"><b>10:00</b><span>×</span></div></div>
+<p class="qc-explain">Un besoin fréquent en BI : rafraîchir plusieurs fois les données au début de la journée, puis arrêter les déclenchements une fois la fenêtre de consultation ouverte. L'Increment fixe le rythme de 30 minutes ; le Filter limite les candidats aux heures 7, 8 et 9, du lundi au vendredi.</p></div>
+
+<div class="qc-scenario"><header><span>CAS B</span><div><b>Contrôles de début de mois</b><small>Du 1er au 10 · toutes les 20 minutes · 04h00 à 05h59</small></div></header>
+<div class="qc-qmc compact"><div class="qc-qmc-title">Trigger - Start on schedule</div><div class="qc-qmc-body"><label>Trigger name <span class="qc-input wide">CONTROLES_DEBUT_MOIS</span></label><label class="qc-check">Enabled <span>✓</span></label><div class="qc-qmc-sep"></div><div class="qc-qmc-row"><b>Start</b><span class="qc-input time">04:00</span><small>(hh:mm)</small><span class="qc-input date">2026-10-01</span><small>(YYYY-MM-DD)</small></div><div class="qc-qmc-sep"></div><div class="qc-qmc-schedule"><div><b>Schedule</b><span>○ Once</span><span>○ Hourly</span><span>○ Daily</span><span>○ Weekly</span><span>○ Monthly</span><span class="selected">◉ Custom</span></div><div><label>Custom increment<span class="qc-input mono mark">20 0 0 0</span></label><label>Custom filter<span class="qc-input mono mark">0,20,40 4-5 - * * 1-10 * *</span></label></div></div></div><div class="qc-qmc-actions"><button>Cancel</button><button>OK</button></div></div>
+<div class="qc-track"><div class="on"><b>04:00</b><span>✓</span></div><i></i><div class="on"><b>04:20</b><span>✓</span></div><i></i><div class="on"><b>04:40</b><span>✓</span></div><i></i><div class="on"><b>05:00</b><span>✓</span></div><i></i><div class="on"><b>05:20</b><span>✓</span></div><i></i><div class="on"><b>05:40</b><span>✓</span></div><i></i><div class="off"><b>06:00</b><span>×</span></div></div></div>
+
+<div class="qc-scenario"><header><span>CAS C</span><div><b>Alimenter un tableau de bord trois matins par semaine</b><small>Lundi, mercredi, vendredi · toutes les 15 minutes · 06h00 à 06h59</small></div></header>
+<div class="qc-qmc compact"><div class="qc-qmc-title">Trigger - Start on schedule</div><div class="qc-qmc-body"><label>Trigger name <span class="qc-input wide">DASHBOARD_MATIN</span></label><label class="qc-check">Enabled <span>✓</span></label><div class="qc-qmc-sep"></div><div class="qc-qmc-row"><b>Start</b><span class="qc-input time">06:00</span><small>(hh:mm)</small><span class="qc-input date">2026-10-05</span><small>(YYYY-MM-DD)</small></div><div class="qc-qmc-sep"></div><div class="qc-qmc-schedule"><div><b>Schedule</b><span>○ Once</span><span>○ Hourly</span><span>○ Daily</span><span>○ Weekly</span><span>○ Monthly</span><span class="selected">◉ Custom</span></div><div><label>Custom increment<span class="qc-input mono mark">15 0 0 0</span></label><label>Custom filter<span class="qc-input mono mark">0,15,30,45 6 - 1,3,5 * * * *</span></label></div></div></div><div class="qc-qmc-actions"><button>Cancel</button><button>OK</button></div></div>
+<div class="qc-week"><div class="off">Dim.<b>×</b></div><div>Lun.<b>✓</b></div><div class="off">Mar.<b>×</b></div><div>Mer.<b>✓</b></div><div class="off">Jeu.<b>×</b></div><div>Ven.<b>✓</b></div><div class="off">Sam.<b>×</b></div></div></div>
+</section>
+
+<section id="calendrier"><em>06 — AUTRES CAS UTILES</em><h2>Traduire des besoins calendaires courants</h2>
+<div class="qc-recipes">
+<div><h3>Premier lundi de chaque mois</h3><p>Évaluer chaque jour et n'autoriser que le premier lundi.</p><code>Increment : 0 0 1 0</code><code>Filter : * * 1 1 * * * *</code></div>
+<div><h3>Dernier jour de chaque mois</h3><p>Qlik évalue dynamiquement le dernier jour, y compris selon la longueur du mois.</p><code>Increment : 0 0 1 0</code><code>Filter : * * - * * ¤ * *</code></div>
+<div><h3>Lundi et mercredi chaque semaine</h3><p>Les jours autorisés sont listés dans la position WeekDay.</p><code>Increment : 0 0 1 0</code><code>Filter : * * - 1,3 * * * *</code></div>
+<div><h3>Dernier jour de l'année</h3><p>Dernier jour du mois, limité au mois de décembre.</p><code>Increment : 0 0 1 0</code><code>Filter : * * - * * ¤ 12 *</code></div>
+</div>
+</section>
+
+<section id="methode"><em>07 — MÉTHODE</em><h2>Construire une Custom Task à partir du besoin</h2>
+<div class="qc-method">
+<div><b>1</b><span><strong>Écrire le besoin en français.</strong> Jours, fenêtre horaire et fréquence.</span></div>
+<div><b>2</b><span><strong>Choisir Start date/time.</strong> Elle doit correspondre au point de départ voulu.</span></div>
+<div><b>3</b><span><strong>Écrire l'Increment.</strong> C'est le rythme : 30 min, 45 min, 1 jour…</span></div>
+<div><b>4</b><span><strong>Écrire le Filter.</strong> Ce sont les conditions d'autorisation : heures, jours, mois…</span></div>
+<div><b>5</b><span><strong>Dérouler quelques instants.</strong> Vérifier sur papier les premiers candidats et les changements de jour.</span></div>
+</div>
+<div class="qc-key"><b>La bonne question</b><span>Ne demandez pas seulement « que signifie mon Filter ? », mais <strong>« quels instants mon Start + Increment vont-ils produire, et lesquels mon Filter autorisera-t-il ? »</strong></span></div>
+</section>
+
+<section id="pieges"><em>08 — PIÈGES À CONNAÎTRE</em><h2>Les erreurs classiques</h2>
+<div class="qc-pitfalls">
+<div><b>Confondre fréquence et minutes de l'heure</b><p><code>45 0 0 0</code> signifie ajouter 45 minutes. Ce n'est pas « à :00 et :45 de chaque heure ».</p></div>
+<div><b>Oublier l'alignement de la Start</b><p>Un Filter peut être valide tout en ne rencontrant jamais les instants générés par la Start et l'Increment.</p></div>
+<div><b>Utiliser un Increment trop grand avec un Filter</b><p>Qlik avertit notamment qu'une Start à 12:15, un Increment d'un jour et un Filter limité à 11:15–11:59 ne déclencheront jamais la tâche.</p></div>
+<div><b>Oublier les 8 positions</b><p>Les espaces séparent les positions du Filter. Il ne faut pas ajouter d'espaces à l'intérieur d'une position.</p></div>
+</div>
+</section>
+
+<section id="memo"><em>09 — FICHE RÉFLEXE</em><h2>À retenir</h2>
+<div class="qc-memo"><div><small>START DATE / TIME</small><b>Le départ</b><p>Date et heure à partir desquelles la planification commence.</p></div><div><small>INCREMENT</small><b>Le rythme</b><p>4 positions : minutes · heures · jours · semaines.</p></div><div><small>FILTER</small><b>Les conditions</b><p>8 positions qui définissent quand la tâche peut être déclenchée.</p></div></div>
+<div class="qc-cheat">
+<b>Lecture rapide du Filter</b>
+<code>Minute · Heure · WeekDayPrefix · WeekDay · WeeklyInterval · DayOfMonth · Month · MonthlyInterval</code>
+<span>Jour de semaine : 0 = dimanche · 1 = lundi · … · 6 = samedi</span>
+</div>
+</section>
 </article>
 <script is:inline>
 document.querySelectorAll('.qc-code button,.qc-examples button').forEach(b=>b.addEventListener('click',async()=>{const c=b.closest('.qc-code,.qc-examples>div')?.querySelector('code');if(!c)return;try{await navigator.clipboard.writeText(c.textContent||'')}catch{const t=document.createElement('textarea');t.value=c.textContent||'';document.body.appendChild(t);t.select();document.execCommand('copy');t.remove()}const x=b.textContent;b.textContent='✓';b.classList.add('copied');setTimeout(()=>{b.textContent=x;b.classList.remove('copied')},1400)}));
 </script>
-
-<RelatedContent links={[
-  { href: '/articles?find=DELTA', kind: 'Articles', title: 'Chargements incrémentaux', description: "Retrouver les retours d'expérience liés aux traitements planifiés." }
-]} />
+<RelatedContent links={[{ href: '/articles?find=DELTA', kind: 'Articles', title: 'Chargements incrémentaux', description: "Retrouver les retours d'expérience liés aux traitements planifiés." }]} />
 </BaseLayout>
