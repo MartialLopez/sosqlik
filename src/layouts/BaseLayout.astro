@@ -7,6 +7,8 @@ const {
   title = 'SOSBI',
   description = 'Astuces, tutoriels et retours d’expérience autour de Qlik.'
 } = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, 'https://sosbi.fr');
 ---
 <!doctype html>
 <html lang="fr">
@@ -14,6 +16,7 @@ const {
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width" />
   <meta name="description" content={description} />
+  <link rel="canonical" href={canonicalURL} />
   <meta name="theme-color" content="#ffffff" />
   <link rel="icon" href="/favicon.svg" />
   <title>{title}</title>
