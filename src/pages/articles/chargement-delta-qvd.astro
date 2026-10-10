@@ -75,11 +75,13 @@ GROUP BY ID_COMMANDE;</code></pre></div>
     <thead><tr><th>Mode de chargement</th><th>Durée observée</th></tr></thead>
     <tbody>
       <tr><td>FULL</td><td><strong>31 minutes</strong></td></tr>
-      <tr><td>DELTA</td><td><strong>6 minutes</strong></td></tr>
-      <tr><td><strong>Gain</strong></td><td><strong>25 minutes (80,6 %)</strong></td></tr>
+      <tr><td>DELTA (préparation Oracle comprise)</td><td><strong>6 minutes</strong></td></tr>
+      <tr><td>↳ Dont génération de la liste DELTA et CTAS du snapshot côté Oracle</td><td><strong>2 min 30 s, incluses dans les 6 min</strong></td></tr>
+      <tr><td><strong>Gain total</strong></td><td><strong>25 minutes (80,6 %)</strong></td></tr>
     </tbody>
   </table>
-  <p class="delta-benchmark-caveat">Ces durées sont les valeurs arrondies du benchmark réalisé dans notre environnement. Elles illustrent le gain observé sur cette volumétrie, sans constituer une garantie de performance pour d’autres bases, infrastructures ou proportions de données modifiées.</p>
+  <p class="delta-benchmark-caveat">Les <strong>2 min 30 s</strong> de préparation Oracle (génération de la liste des objets DELTA et création du snapshot par <code>CTAS</code>) sont <strong>déjà comprises</strong> dans les <strong>6 minutes</strong> du traitement DELTA complet. Elles ne s’ajoutent donc pas à ce total.</p>
+  <p class="delta-benchmark-caveat">Les durées FULL et DELTA sont les valeurs arrondies du benchmark réalisé dans notre environnement. Elles illustrent le gain observé sur cette volumétrie, sans constituer une garantie de performance pour d’autres bases, infrastructures ou proportions de données modifiées.</p>
 </div>
 <p>Les exemples suivants utilisent Oracle, mais les principes s’appliquent également à d’autres SGBD, avec leurs mécanismes et leurs syntaxes propres.</p></section>
 
